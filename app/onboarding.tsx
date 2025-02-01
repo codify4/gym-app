@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, Dimensions, Platform, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import Animated, { 
-  FadeIn,
   SlideInRight,
   SlideOutLeft,
-  FadeOut,
-  runOnJS
+  SlideInLeft,
+  SlideOutRight
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 
@@ -21,6 +20,7 @@ interface OnboardingData {
 const Onboarding = () => {
   const [step, setStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'forward' | 'backward'>('forward');
   const [formData, setFormData] = useState<OnboardingData>({
     name: '',
     goal: '',
@@ -64,15 +64,26 @@ const Onboarding = () => {
     if (!isValidInput || isAnimating) return;
 
     if (step < slides.length - 1) {
+      setSlideDirection('forward');
       setIsAnimating(true);
       setTimeout(() => {
         setStep(step + 1);
         setIsAnimating(false);
-      }, 300); // Wait for exit animation to complete
+      }, 300);
     } else {
-      console.log('Completed onboarding with data:', formData);
       router.push('/home');
     }
+  };
+
+  const prevStep = () => {
+    if (isAnimating || step === 0) return;
+
+    setSlideDirection('backward');
+    setIsAnimating(true);
+    setTimeout(() => {
+      setStep(step - 1);
+      setIsAnimating(false);
+    }, 300);
   };
 
   return (
@@ -97,8 +108,8 @@ const Onboarding = () => {
         {/* Question and Input */}
         <Animated.View 
           key={step}
-          entering={SlideInRight.duration(300)}
-          exiting={SlideOutLeft.duration(300)}
+          entering={slideDirection === 'forward' ? SlideInRight.duration(300) : SlideInLeft.duration(300)}
+          exiting={slideDirection === 'forward' ? SlideOutLeft.duration(300) : SlideOutRight.duration(300)}
           className='flex-1'
         >
           <View className='space-y-8'>
@@ -127,8 +138,8 @@ const Onboarding = () => {
           </View>
         </Animated.View>
 
-        {/* Next Button */}
-        <View className='mb-12'>
+        {/* Buttons */}
+        <View className='mb-12 gap-4'>
           <TouchableOpacity
             onPress={nextStep}
             className={`py-4 rounded-full w-full items-center ${
@@ -144,6 +155,19 @@ const Onboarding = () => {
               {step === slides.length - 1 ? 'Get Started' : 'Next'}
             </Text>
           </TouchableOpacity>
+
+          {step > 0 && (
+            <TouchableOpacity
+              onPress={prevStep}
+              className={`py-4 rounded-full w-full items-center 
+                border border-neutral-600 bg-neutral-800/50`}
+              disabled={isAnimating}
+            >
+              <Text className='text-lg font-medium text-white'>
+                Back
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </KeyboardAvoidingView>
