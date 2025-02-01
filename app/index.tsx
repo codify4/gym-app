@@ -1,70 +1,63 @@
-import React from 'react';
-import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
+import { View, Image, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+
+const { width, height } = Dimensions.get('window');
 
 const Welcome = () => {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48' }}
-        resizeMode="cover"
-        style={styles.background}
-      />
+    <View className='flex-1'>
+      <View className='absolute w-full h-full'>
+        <Image
+          source={{ uri: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48' }}
+          resizeMode="cover"
+          className='w-full h-full'
+        />
+        {/* Dark overlay for better text visibility */}
+        <View className='absolute w-full h-full bg-black/50' />
+      </View>
       
-      <View style={styles.overlay}>
-        <Text style={styles.title}>Workout Mate</Text>
-        <Text style={styles.subtitle}>Your Personal Fitness Journey</Text>
-        <TouchableOpacity
-          onPress={() => router.push({pathname: '/onboarding'})}
-          className='bg-black py-4 px-8 rounded-full'
+      <View className='flex-1 justify-between pt-20 pb-16 px-6 z-50'>
+        {/* Top Section */}
+        <Animated.View 
+          entering={FadeInDown.duration(1000).delay(300)}
+          className='items-center'
         >
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
+          <Text className='text-white text-2xl font-semibold mb-2'>Welcome to</Text>
+          <Text className='text-white text-8xl font-bold tracking-wider'>
+            Workout
+          </Text>
+          <Text className='text-white text-8xl font-bold tracking-wider mb-4'>
+            Mate
+          </Text>
+        </Animated.View>
+
+        {/* Bottom Section */}
+        <Animated.View 
+          entering={FadeInUp.duration(1000).delay(600)}
+          className='space-y-6'
+        >
+          <View className='space-y-4'>
+            <Text className='text-white text-3xl font-bold text-center'>
+              Your Personal Fitness Journey
+            </Text>
+            <Text className='text-gray-200 text-center text-lg'>
+              Track workouts, set goals, and achieve your fitness dreams with a personalized experience
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => router.push({pathname: '/onboarding'})}
+            className='bg-white py-4 rounded-full w-full items-center mt-5'
+          >
+            <Text className='text-black text-xl font-semibold'>Get Started</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  background: {
-    flex: 1,
-    width: '100%',
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
-    paddingBottom: 50,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: 'white',
-    marginBottom: 30,
-  },
-  button: {
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    backgroundColor: '#000',
-  },
-  buttonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-});
 
 export default Welcome;
