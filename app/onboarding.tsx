@@ -1,112 +1,153 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Dimensions } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import { View, Text, Dimensions, Platform, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import { TextInput } from 'react-native-paper';
 import Animated, { 
-  useSharedValue,
-  withSpring,
-  useAnimatedStyle,
+  FadeIn,
+  SlideInRight,
+  SlideOutLeft,
+  FadeOut,
+  runOnJS
 } from 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
-import { Redirect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
+interface OnboardingData {
+  name: string;
+  goal: string;
+  frequency: string;
+}
+
 const Onboarding = () => {
   const [step, setStep] = useState(0);
-  const slideAnim = useSharedValue(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [formData, setFormData] = useState<OnboardingData>({
+    name: '',
+    goal: '',
+    frequency: ''
+  });
   const router = useRouter();
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0;
 
   const slides = [
     {
       title: "What's your name?",
-      input: "name",
       placeholder: "Enter your name",
+      field: 'name' as keyof OnboardingData,
+      validation: (value: string) => value.length >= 2
     },
     {
       title: "What's your fitness goal?",
-      input: "goal",
       placeholder: "e.g., Build muscle, Lose weight",
+      field: 'goal' as keyof OnboardingData,
+      validation: (value: string) => value.length >= 3
     },
     {
       title: "How often do you work out?",
-      input: "frequency",
       placeholder: "e.g., 3 times a week",
+      field: 'frequency' as keyof OnboardingData,
+      validation: (value: string) => value.length >= 3
     },
   ];
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: slideAnim.value }],
-  }));
+  const currentValue = formData[slides[step].field];
+  const isValidInput = slides[step].validation(currentValue);
+
+  const handleInputChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [slides[step].field]: value
+    }));
+  };
 
   const nextStep = () => {
+    if (!isValidInput || isAnimating) return;
+
     if (step < slides.length - 1) {
-      slideAnim.value = withSpring(-width * (step + 1));
-      setStep(step + 1);
+      setIsAnimating(true);
+      setTimeout(() => {
+        setStep(step + 1);
+        setIsAnimating(false);
+      }, 300); // Wait for exit animation to complete
     } else {
-      router.push({pathname: '/home'});
+      console.log('Completed onboarding with data:', formData);
+      router.push('/home');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.slidesContainer, animatedStyle]}>
-        {slides.map((slide, index) => (
-          <View key={index} style={styles.slide}>
-            <Text style={styles.title}>{slide.title}</Text>
+    <KeyboardAvoidingView 
+      className='flex-1 bg-neutral-900' 
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={keyboardVerticalOffset}
+    >
+      <View className='flex-1 px-6 pt-20'>
+        {/* Progress Indicator */}
+        <View className='flex-row justify-between mb-12 px-2'>
+          {slides.map((_, index) => (
+            <View 
+              key={index} 
+              className={`h-1.5 rounded-full flex-1 mx-1 ${
+                index <= step ? 'bg-white' : 'bg-neutral-700'
+              }`}
+            />
+          ))}
+        </View>
+
+        {/* Question and Input */}
+        <Animated.View 
+          key={step}
+          entering={SlideInRight.duration(300)}
+          exiting={SlideOutLeft.duration(300)}
+          className='flex-1'
+        >
+          <View className='space-y-8'>
+            <Text className='text-white text-4xl font-bold tracking-wider'>
+              {slides[step].title}
+            </Text>
+            
             <TextInput
               mode="outlined"
-              placeholder={slide.placeholder}
-              style={styles.input}
-              theme={{ colors: { primary: '#FF4757' } }}
+              value={currentValue}
+              onChangeText={handleInputChange}
+              placeholder={slides[step].placeholder}
+              placeholderTextColor="#9ca3af"
+              className='bg-neutral-800 rounded-2xl text-lg'
+              style={{ height: 60 }}
+              theme={{
+                colors: {
+                  primary: 'white',
+                  text: 'white',
+                  placeholder: '#9ca3af',
+                  background: '#262626'
+                }
+              }}
+              autoFocus
             />
           </View>
-        ))}
-      </Animated.View>
-      <Button
-        mode="contained"
-        onPress={nextStep}
-        style={styles.button}
-        labelStyle={styles.buttonText}
-      >
-        {step === slides.length - 1 ? 'Get Started' : 'Next'}
-      </Button>
-    </View>
+        </Animated.View>
+
+        {/* Next Button */}
+        <View className='mb-12'>
+          <TouchableOpacity
+            onPress={nextStep}
+            className={`py-4 rounded-full w-full items-center ${
+              isValidInput && !isAnimating ? 'bg-white' : 'bg-neutral-700'
+            }`}
+            disabled={!isValidInput || isAnimating}
+          >
+            <Text 
+              className={`text-xl font-semibold ${
+                isValidInput && !isAnimating ? 'text-black' : 'text-neutral-400'
+              }`}
+            >
+              {step === slides.length - 1 ? 'Get Started' : 'Next'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1A1A1A',
-  },
-  slidesContainer: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  slide: {
-    width,
-    padding: 20,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 30,
-  },
-  input: {
-    backgroundColor: '#2A2A2A',
-  },
-  button: {
-    margin: 20,
-    padding: 8,
-    borderRadius: 30,
-    backgroundColor: '#FF4757',
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
 
 export default Onboarding;
