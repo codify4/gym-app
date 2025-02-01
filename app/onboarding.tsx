@@ -102,17 +102,16 @@ const Onboarding = () => {
           className='flex-1'
         >
           <View className='space-y-8'>
-            <Text className='text-white text-4xl font-bold tracking-wider'>
+            <Text className='text-white text-4xl font-bold tracking-wider mb-3'>
               {slides[step].title}
             </Text>
             
             <TextInput
-              mode="outlined"
+              mode='outlined'
               value={currentValue}
               onChangeText={handleInputChange}
               placeholder={slides[step].placeholder}
               placeholderTextColor="#9ca3af"
-              className='bg-neutral-800 rounded-2xl text-lg'
               style={{ height: 60 }}
               theme={{
                 colors: {
@@ -120,7 +119,8 @@ const Onboarding = () => {
                   text: 'white',
                   placeholder: '#9ca3af',
                   background: '#262626'
-                }
+                },
+                roundness: 10
               }}
               autoFocus
             />
