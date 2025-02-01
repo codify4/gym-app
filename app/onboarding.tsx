@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Dimensions, Platform, KeyboardAvoidingView, TouchableOpacity, ScrollView } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import { View, Text, Dimensions, Platform, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
 import Animated, { 
   SlideInRight,
   SlideOutLeft,
@@ -8,24 +7,30 @@ import Animated, {
   SlideOutRight
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-
-const { width } = Dimensions.get('window');
+import { OnboardingInput } from '../components/onboarding-flow';
+import { slides } from '@/constants/slides';
 
 interface OnboardingData {
   name: string;
+  birthDate: string;
+  height: string;
+  weight: string;
   goal: string;
+  min: string;
+  max: string;
   frequency: string;
   experience: string;
 }
+type SlideType = 'text' | 'choice' | 'date' | 'number';
 
-type SlideType = 'text' | 'choice';
-
-interface Slide {
+export interface Slide {
   type: SlideType;
   title: string;
   field: keyof OnboardingData;
   placeholder?: string;
   choices?: string[];
+  min?: number;
+  max?: number;
   validation: (value: string) => boolean;
 }
 
@@ -35,58 +40,18 @@ const Onboarding = () => {
   const [slideDirection, setSlideDirection] = useState<'forward' | 'backward'>('forward');
   const [formData, setFormData] = useState<OnboardingData>({
     name: '',
+    birthDate: '',
+    height: '',
+    weight: '',
     goal: '',
     frequency: '',
-    experience: ''
+    experience: '',
+    min: (0).toString(),
+    max: (999).toString()
   });
   const router = useRouter();
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0;
 
-  const slides: Slide[] = [
-    {
-      type: 'text',
-      title: "What's your name?",
-      field: 'name',
-      placeholder: "Enter your name",
-      validation: (value: string) => value.length >= 2
-    },
-    {
-      type: 'choice',
-      title: "What's your experience level?",
-      field: 'experience',
-      choices: [
-        "Beginner - New to working out",
-        "Intermediate - Some experience",
-        "Advanced - Regular workout routine",
-        "Expert - Years of experience"
-      ],
-      validation: (value: string) => value.length > 0
-    },
-    {
-      type: 'choice',
-      title: "What's your fitness goal?",
-      field: 'goal',
-      choices: [
-        "Build Muscle - Gain strength and size",
-        "Lose Weight - Burn fat and get lean",
-        "Stay Fit - Maintain current fitness",
-        "Improve Health - Better overall wellness"
-      ],
-      validation: (value: string) => value.length > 0
-    },
-    {
-      type: 'choice',
-      title: "How often do you work out?",
-      field: 'frequency',
-      choices: [
-        "2-3 times per week",
-        "3-4 times per week",
-        "4-5 times per week",
-        "6+ times per week"
-      ],
-      validation: (value: string) => value.length > 0
-    },
-  ];
 
   const currentSlide = slides[step];
   const currentValue = formData[currentSlide.field];
@@ -125,58 +90,6 @@ const Onboarding = () => {
     }, 300);
   };
 
-  const renderInput = () => {
-    if (currentSlide.type === 'text') {
-      return (
-        <TextInput
-          mode='outlined'
-          value={currentValue}
-          onChangeText={handleInputChange}
-          placeholder={currentSlide.placeholder}
-          placeholderTextColor="#9ca3af"
-          style={{ height: 60 }}
-          theme={{
-            colors: {
-              primary: 'white',
-              text: 'white',
-              placeholder: '#9ca3af',
-              background: '#262626'
-            },
-            roundness: 10
-          }}
-          autoFocus
-        />
-      );
-    }
-
-    return (
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        className='space-y-3'
-      >
-        {currentSlide.choices?.map((choice, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => handleInputChange(choice)}
-            className={`px-4 py-5 mt-4 rounded-xl border ${
-              currentValue === choice 
-                ? 'bg-white border-white' 
-                : 'border-neutral-700 bg-neutral-800/50'
-            }`}
-          >
-            <Text 
-              className={`text-lg font-medium ${
-                currentValue === choice ? 'text-black' : 'text-white'
-              }`}
-            >
-              {choice}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    );
-  };
-
   return (
     <KeyboardAvoidingView 
       className='flex-1 bg-neutral-900' 
@@ -208,7 +121,11 @@ const Onboarding = () => {
               {currentSlide.title}
             </Text>
             
-            {renderInput()}
+            <OnboardingInput
+              slide={currentSlide}
+              value={currentValue}
+              onChangeText={handleInputChange}
+            />
           </View>
         </Animated.View>
 
