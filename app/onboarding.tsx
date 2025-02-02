@@ -117,7 +117,7 @@ const Onboarding = () => {
           className='flex-1'
         >
           <View className='flex-1 space-y-8'>
-            <Text className='text-white text-4xl font-bold tracking-wider mb-3'>
+            <Text className='text-white text-4xl tracking-wider mb-3 font-poppins-semibold'>
               {currentSlide.title}
             </Text>
             
@@ -139,7 +139,7 @@ const Onboarding = () => {
             disabled={!isValidInput || isAnimating}
           >
             <Text 
-              className={`text-xl font-semibold ${
+              className={`text-xl font-poppins-semibold ${
                 isValidInput && !isAnimating ? 'text-black' : 'text-neutral-400'
               }`}
             >
@@ -154,7 +154,7 @@ const Onboarding = () => {
                 border border-neutral-600 bg-neutral-800/50`}
               disabled={isAnimating}
             >
-              <Text className='text-lg font-medium text-white'>
+              <Text className='text-lg text-white font-poppins-semibold'>
                 Back
               </Text>
             </TouchableOpacity>

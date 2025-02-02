@@ -33,6 +33,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                 onChangeText={onChangeText}
                 placeholder={slide.placeholder}
                 placeholderTextColor="#9ca3af"
+                placeholderClassName='font-poppins'
                 style={{ height: 60 }}
                 theme={{
                 colors: {
@@ -66,7 +67,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                     onPress={() => setDatePickerVisibility(true)}
                     className='px-4 py-5 rounded-xl border border-neutral-700 bg-neutral-800/50 w-full'
                 >
-                    <Text className='text-lg font-medium text-white'>
+                    <Text className='text-lg text-white font-poppins'>
                         {formattedDate}
                     </Text>
                 </TouchableOpacity>
@@ -107,7 +108,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                     onPress={() => setShowPicker(true)}
                     className='px-4 py-5 rounded-xl border border-neutral-700 bg-neutral-800/50 w-full'
                 >
-                    <Text className='text-lg font-medium text-white'>
+                    <Text className='text-lg text-white font-poppins'>
                         {formattedValue}
                     </Text>
                 </TouchableOpacity>
@@ -124,13 +125,13 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                                     onPress={() => setShowPicker(false)}
                                     className='px-4 py-2'
                                 >
-                                    <Text className='text-neutral-400 text-lg'>Cancel</Text>
+                                    <Text className='text-neutral-400 text-lg font-poppins'>Cancel</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     onPress={() => setShowPicker(false)}
                                     className='px-4 py-2'
                                 >
-                                    <Text className='text-white text-lg font-medium'>Confirm</Text>
+                                    <Text className='text-white text-lg font-medium font-poppins'>Confirm</Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -176,7 +177,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                         }`}
                     >
                         <Text 
-                            className={`text-lg font-medium ${
+                            className={`text-lg font-poppins-medium ${
                                 value === choice ? 'text-black' : 'text-white'
                             }`}
                         >

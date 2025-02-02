@@ -25,11 +25,11 @@ const Welcome = () => {
           entering={FadeInDown.duration(1000).delay(300)}
           className='items-center'
         >
-          <Text className='text-white text-2xl font-semibold mb-2'>Welcome to</Text>
-          <Text className='text-white text-8xl font-bold tracking-wider'>
+          <Text className='text-white text-2xl mb-2 font-poppins-medium'>Welcome to</Text>
+          <Text className='text-white text-8xl tracking-wider font-poppins-semibold'>
             Workout
           </Text>
-          <Text className='text-white text-8xl font-bold tracking-wider mb-4'>
+          <Text className='text-white text-8xl tracking-wider mb-4 font-poppins-semibold'>
             Mate
           </Text>
         </Animated.View>
@@ -40,10 +40,10 @@ const Welcome = () => {
           className='space-y-6'
         >
           <View className='space-y-4'>
-            <Text className='text-white text-3xl font-bold text-center'>
+            <Text className='text-white text-3xl font-bold text-center font-poppins-medium'>
               Your Personal Fitness Journey
             </Text>
-            <Text className='text-gray-200 text-center text-lg'>
+            <Text className='text-gray-200 text-center text-lg font-poppins'>
               Track workouts, set goals, and achieve your fitness dreams with a personalized experience
             </Text>
           </View>
@@ -52,7 +52,7 @@ const Welcome = () => {
             onPress={() => router.push({pathname: '/onboarding'})}
             className='bg-white py-4 rounded-full w-full items-center mt-5'
           >
-            <Text className='text-black text-xl font-semibold'>Get Started</Text>
+            <Text className='text-black text-xl font-semibold font-poppins'>Get Started</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
