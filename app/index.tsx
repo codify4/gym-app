@@ -49,7 +49,7 @@ const Welcome = () => {
           </View>
 
           <TouchableOpacity
-            onPress={() => router.push({pathname: '/onboarding'})}
+            onPress={() => router.push({pathname: '/(tabs)/home'})}
             className='bg-white py-4 rounded-full w-full items-center mt-5'
           >
             <Text className='text-black text-xl font-semibold font-poppins'>Get Started</Text>

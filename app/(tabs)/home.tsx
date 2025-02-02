@@ -54,13 +54,6 @@ const Home = () => {
           ))}
         </Card.Content>
       </Card>
-
-      <View style={styles.navbar}>
-        <Ionicons name="home" size={24} color="#FF4757" />
-        <Ionicons name="barbell-outline" size={24} color="white" />
-        <Ionicons name="calendar-outline" size={24} color="white" />
-        <Ionicons name="bulb-outline" size={24} color="white" />
-      </View>
     </SafeAreaView>
   );
 };

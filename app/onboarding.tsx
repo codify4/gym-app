@@ -116,7 +116,7 @@ const Onboarding = () => {
           exiting={slideDirection === 'forward' ? SlideOutLeft.duration(300) : SlideOutRight.duration(300)}
           className='flex-1'
         >
-          <View className='flex-1 space-y-8'>
+          <View className='flex-1 space-y-8 mt-32'>
             <Text className='text-white text-4xl tracking-wider mb-3 font-poppins-semibold'>
               {currentSlide.title}
             </Text>
