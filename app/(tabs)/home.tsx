@@ -1,68 +1,63 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Avatar, Card, Button } from 'react-native-paper';
 import { userProfile, dummyWorkouts, monthlyStats } from '@/constants/data';
 import { Ionicons } from '@expo/vector-icons';
 
 const Home = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Avatar.Image size={50} source={{ uri: userProfile.avatar }} />
-        <Text style={styles.username}>{userProfile.username}</Text>
-      </View>
-
-      <Card style={styles.workoutCard}>
-        <Card.Cover
-          source={{ uri: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b' }}
-          style={styles.workoutImage}
-        />
-        <View style={styles.workoutOverlay}>
-          <Text style={styles.workoutTitle}>Today's Workout</Text>
-          <Text style={styles.workoutSubtitle}>Chest</Text>
-          <Button
-            mode="contained"
-            onPress={() => {}}
-            style={styles.startButton}
-            labelStyle={styles.buttonText}
-          >
-            Start workout
-          </Button>
+    <SafeAreaView className='flex-1 bg-neutral-800'>
+      <ScrollView className='h-full'>
+        <View className='flex flex-row items-center p-4 gap-4'>
+          <Avatar.Image size={50} source={{ uri: userProfile.avatar }} className='bg-black' />
+          <Text className='text-white text-2xl font-poppins-semibold'>{userProfile.username}</Text>
         </View>
-      </Card>
 
-      <Card style={styles.exercisesCard}>
-        <Card.Title title="My Workouts" titleStyle={styles.cardTitle} />
-        <Card.Content>
-          {dummyWorkouts[0].exercises.map((exercise, index) => (
-            <View key={index} style={styles.exerciseRow}>
-              <Text style={styles.exerciseName}>{exercise.name}</Text>
-              <Text style={styles.exerciseSets}>{exercise.sets}</Text>
-            </View>
-          ))}
-        </Card.Content>
-      </Card>
+        <Card style={styles.workoutCard}>
+          <Card.Cover
+            source={{ uri: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b' }}
+            style={styles.workoutImage}
+          />
+          <View>
+            <Text className='text-white text-3xl font-poppins-bold'>Today's Workout</Text>
+            <Text className='text-white text-lg font-poppins-semibold'>Chest</Text>
+            <TouchableOpacity
+              className='bg-white rounded-full w-full px-4 py-4 items-center justify-center'
+            >
+              <Text className='text-xl font-poppins-semibold'>Start workout</Text>
+            </TouchableOpacity>
+          </View>
+        </Card>
 
-      <Card style={styles.statsCard}>
-        <Card.Title title="This Month" titleStyle={styles.cardTitle} />
-        <Card.Content style={styles.statsContainer}>
-          {monthlyStats.map((stat, index) => (
-            <View key={index} style={styles.statItem}>
-              <Text style={styles.statCount}>{stat.count}</Text>
-              <Text style={styles.statLabel}>{stat.category}</Text>
-            </View>
-          ))}
-        </Card.Content>
-      </Card>
+        <Card style={styles.exercisesCard}>
+          <Card.Title title="My Workouts" titleStyle={styles.cardTitle} />
+          <Card.Content>
+            {dummyWorkouts[0].exercises.map((exercise, index) => (
+              <View key={index} style={styles.exerciseRow}>
+                <Text style={styles.exerciseName}>{exercise.name}</Text>
+                <Text style={styles.exerciseSets}>{exercise.sets}</Text>
+              </View>
+            ))}
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.statsCard}>
+          <Card.Title title="This Month" titleStyle={styles.cardTitle} />
+          <Card.Content style={styles.statsContainer}>
+            {monthlyStats.map((stat, index) => (
+              <View key={index} style={styles.statItem}>
+                <Text style={styles.statCount}>{stat.count}</Text>
+                <Text style={styles.statLabel}>{stat.category}</Text>
+              </View>
+            ))}
+          </Card.Content>
+        </Card>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1A1A1A',
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
