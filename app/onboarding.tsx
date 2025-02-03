@@ -75,7 +75,7 @@ const Onboarding = () => {
         setIsAnimating(false);
       }, 300);
     } else {
-      router.push('/home');
+      router.push('/(tabs)/home');
     }
   };
 

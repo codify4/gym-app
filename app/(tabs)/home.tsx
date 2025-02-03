@@ -1,166 +1,76 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
-import { Avatar, Card, Button } from 'react-native-paper';
-import { userProfile, dummyWorkouts, monthlyStats } from '@/constants/data';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, FlatList } from 'react-native';
+import { Avatar } from 'react-native-paper';
+import { userProfile, dummyWorkouts, monthlyStats, Workout, Exercise } from '@/constants/data';
+
+const WorkoutCard = ({ workout }: { workout: Workout }) => (
+  <View className="bg-neutral-700 rounded-2xl p-4 mr-4 w-80">
+    <Text className='font-poppins-semibold text-white text-3xl mb-3'>{workout.title}</Text>
+    {workout.exercises.map((exercise, exerciseIndex) => (
+      <View key={exerciseIndex} className="flex-row justify-between items-center w-full bg-neutral-800 rounded-xl py-3 px-4 mb-2">
+        <Text className="text-white text-xl font-poppins-medium">{exercise.name}</Text>
+        <Text className="text-white text-xl font-poppins-medium">{exercise.sets}</Text>
+      </View>
+    ))}
+  </View>
+);
 
 const Home = () => {
   return (
-    <SafeAreaView className='flex-1 bg-neutral-800'>
-      <ScrollView className='h-full'>
-        <View className='flex flex-row items-center p-4 gap-4'>
-          <Avatar.Image size={50} source={{ uri: userProfile.avatar }} className='bg-black' />
-          <Text className='text-white text-2xl font-poppins-semibold'>{userProfile.username}</Text>
+    <SafeAreaView className="flex-1 bg-neutral-900">
+      <ScrollView className="flex-1 px-6">
+        {/* User Profile */}
+        <View className="flex-row items-center mt-6 mb-8">
+          <Avatar.Image size={48} source={{ uri: userProfile.avatar }} className="bg-white rounded-full" />
+          <Text className="text-white text-2xl font-poppins-semibold ml-4">{userProfile.username}</Text>
         </View>
 
-        <Card style={styles.workoutCard}>
-          <Card.Cover
-            source={{ uri: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b' }}
-            style={styles.workoutImage}
-          />
-          <View>
-            <Text className='text-white text-3xl font-poppins-bold'>Today's Workout</Text>
-            <Text className='text-white text-lg font-poppins-semibold'>Chest</Text>
-            <TouchableOpacity
-              className='bg-white rounded-full w-full px-4 py-4 items-center justify-center'
-            >
-              <Text className='text-xl font-poppins-semibold'>Start workout</Text>
+        {/* Today's Workout Card */}
+        <View className="bg-neutral-800 rounded-3xl mb-8">
+          <View className="relative">
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b' }} 
+              className="w-full h-48 rounded-t-3xl"
+              resizeMode="cover"
+            />
+            <Text className="absolute bottom-4 right-4 text-white text-3xl font-poppins-bold">Chest</Text>
+          </View>
+          <View className="p-6">
+            <Text className="text-white text-2xl font-poppins-semibold mb-4">Today's Workout</Text>
+            <TouchableOpacity className="bg-black rounded-full py-4">
+              <Text className="text-white text-center text-lg font-poppins-semibold">Start workout</Text>
             </TouchableOpacity>
           </View>
-        </Card>
+        </View>
 
-        <Card style={styles.exercisesCard}>
-          <Card.Title title="My Workouts" titleStyle={styles.cardTitle} />
-          <Card.Content>
-            {dummyWorkouts[0].exercises.map((exercise, index) => (
-              <View key={index} style={styles.exerciseRow}>
-                <Text style={styles.exerciseName}>{exercise.name}</Text>
-                <Text style={styles.exerciseSets}>{exercise.sets}</Text>
-              </View>
-            ))}
-          </Card.Content>
-        </Card>
+        {/* My Workouts Section */}
+        <View className="mb-8 bg-neutral-800 rounded-3xl p-6">
+          <Text className="text-white text-4xl font-poppins-bold mb-4">My Workouts</Text>
+          <FlatList
+            data={dummyWorkouts}
+            renderItem={({ item }) => <WorkoutCard workout={item} />}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerClassName='flex gap-5 w-full'
+          />
+        </View>
 
-        <Card style={styles.statsCard}>
-          <Card.Title title="This Month" titleStyle={styles.cardTitle} />
-          <Card.Content style={styles.statsContainer}>
+        {/* This Month Stats */}
+        <View className="mb-8">
+          <Text className="text-white text-2xl font-poppins-semibold mb-4">This Month</Text>
+          <View className="flex-row justify-between">
             {monthlyStats.map((stat, index) => (
-              <View key={index} style={styles.statItem}>
-                <Text style={styles.statCount}>{stat.count}</Text>
-                <Text style={styles.statLabel}>{stat.category}</Text>
+              <View key={index} className="bg-neutral-800 rounded-3xl py-6 px-4 flex-1 mx-1.5 items-center">
+                <Text className="text-white text-4xl font-poppins-bold mb-1">{stat.count}</Text>
+                <Text className="text-white text-lg font-poppins-medium">{stat.category}</Text>
               </View>
             ))}
-          </Card.Content>
-        </Card>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-  },
-  username: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  workoutCard: {
-    margin: 20,
-    backgroundColor: '#2A2A2A',
-    borderRadius: 15,
-    overflow: 'hidden',
-  },
-  workoutImage: {
-    height: 200,
-  },
-  workoutOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  workoutTitle: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  workoutSubtitle: {
-    color: 'white',
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  startButton: {
-    backgroundColor: '#FF4757',
-    borderRadius: 30,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  exercisesCard: {
-    margin: 20,
-    backgroundColor: '#2A2A2A',
-    borderRadius: 15,
-  },
-  cardTitle: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  exerciseRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#3A3A3A',
-  },
-  exerciseName: {
-    color: 'white',
-    fontSize: 16,
-  },
-  exerciseSets: {
-    color: '#FF4757',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  statsCard: {
-    margin: 20,
-    backgroundColor: '#2A2A2A',
-    borderRadius: 15,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statCount: {
-    color: '#FF4757',
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    color: 'white',
-    fontSize: 14,
-    marginTop: 5,
-  },
-  navbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#2A2A2A',
-    padding: 20,
-    borderRadius: 30,
-    margin: 20,
-  },
-});
 
 export default Home;
