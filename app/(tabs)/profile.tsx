@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, ScrollView, Switch, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useAuth } from '@/context/auth';
-import { Settings, Lock, Bell, ChevronRight } from 'lucide-react-native';
+import { Settings, Lock, Bell, ChevronRight, LogOut } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { signOut } from '@/lib/auth-lib';
 
 const Profile = () => {
   const { session } = useAuth();
@@ -103,6 +104,17 @@ const Profile = () => {
             </View>
           </View>
         ))}
+
+        {/* Logout */}      
+        <View className="mt-4 bg-neutral-800 rounded-2xl overflow-hidden">
+          <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={signOut}>
+              <View className="flex-row items-center">
+                  <LogOut size={24} color="red" />
+                  <Text style={{color: 'red'}} className="text-lg ml-3">Logout</Text>
+              </View>
+              <ChevronRight size={24} color="red" />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
