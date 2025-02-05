@@ -58,8 +58,3 @@ export const monthlyStats: MonthlyStats[] = [
   { category: "Arm Days", count: 4 },
   { category: "Leg Days", count: 1 },
 ];
-
-export const userProfile: UserProfile = {
-  username: "John Doe",
-  avatar: "https://api.dicebear.com/7.x/initials/png?seed=JD",
-};
