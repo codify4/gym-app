@@ -79,7 +79,7 @@ const TabsLayout = () => {
                 title: 'Privacy Policy',
                 headerShown: true,
                 headerStyle: {
-                    backgroundColor: '#121212',
+                    backgroundColor: '#171717',
                 },
                 headerTitleStyle: {
                     color: '#fff',
@@ -101,7 +101,7 @@ const TabsLayout = () => {
                 title: 'ToS',
                 headerShown: true,
                 headerStyle: {
-                    backgroundColor: '#121212',
+                    backgroundColor: '#171717',
                 },
                 headerTitleStyle: {
                     color: '#fff',
@@ -123,7 +123,7 @@ const TabsLayout = () => {
                 title: 'Settings',
                 headerShown: true,
                 headerStyle: {
-                    backgroundColor: '#121212',
+                    backgroundColor: '#171717',
                 },
                 headerTitleStyle: {
                     color: '#fff',
