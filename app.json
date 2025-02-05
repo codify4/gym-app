@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "WorkoutMate",
-    "slug": "WorkoutMate",
+    "slug": "workout-mate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
-    "scheme": "myapp",
+    "scheme": "workoutmate",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

@@ -4,8 +4,12 @@ import { Avatar } from 'react-native-paper';
 import { userProfile, dummyWorkouts, monthlyStats } from '@/constants/data';
 import { Flame, Bell, PlayCircle } from 'lucide-react-native';
 import WorkoutCard from '@/components/workout-card';
+import { supabase } from '@/lib/supabase';
 
 const Home = () => {
+  async function signOut() {
+    const { error } = await supabase.auth.signOut()
+  }
   return (
     <SafeAreaView className="flex-1 bg-neutral-900">
       <ScrollView 
@@ -36,7 +40,7 @@ const Home = () => {
           </View>
           <View className="p-6">
             <Text className="text-white text-2xl font-poppins-semibold mb-4">Today's Workout</Text>
-            <TouchableOpacity className="bg-black rounded-full py-4">
+            <TouchableOpacity className="bg-black rounded-full py-4" onPress={signOut}>
               <View className="flex-row justify-center items-center">
                 <Text className="text-white text-center text-xl font-poppins-semibold mr-2">Start workout</Text>
                 <PlayCircle size={24} color="white" />

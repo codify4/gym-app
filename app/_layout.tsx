@@ -1,15 +1,51 @@
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import React from 'react';
 import { Provider as PaperProvider } from 'react-native-paper';
+import { AuthProvider, useAuth } from '@/context/auth';
 import "../global.css";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+function RootLayoutNav() {
+  const { session, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+
+    const inAuthGroup = segments[0] === '(tabs)';
+    const isOnboarding = segments[0] === 'onboarding';
+    const isSignin = segments[0] === 'signin';
+
+    if (session && !inAuthGroup) {
+      // Signed in, redirect to home
+      router.replace('/(tabs)/home');
+    } else if (!session && !isOnboarding && !isSignin) {
+      // Not signed in and not on welcome/onboarding/signin, redirect to welcome
+      router.replace('/');
+    }
+  }, [session, loading, segments]);
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="index" />
+      <Stack.Screen name='signin' />
+      <Stack.Screen name="onboarding" />
+      <Stack.Screen name="(tabs)" />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -33,18 +69,11 @@ export default function RootLayout() {
   }
 
   return (
-    <PaperProvider>
+    <AuthProvider>
+      <PaperProvider>
         <StatusBar />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="index" />
-          <Stack.Screen name='signin' />
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-    </PaperProvider>
+        <RootLayoutNav />
+      </PaperProvider>
+    </AuthProvider>
   );
 }

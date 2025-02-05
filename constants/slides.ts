@@ -2,13 +2,6 @@ import { Slide } from "@/app/onboarding";
 
 export const slides: Slide[] = [
   {
-    type: 'text',
-    title: "What's your name?",
-    field: 'name',
-    placeholder: "Enter your name",
-    validation: (value: string) => value.length >= 2
-  },
-  {
     type: 'date',
     title: "When's your birthday?",
     field: 'birthDate',

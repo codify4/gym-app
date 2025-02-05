@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Dimensions, Platform, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import { View, Text, Platform, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
 import Animated, { 
   SlideInRight,
   SlideOutLeft,
@@ -9,6 +9,7 @@ import Animated, {
 import { useRouter } from 'expo-router';
 import { OnboardingInput } from '../components/onboarding-flow';
 import { slides } from '@/constants/slides';
+import { useAuth } from '@/context/auth';
 
 interface OnboardingData {
   name: string;
@@ -21,6 +22,7 @@ interface OnboardingData {
   frequency: string;
   experience: string;
 }
+
 type SlideType = 'text' | 'choice' | 'date' | 'number';
 
 export interface Slide {
@@ -50,8 +52,15 @@ const Onboarding = () => {
     max: (999).toString()
   });
   const router = useRouter();
+  const { session } = useAuth();
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 50 : 0;
 
+  // If we already have a session, redirect to home
+  React.useEffect(() => {
+    if (session) {
+      router.replace('/(tabs)/home');
+    }
+  }, [session]);
 
   const currentSlide = slides[step];
   const currentValue = formData[currentSlide.field];
@@ -75,7 +84,8 @@ const Onboarding = () => {
         setIsAnimating(false);
       }, 300);
     } else {
-      router.push('/(tabs)/home');
+      // When onboarding is complete, go to sign in
+      router.push('/signin');
     }
   };
 
