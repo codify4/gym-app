@@ -4,6 +4,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Dumbbell } from 'lucide-react-native';
 
 const { height } = Dimensions.get('window');
 
@@ -25,7 +26,7 @@ const Signin = () => {
             <View className='flex-1 justify-between items-center px-6'>
                 <View className='flex flex-col items-center mt-6'>
                     <View className='bg-white/10 p-3 rounded-full mb-4'>
-                        <Ionicons name="barbell-outline" size={32} color="white" />
+                        <Dumbbell size={30} color="white" />
                     </View>
                     <Text className='text-white text-3xl font-poppins-semibold'>Welcome to</Text>
                     <Text className='text-white text-5xl font-poppins-bold'>Workout Mate</Text>
