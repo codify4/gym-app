@@ -35,6 +35,22 @@ export const dummyWorkouts: Workout[] = [
       { name: "Lat Pulldowns", sets: "3x15" },
     ],
   },
+  {
+    title: "Leg Day",
+    exercises: [
+      { name: "Squats", sets: "3x10" },
+      { name: "Leg Press", sets: "3x12" },
+      { name: "Leg Extensions", sets: "3x15" },
+    ],
+  },
+  {
+    title: "Bicep Day",
+    exercises: [
+      { name: "Hammer Curls", sets: "3x10" },
+      { name: "Cabel Curls", sets: "3x12" },
+      { name: "Preacher Curls", sets: "3x15" },
+    ]
+  }
 ];
 
 export const monthlyStats: MonthlyStats[] = [
