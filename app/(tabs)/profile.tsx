@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Switch, TouchableOpacity, SafeAreaView } from '
 import { Avatar } from 'react-native-paper';
 import { useAuth } from '@/context/auth';
 import { Settings, Lock, Bell, ChevronRight } from 'lucide-react-native';
+import { router } from 'expo-router';
 
 const Profile = () => {
   const { session } = useAuth();
@@ -30,9 +31,9 @@ const Profile = () => {
     {
       title: 'Other',
       items: [
-        { title: 'Privacy Policy', icon: Lock },
-        { title: 'Terms and Services', icon: Lock },
-        { title: 'Settings', icon: Settings },
+        { title: 'Privacy Policy', icon: Lock, path: '/(tabs)/(settings)/privacy-policies' as const },
+        { title: 'Terms and Services', icon: Lock, path: '/(tabs)/(settings)/terms-and-services' as const },
+        { title: 'Settings', icon: Settings, path: '/(tabs)/(settings)/settings' as const },
       ],
     },
   ];
@@ -81,6 +82,7 @@ const Profile = () => {
                   <TouchableOpacity 
                     key={index}
                     className="flex-row items-center justify-between p-4 border-b border-neutral-700 last:border-b-0"
+                    onPress={() => router.push(item.path)}
                   >
                     <View className="flex-row items-center">
                       <item.icon size={24} color="white" />

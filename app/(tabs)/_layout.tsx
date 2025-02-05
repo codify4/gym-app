@@ -1,5 +1,7 @@
-import { Home, Dumbbell, Lightbulb, ChartLine } from 'lucide-react-native'
-import { Tabs } from 'expo-router'
+import { Home, Dumbbell, Lightbulb, ChartLine, ArrowBigLeft, ChevronLeft } from 'lucide-react-native'
+import { router, Tabs } from 'expo-router'
+import { TouchableOpacity } from 'react-native'
+import React from 'react'
 
 const TabsLayout = () => {
   return (
@@ -68,6 +70,72 @@ const TabsLayout = () => {
             name='profile' 
             options={{
                 href: null
+            }}
+        />
+        <Tabs.Screen 
+            name='(settings)/privacy-policies' 
+            options={{
+                href: null,
+                title: 'Privacy Policy',
+                headerShown: true,
+                headerStyle: {
+                    backgroundColor: '#121212',
+                },
+                headerTitleStyle: {
+                    color: '#fff',
+                    fontSize: 18,
+                    fontWeight: '600',
+                },
+                headerShadowVisible: false,
+                headerLeft: () => (
+                <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
+                    <ChevronLeft size={30} color={'#fff'} />
+                </TouchableOpacity>
+                ),
+            }}
+        />
+        <Tabs.Screen 
+            name='(settings)/terms-and-services' 
+            options={{
+                href: null,
+                title: 'ToS',
+                headerShown: true,
+                headerStyle: {
+                    backgroundColor: '#121212',
+                },
+                headerTitleStyle: {
+                    color: '#fff',
+                    fontSize: 18,
+                    fontWeight: '600',
+                },
+                headerShadowVisible: false,
+                headerLeft: () => (
+                <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
+                    <ChevronLeft size={30} color={'#fff'} />
+                </TouchableOpacity>
+                ),
+            }}
+        />
+        <Tabs.Screen 
+            name='(settings)/settings' 
+            options={{
+                href: null,
+                title: 'Settings',
+                headerShown: true,
+                headerStyle: {
+                    backgroundColor: '#121212',
+                },
+                headerTitleStyle: {
+                    color: '#fff',
+                    fontSize: 18,
+                    fontWeight: '600',
+                },
+                headerShadowVisible: false,
+                headerLeft: () => (
+                <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
+                    <ChevronLeft size={30} color={'#fff'} />
+                </TouchableOpacity>
+                ),
             }}
         />
 
