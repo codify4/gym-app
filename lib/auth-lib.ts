@@ -48,3 +48,7 @@ export const performOAuth = async () => {
       await createSessionFromUrl(url);
     }
 };
+
+export async function signOut() {
+    const { error } = await supabase.auth.signOut()
+}
