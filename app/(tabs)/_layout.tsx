@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons'
+import { Home, Dumbbell, Calendar, Lightbulb, CalendarDays, ChartLine } from 'lucide-react-native'
 import { Tabs } from 'expo-router'
 
 const TabsLayout = () => {
@@ -12,7 +12,8 @@ const TabsLayout = () => {
                 position: 'absolute',
                 borderTopColor: '#1A1A1A',
                 borderTopWidth: 1,
-                minHeight: 70
+                minHeight: 70,
+                alignContent: 'center',
             },
             tabBarActiveTintColor: '#fff',
         }}
@@ -20,28 +21,33 @@ const TabsLayout = () => {
         <Tabs.Screen name='home' options={{
             title: 'Home',
             tabBarIcon: ({ color, size }) => (
-                <Ionicons name='home' color={color} size={size} />
-            )
+                <Home color={color} size={size} />
+            ),
+            tabBarItemStyle: {
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }
         }} />
 
         <Tabs.Screen name='routine' options={{
             title: 'Routine',
             tabBarIcon: ({ color, size }) => (
-                <Ionicons name='barbell-sharp' color={color} size={size} />
+                <Dumbbell color={color} size={size} />
             )
         }} />
 
-        <Tabs.Screen name='calendar' options={{
-            title: 'Calendar',
+        <Tabs.Screen name='stats' options={{
+            title: 'Stats',
             tabBarIcon: ({ color, size }) => (
-                <Ionicons name='calendar-outline' color={color} size={size} />
+                <ChartLine color={color} size={size} />
             )
         }} />
 
         <Tabs.Screen name='suggest' options={{
             title: 'Suggestions',
             tabBarIcon: ({ color, size }) => (
-                <Ionicons name='bulb-outline' color={color} size={size} />
+                <Lightbulb color={color} size={size} />
             )
         }} />
 

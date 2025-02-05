@@ -1,10 +1,10 @@
 import { View, Text, SafeAreaView } from 'react-native'
 
-const Calendar = () => {
+const Stats = () => {
   return (
     <SafeAreaView className='bg-neutral-900 flex-1'>
-      <Text className='text-white text-2xl font-poppins-semibold'>Calendar</Text>
+      <Text className='text-white text-2xl font-poppins-semibold'>Stats</Text>
     </SafeAreaView>
   )
 }
-export default Calendar
+export default Stats
