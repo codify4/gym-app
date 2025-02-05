@@ -1,6 +1,7 @@
 import { View, Image, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { ChevronRight } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,10 +27,10 @@ const Welcome = () => {
           className='items-center'
         >
           <Text className='text-white text-2xl mb-2 font-poppins-medium'>Welcome to</Text>
-          <Text className='text-white text-8xl tracking-wider font-poppins-semibold'>
+          <Text className='text-white text-8xl tracking-wider font-poppins-bold'>
             Workout
           </Text>
-          <Text className='text-white text-8xl tracking-wider mb-4 font-poppins-semibold'>
+          <Text className='text-white text-8xl tracking-wider mb-4 font-poppins-bold'>
             Mate
           </Text>
         </Animated.View>
@@ -50,9 +51,16 @@ const Welcome = () => {
 
           <TouchableOpacity
             onPress={() => router.push('/onboarding')}
-            className='bg-white py-4 rounded-full w-full items-center mt-5'
+            className='flex flex-row justify-center bg-white py-4 rounded-full w-full items-center mt-5'
           >
-            <Text className='text-black text-xl font-semibold font-poppins'>Get Started</Text>
+            <Text className='text-black text-xl font-semibold font-poppins mr-2'>Get Started</Text>
+            <ChevronRight size={24} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/signin')}
+            className='bg-black py-4 rounded-full w-full items-center mt-5'
+          >
+            <Text className='text-white underline text-xl font-semibold font-poppins'>Already have an account</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>

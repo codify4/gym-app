@@ -1,4 +1,3 @@
-import { signOut } from '@/lib/auth-lib'
 import { PlayCircle } from 'lucide-react-native'
 import { View, Text, Image, TouchableOpacity } from 'react-native'
 
@@ -19,7 +18,7 @@ const TodayWorkout = () => {
             </View>
             <View className="p-6">
                 <Text className="text-white text-2xl font-poppins-semibold mb-4">Today's Workout</Text>
-                <TouchableOpacity className="bg-black rounded-full py-4" onPress={signOut}>
+                <TouchableOpacity className="bg-black rounded-full py-4">
                     <View className="flex-row justify-center items-center">
                         <Text className="text-white text-center text-xl font-poppins-semibold mr-2">Start workout</Text>
                         <PlayCircle size={24} color="white" />
