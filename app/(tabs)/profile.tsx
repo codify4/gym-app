@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, Switch, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, Switch, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useAuth } from '@/context/auth';
 import { Settings, Lock, Bell, ChevronRight, LogOut } from 'lucide-react-native';
@@ -10,6 +10,7 @@ const Profile = () => {
   const { session } = useAuth();
   const user = session?.user;
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const platform = Platform.OS;
 
   const stats = [
     { label: 'Height', value: '180cm' },
@@ -40,7 +41,7 @@ const Profile = () => {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-900">
+    <SafeAreaView className={`flex-1 bg-neutral-900 ${platform === 'ios' ? '' : 'pt-5'}`}>
       <ScrollView 
         className="flex-1" 
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 60 }}

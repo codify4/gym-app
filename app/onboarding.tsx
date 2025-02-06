@@ -103,7 +103,7 @@ const Onboarding = () => {
   return (
     <KeyboardAvoidingView 
       className='flex-1 bg-neutral-900' 
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={'padding'}
       keyboardVerticalOffset={keyboardVerticalOffset}
     >
       <View className='flex-1 px-6 pt-20'>

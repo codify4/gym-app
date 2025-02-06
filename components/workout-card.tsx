@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { Workout } from '@/constants/data';
 import { Target } from 'lucide-react-native';
 import { getWorkoutIcon } from '@/utils/workout-icon';
@@ -7,9 +7,10 @@ import { getWorkoutIcon } from '@/utils/workout-icon';
 const WorkoutCard = ({ workout }: { workout: Workout }) => {
 
   const Icon = getWorkoutIcon(workout.title);
+  const platform = Platform.OS;
 
   return (
-    <View className="bg-neutral-700 rounded-2xl p-4 mr-4 w-96">
+    <View className={`bg-neutral-700 rounded-2xl p-4 mr-4 ${platform === 'ios' ? 'w-96' : 'w-80'}`}>
       <View className="flex-row justify-between items-center mb-3">
         <Text className='font-poppins-semibold text-white text-3xl'>{workout.title}</Text>
         <Icon size={24} color="#ffffff" />

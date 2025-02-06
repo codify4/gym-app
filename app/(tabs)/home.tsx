@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, FlatList } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, FlatList, Platform } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { dummyWorkouts } from '@/constants/data';
 import { Bell } from 'lucide-react-native';
@@ -12,9 +12,10 @@ import { router } from 'expo-router';
 const Home = () => {
   const { session } = useAuth();
   const user = session?.user;
+  const platform = Platform.OS;
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-900">
+    <SafeAreaView className={`flex-1 bg-neutral-900 ${platform === 'ios' ? '' : 'pt-5'}`}>
       <ScrollView 
         className="flex-1" 
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 60 }}

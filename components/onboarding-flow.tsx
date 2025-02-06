@@ -86,6 +86,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                     minimumDate={new Date(1900, 0, 1)}
                     buttonTextColorIOS='white'
                     className='w-full bg-neutral-800'
+                    timePickerModeAndroid='spinner'
                 />
             </View>
         );
@@ -142,6 +143,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                                         onChangeText(itemValue.toString());
                                     }}
                                     style={{ color: 'white' }}
+                                    renderToHardwareTextureAndroid
                                 >
                                     {numbers.map((num) => (
                                         <Picker.Item 

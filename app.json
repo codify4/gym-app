@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "workoutmate",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#000000",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
@@ -14,7 +15,12 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
+      },
+      "navigationBarColor": "#121212",
+      "statusBar": {
+        "backgroundColor": "#121212",
+        "barStyle": "light-content"
       }
     },
     "web": {
@@ -30,7 +36,7 @@
           "image": "./assets/images/logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#000000"
         }
       ]
     ],

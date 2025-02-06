@@ -8,6 +8,7 @@ import React from 'react';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { AuthProvider, useAuth } from '@/context/auth';
 import "../global.css";
+import { setBackgroundColorAsync } from "expo-navigation-bar";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -58,6 +59,10 @@ export default function RootLayout() {
     'poppins-extrabold': require('@/assets/fonts/Poppins-ExtraBold.ttf'),
   });
 
+  useEffect(()=>{
+    setBackgroundColorAsync("#121212");
+  });
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -71,7 +76,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <PaperProvider>
-        <StatusBar />
+        <StatusBar style='light'/>
         <RootLayoutNav />
       </PaperProvider>
     </AuthProvider>
