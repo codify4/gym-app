@@ -10,7 +10,7 @@ const WorkoutCard = ({ workout }: { workout: Workout }) => {
   const platform = Platform.OS;
 
   return (
-    <View className={`bg-neutral-700 rounded-2xl p-4 mr-4 ${platform === 'ios' ? 'w-96' : 'w-80'}`}>
+    <View className={`bg-neutral-700 rounded-2xl p-4 mr-4 ${platform === 'ios' ? 'w-96' : 'w-[305px]'}`}>
       <View className="flex-row justify-between items-center mb-3">
         <Text className='font-poppins-semibold text-white text-3xl'>{workout.title}</Text>
         <Icon size={24} color="#ffffff" />
