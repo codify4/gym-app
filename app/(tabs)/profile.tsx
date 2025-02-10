@@ -5,6 +5,7 @@ import { useAuth } from '@/context/auth';
 import { Settings, Lock, Bell, ChevronRight, LogOut } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { signOut } from '@/lib/auth-lib';
+import Animated, { SlideInRight } from 'react-native-reanimated';
 
 const Profile = () => {
   const { session } = useAuth();
@@ -41,7 +42,12 @@ const Profile = () => {
   ];
 
   return (
-    <SafeAreaView className={`flex-1 bg-neutral-900 ${platform === 'ios' ? '' : 'pt-5'}`}>
+    <SafeAreaView className={`flex-1 bg-neutral-900 pt-5`}>
+      <Animated.View
+        className={`flex-1 bg-neutral-900`}
+        key={4}
+        entering={SlideInRight}
+      >
       <ScrollView 
         className="flex-1" 
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 60 }}
@@ -117,6 +123,7 @@ const Profile = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </Animated.View>
     </SafeAreaView>
   );
 };
