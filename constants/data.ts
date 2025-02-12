@@ -1,3 +1,5 @@
+import { Flame, LucideIcon } from "lucide-react-native";
+
 export interface Exercise {
   name: string;
   sets: string;
@@ -8,9 +10,10 @@ export interface Workout {
   exercises: Exercise[];
 }
   
-export interface MonthlyStats {
+export interface Stats {
   category: string;
   count: number;
+  icon: LucideIcon;
 }
 
 interface UserProfile {
@@ -53,8 +56,14 @@ export const dummyWorkouts: Workout[] = [
   }
 ];
 
-export const monthlyStats: MonthlyStats[] = [
-  { category: "Chest Days", count: 5 },
-  { category: "Arm Days", count: 4 },
-  { category: "Leg Days", count: 1 },
+export const monthlyStats: Stats[] = [
+  { category: "Chest Days", count: 5, icon: Flame },
+  { category: "Arm Days", count: 4, icon: Flame },
+  { category: "Leg Days", count: 1, icon: Flame },
+];
+
+export const allTimeStats: Stats[] = [
+  { category: "Workouts", count: 12, icon: Flame },
+  { category: "Time", count: 10, icon: Flame },
+  { category: "Calories", count: 2300, icon: Flame },
 ];

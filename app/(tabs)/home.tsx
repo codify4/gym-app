@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, FlatList, Platform } from 'react-native';
 import { Avatar } from 'react-native-paper';
-import { dummyWorkouts } from '@/constants/data';
+import { dummyWorkouts, monthlyStats } from '@/constants/data';
 import { Bell } from 'lucide-react-native';
 import WorkoutCard from '@/components/workout-card';
-import WorkoutStreak from '@/components/workout-streak';
+import WorkoutStreak from '@/components/statistics';
 import TodayWorkout from '@/components/today-workout';
 import { useAuth } from '@/context/auth';
 import { router } from 'expo-router';
+import Statistics from '@/components/statistics';
 
 const Home = () => {
   const { session } = useAuth();
@@ -46,7 +47,7 @@ const Home = () => {
           />
         </View>
 
-        <WorkoutStreak />
+        <Statistics stats={monthlyStats} title="This Month" />
       </ScrollView>
     </SafeAreaView>
   );
