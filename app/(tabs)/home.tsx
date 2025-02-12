@@ -47,7 +47,7 @@ const Home = () => {
           />
         </View>
 
-        <Statistics stats={monthlyStats} title="This Month" />
+        <Statistics stats={monthlyStats} title="This Month" screen='home' />
       </ScrollView>
     </SafeAreaView>
   );

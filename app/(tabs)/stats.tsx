@@ -73,7 +73,7 @@ const Stats = () => {
             Stats
           </Text>
           
-          <View className="bg-neutral-800 rounded-3xl w-full mb-4 overflow-hidden">
+          <View className="bg-neutral-800 rounded-3xl w-full mb-4 p-4 overflow-hidden">
             <Calendar
               theme={{
                 calendarBackground: '#262626',
@@ -121,9 +121,8 @@ const Stats = () => {
             </View>
           </View>
 
-          <View className='flex items-center justify-center gap-2 bg-neutral-800 rounded-3xl w-full mb-4 overflow-hidden p-4'>
-            <Text className="text-white text-2xl font-poppins-semibold mb-2">All time stats</Text>
-            <Statistics stats={allTimeStats} />
+          <View className='bg-neutral-800 rounded-3xl px-4 py-5 mb-8'>
+            <Statistics stats={allTimeStats} title="All Time Stats" screen='stats' />
           </View>
         </View>
       </ScrollView>
