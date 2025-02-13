@@ -1,45 +1,40 @@
-'use client';
+"use client"
 
-import Statistics from '@/components/statistics';
-import { allTimeStats } from '@/constants/data';
-import { useState } from 'react';
-import { View, Text, SafeAreaView, Dimensions, ScrollView } from 'react-native';
-import { Platform } from 'react-native';
-import { Calendar } from 'react-native-calendars';
-import { LineChart } from 'react-native-chart-kit';
+import { useState } from "react"
+import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { LineChart } from "react-native-chart-kit"
+import { Calendar } from "react-native-calendars"
+import { Dumbbell, Flame, type LucideIcon, Plus, TrendingUp } from "lucide-react-native"
 
-const screenWidth = Dimensions.get('window').width;
+const { width: screenWidth } = Dimensions.get("window")
 
 const Stats = () => {
-  const platform = Platform.OS;
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState("")
 
   const workoutDates = {
-    '2025-02-01': {selected: true, selectedColor: '#FF3737'},
-    '2025-02-02': {selected: true, selectedColor: '#FF3737'},
-    '2025-02-03': {selected: true, selectedColor: '#FF3737'},
-    '2025-02-05': {selected: true, selectedColor: '#FF3737'},
-    '2025-02-06': {selected: true, selectedColor: '#FF3737'},
-    '2025-02-07': {selected: true, selectedColor: '#FF3737'},
-    '2025-02-09': {selected: true, selectedColor: '#FF3737'},
-    '2025-02-10': {selected: true, selectedColor: '#FF3737'},
-  };
+    "2025-02-01": { selected: true, selectedColor: "#FF3737" },
+    "2025-02-03": { selected: true, selectedColor: "#FF3737" },
+    "2025-02-05": { selected: true, selectedColor: "#FF3737" },
+    "2025-02-07": { selected: true, selectedColor: "#FF3737" },
+    "2025-02-09": { selected: true, selectedColor: "#FF3737" },
+  }
 
   const weightData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
     datasets: [
       {
-        data: [75, 65, 70, 63, 80, 65],
+        data: [68, 69, 70, 72, 73, 71],
         color: (opacity = 1) => `rgba(255, 55, 55, ${opacity})`,
-        strokeWidth: 3
-      }
-    ]
-  };
-  
+        strokeWidth: 4,
+      },
+    ],
+  }
+
   const chartConfig = {
-    backgroundColor: '#262626',
-    backgroundGradientFrom: '#262626',
-    backgroundGradientTo: '#262626',
+    backgroundColor: '#171717',
+    backgroundGradientFrom: '#171717',
+    backgroundGradientTo: '#171717',
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -61,41 +56,39 @@ const Stats = () => {
     fillShadowGradientTo: 'rgba(255, 55, 55, 0)',
     paddingRight: 20,
   };
-  
+
+  const StatCard = ({
+    title,
+    value,
+    Icon,
+    trend,
+  }: { title: string; value: string; Icon: LucideIcon; trend: number }) => (
+    <View className="bg-neutral-900 rounded-2xl p-4 flex-1">
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-gray-400 text-base font-poppins-medium">{title}</Text>
+        <Icon size={16} color="#FF3737" />
+      </View>
+      <Text className="text-white text-2xl font-poppins-bold">{value}</Text>
+      <Text className={`text-sm font-poppins-semibold ${trend >= 0 ? "text-green-500" : "text-red-500"}`}>
+        {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
+      </Text>
+    </View>
+  )
+
   return (
-    <SafeAreaView className={`flex-1 bg-neutral-900 ${platform === 'ios' ? '' : 'pt-5'}`}>
-      <ScrollView 
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="px-4 pb-16 gap-2">
-          <Text className="text-white text-3xl font-poppins-semibold text-center my-4">
-            Stats
-          </Text>
-          
-          <View className="bg-neutral-800 rounded-3xl w-full mb-4 p-4 overflow-hidden">
-            <Calendar
-              theme={{
-                calendarBackground: '#262626',
-                textSectionTitleColor: '#ffffff',
-                selectedDayTextColor: '#ffffff',
-                todayTextColor: '#FF3737',
-                dayTextColor: '#ffffff',
-                textDisabledColor: '#444444',
-                monthTextColor: '#ffffff',
-                textMonthFontWeight: 'bold',
-                arrowColor: '#FF3737',
-                dotColor: '#ffffff',
-              }}
-              markedDates={{
-                [selected]: {selected: true, disableTouchEvent: true, selectedDotColor: 'orange'},
-                ...workoutDates
-              }}
-              enableSwipeMonths={true}
-            />
+    <SafeAreaView className="flex-1 bg-black">
+      <StatusBar style="light" />
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="px-4 py-6">
+          <Text className="text-white text-3xl font-bold mb-6">Your Stats</Text>
+
+          <View className="flex-row justify-between items-center mb-4 gap-2">
+            <StatCard title="Workouts" value="23" Icon={Dumbbell} trend={5} />
+            <StatCard title="Calories" value="12,400" Icon={Flame} trend={-2} />
+            <StatCard title="Weight" value="71 kg" Icon={TrendingUp} trend={1.5} />
           </View>
 
-          <View className="flex items-center justify-center gap-2 bg-neutral-800 rounded-3xl p-4 w-full overflow-hidden mb-4">
+          <View className="flex items-center justify-center gap-2 bg-neutral-900 rounded-3xl p-4 w-full overflow-hidden mb-4">
             <Text className="text-white text-2xl font-poppins-semibold mb-2">
               Weight Progress
             </Text>
@@ -121,13 +114,46 @@ const Stats = () => {
             </View>
           </View>
 
-          <View className='bg-neutral-800 rounded-3xl px-4 py-5 mb-8'>
-            <Statistics stats={allTimeStats} title="All Time Stats" screen='stats' />
+          <View className="bg-neutral-900 rounded-3xl p-4 mb-10">
+            <Calendar
+              theme={{
+                backgroundColor: "transparent",
+                calendarBackground: "transparent",
+                textSectionTitleColor: "#ffffff",
+                selectedDayBackgroundColor: "#FF3737",
+                selectedDayTextColor: "#ffffff",
+                todayTextColor: "#FF3737",
+                dayTextColor: "#ffffff",
+                textDisabledColor: "#444444",
+                dotColor: "#FF3737",
+                selectedDotColor: "#ffffff",
+                arrowColor: "#FF3737",
+                monthTextColor: "#ffffff",
+                textDayFontFamily: "System",
+                textMonthFontFamily: "System",
+                textDayHeaderFontFamily: "System",
+                textDayFontWeight: "300",
+                textMonthFontWeight: "bold",
+                textDayHeaderFontWeight: "300",
+                textDayFontSize: 14,
+                textMonthFontSize: 16,
+                textDayHeaderFontSize: 14,
+              }}
+              style={{ borderRadius: 24 }}
+              markedDates={{
+                [selected]: { selected: true, disableTouchEvent: true, selectedDotColor: "#FF3737" },
+                ...workoutDates,
+              }}
+            />
           </View>
         </View>
       </ScrollView>
+      <TouchableOpacity className="absolute bottom-6 right-6 bg-red-600 w-14 h-14 rounded-full items-center justify-center shadow-lg">
+        <Plus size={24} color="white" />
+      </TouchableOpacity>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default Stats;
+export default Stats
+
