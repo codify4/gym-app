@@ -42,9 +42,9 @@ const Profile = () => {
   ];
 
   return (
-    <SafeAreaView className={`flex-1 bg-neutral-900 pt-5`}>
+    <SafeAreaView className={`flex-1 bg-neutral-900 ${platform === 'ios' ? '' : 'pt-5'}`}>
       <Animated.View
-        className={`flex-1 bg-neutral-900`}
+        className={`flex-1 bg-neutral-900 pt-7`}
         key={4}
         entering={SlideInRight}
       >
