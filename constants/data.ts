@@ -12,8 +12,9 @@ export interface Workout {
   
 export interface Stats {
   category: string;
-  count: number;
+  count: string;
   icon: LucideIcon;
+  trend: number;
 }
   
 export const dummyWorkouts: Workout[] = [
@@ -52,13 +53,7 @@ export const dummyWorkouts: Workout[] = [
 ];
 
 export const monthlyStats: Stats[] = [
-  { category: "Chest Days", count: 5, icon: Flame },
-  { category: "Arm Days", count: 4, icon: Flame },
-  { category: "Leg Days", count: 1, icon: Flame },
-];
-
-export const allTimeStats: Stats[] = [
-  { category: "Workouts", count: 12, icon: BicepsFlexed },
-  { category: "Time", count: 10, icon: Clock },
-  { category: "Calories", count: 2300, icon: Carrot },
+  { category: "Chest Days", count: '5', icon: Flame, trend: 3 },
+  { category: "Arm Days", count: '4', icon: Flame, trend: 2 },
+  { category: "Leg Days", count: '1', icon: Flame, trend: -1 },
 ];

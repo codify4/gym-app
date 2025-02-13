@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity } from 'react-native'
 
 const TodayWorkout = () => {
     return (
-        <View className="bg-neutral-800 rounded-3xl mb-8">
+        <View className="bg-neutral-900 rounded-3xl mb-8">
             <View className="relative">
                 <Image 
                     source={{ uri: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b' }} 
@@ -18,10 +18,10 @@ const TodayWorkout = () => {
             </View>
             <View className="p-6">
                 <Text className="text-white text-2xl font-poppins-semibold mb-4">Today's Workout</Text>
-                <TouchableOpacity className="bg-black rounded-full py-4">
+                <TouchableOpacity className="bg-white rounded-full py-4">
                     <View className="flex-row justify-center items-center">
-                        <Text className="text-white text-center text-xl font-poppins-semibold mr-2">Start workout</Text>
-                        <PlayCircle size={24} color="white" />
+                        <Text className="text-black text-center text-xl font-poppins-semibold mr-2">Start workout</Text>
+                        <PlayCircle size={24} color="black" />
                     </View>
                 </TouchableOpacity>
             </View>
