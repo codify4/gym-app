@@ -1,8 +1,7 @@
-import { Dumbbell } from 'lucide-react-native';
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, Image, TouchableOpacity } from 'react-native'
 
 type BodyPartProps = {
-    part: { name: string; icon: typeof Dumbbell };
+    part: { name: string; image: any };
     selectedBodyPart: string;
     setSelectedBodyPart: (bodyPart: string) => void;
 };
@@ -17,7 +16,7 @@ const BodyPartButton = ({ part, selectedBodyPart, setSelectedBodyPart }: BodyPar
             onPress={() => setSelectedBodyPart(part.name)}
         >
             <View className="items-center">
-                <part.icon size={32} color="white" />
+                <Image source={part.image} resizeMode="contain" style={{ width: 50, height: 50 }} />
                 <Text className="text-white text-sm mt-2 font-poppins-semibold">{part.name}</Text>
             </View>
         </TouchableOpacity>

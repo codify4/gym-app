@@ -59,12 +59,12 @@ export const monthlyStats: Stats[] = [
 ];
 
 export const bodyParts = [
-  { name: "All", icon: Activity },
-  { name: "Chest", icon: Dumbbell },
-  { name: "Back", icon: Dumbbell },
-  { name: "Legs", icon: Dumbbell },
-  { name: "Arms", icon: Dumbbell },
-  { name: "Shoulders", icon: Dumbbell },
+  { name: "All", image: require('@/assets/images/activity.png') },
+  { name: "Chest", image: require('@/assets/images/chest.png') },
+  { name: "Back", image: require('@/assets/images/back.png') },
+  { name: "Legs", image: require('@/assets/images/knee.png') },
+  { name: "Arms", image: require('@/assets/images/bicep.png') },
+  { name: "Shoulders", image: require('@/assets/images/shoulder.png') }
 ]
 
 export const routines = [
