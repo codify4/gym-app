@@ -1,4 +1,4 @@
-import { BicepsFlexed, Carrot, Clock, Flame, LucideIcon } from "lucide-react-native";
+import { Activity, BicepsFlexed, Carrot, Clock, Dumbbell, Flame, LucideIcon } from "lucide-react-native";
 
 export interface Exercise {
   name: string;
@@ -57,3 +57,50 @@ export const monthlyStats: Stats[] = [
   { category: "Arm Days", count: '4', icon: Flame, trend: 2 },
   { category: "Leg Days", count: '1', icon: Flame, trend: -1 },
 ];
+
+export const bodyParts = [
+  { name: "All", icon: Activity },
+  { name: "Chest", icon: Dumbbell },
+  { name: "Back", icon: Dumbbell },
+  { name: "Legs", icon: Dumbbell },
+  { name: "Arms", icon: Dumbbell },
+  { name: "Shoulders", icon: Dumbbell },
+]
+
+export const routines = [
+  {
+    name: "Upper Body Power",
+    exercises: 8,
+    duration: "45 min",
+    lastPerformed: "2 days ago",
+    bodyPart: "Chest",
+  },
+  {
+    name: "Lower Body Focus",
+    exercises: 6,
+    duration: "40 min",
+    lastPerformed: "5 days ago",
+    bodyPart: "Legs",
+  },
+  {
+    name: "Full Body Workout",
+    exercises: 12,
+    duration: "60 min",
+    lastPerformed: "Yesterday",
+    bodyPart: "All",
+  },
+  {
+    name: "Back and Biceps",
+    exercises: 7,
+    duration: "50 min",
+    lastPerformed: "3 days ago",
+    bodyPart: "Back",
+  },
+  {
+    name: "Shoulder Sculpt",
+    exercises: 5,
+    duration: "35 min",
+    lastPerformed: "1 week ago",
+    bodyPart: "Shoulders",
+  },
+]
