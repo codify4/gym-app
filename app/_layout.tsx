@@ -9,6 +9,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { AuthProvider, useAuth } from '@/context/auth';
 import "../global.css";
 import { setBackgroundColorAsync } from "expo-navigation-bar";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -74,11 +75,13 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <PaperProvider>
-        <StatusBar style='light'/>
-        <RootLayoutNav />
-      </PaperProvider>
-    </AuthProvider>
+    <GestureHandlerRootView>
+      <AuthProvider>
+        <PaperProvider>
+          <StatusBar style='light'/>
+          <RootLayoutNav />
+        </PaperProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }

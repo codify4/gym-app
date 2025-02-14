@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform } from "react-native"
+import { useState, useRef  } from "react"
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform, StyleSheet } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { Dumbbell, ChevronRight, Timer, TrendingUp, Activity, Plus } from "lucide-react-native"
+import { Dumbbell, ChevronRight, Timer, TrendingUp, Activity, Plus, X } from "lucide-react-native"
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 const bodyParts = [
   { name: "All", icon: Activity },
@@ -61,11 +63,17 @@ type Routine = {
 }
 
 const WorkoutRoutines = () => {
-  const [selectedBodyPart, setSelectedBodyPart] = useState("All")
-  const platform = Platform.OS
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
+  const [selectedBodyPart, setSelectedBodyPart] = useState("All")
+
+  const platform = Platform.OS
   const filteredRoutines =
     selectedBodyPart === "All" ? routines : routines.filter((routine) => routine.bodyPart === selectedBodyPart)
+
+  const handleOpenBottomSheet = () => {
+    bottomSheetRef.current?.expand();
+  };
 
   const BodyPartButton = ({ part }: { part: { name: string; icon: typeof Dumbbell } }) => (
     <TouchableOpacity
@@ -137,21 +145,53 @@ const WorkoutRoutines = () => {
           <Text className="text-neutral-400 text-sm mt-1 font-poppins-semibold">Keep it up! You'll get jacked!</Text>
         </View>
       </ScrollView>
-      <TouchableOpacity style={{
-        backgroundColor: 'white',
-        width: 60,
-        height: 60,
-        borderRadius: 33,
-        justifyContent: 'center',
-        alignItems:'center',
-        position: 'absolute',
-        bottom: 100,
-        right: 20
-      }}>
+      <TouchableOpacity 
+        style={styles.floatingButton}
+        onPress={handleOpenBottomSheet}
+      >
         <Plus size={24} color="black" />
       </TouchableOpacity>
+      
+      <BottomSheet 
+        ref={bottomSheetRef} 
+        snapPoints={["25%", "80%"]} 
+        index={-1} 
+        enablePanDownToClose
+        handleStyle={{ backgroundColor: "#1e1e1e" }} 
+        handleIndicatorStyle={{ backgroundColor: "#4d4c4c" }} 
+        backgroundStyle={{
+          borderTopLeftRadius: 30, 
+          borderTopRightRadius: 30,
+        }}
+      >
+        <BottomSheetView style={styles.contentContainer}>
+          <Text className="text-white text-lg font-poppins-semibold">
+            Add New Routine
+          </Text>
+        </BottomSheetView>
+      </BottomSheet>
     </SafeAreaView>
   )
 }
 
 export default WorkoutRoutines
+
+const styles = StyleSheet.create({
+  floatingButton: {
+    backgroundColor: "white",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 100,
+    right: 20,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 20,
+    alignItems: "center",
+    backgroundColor: "#1e1e1e",
+  },
+});
