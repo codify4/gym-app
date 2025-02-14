@@ -63,7 +63,7 @@ const Stats = () => {
       <StatusBar style="light" />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-4 py-6">
-          <Text className="text-white text-3xl font-bold mb-6">Your Stats</Text>
+          <Text className="text-white text-3xl font-bold mb-6">My Stats</Text>
 
           <View className="flex-row justify-between items-center mb-4 gap-2">
             <StatCard title="Workouts" value="23" Icon={Dumbbell} trend={5} />
