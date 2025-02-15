@@ -17,6 +17,7 @@ const BotSheet = forwardRef(({ children }: { children: React.ReactNode }, ref: a
                     borderTopLeftRadius: 40, 
                     borderTopRightRadius: 40,
                 }}
+                containerStyle={{display: "flex", flex: 1, alignItems: "center", justifyContent: "center"}}  
             >
                 <BottomSheetView style={styles.contentContainer}>
                     {children}

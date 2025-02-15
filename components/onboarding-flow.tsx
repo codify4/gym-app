@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, Modal } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Picker } from '@react-native-picker/picker';
+import Input from './input';
+import BotSheet from './bot-sheet';
+import DateTimePicker from 'react-native-modal-datetime-picker';
 
 interface OnboardingSlide {
   type: 'text' | 'choice' | 'date' | 'number';
@@ -27,25 +28,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
 }) => {
     if (slide.type === 'text') {
         return (
-            <TextInput
-                mode='outlined'
-                value={value}
-                onChangeText={onChangeText}
-                placeholder={slide.placeholder}
-                placeholderTextColor="#9ca3af"
-                placeholderClassName='font-poppins'
-                style={{ height: 60 }}
-                theme={{
-                colors: {
-                    primary: 'white',
-                    text: 'white',
-                    placeholder: '#9ca3af',
-                    background: '#262626'
-                },
-                roundness: 10
-                }}
-                autoFocus
-            />
+            <Input mode='outlined' value={value} onChangeText={onChangeText} placeholder={slide.placeholder} />
         );
     }
 
@@ -72,7 +55,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                     </Text>
                 </TouchableOpacity>
 
-                <DateTimePickerModal
+                <DateTimePicker
                     isVisible={isDatePickerVisible}
                     onConfirm={(date) => {
                         onChangeText(date.toISOString());
@@ -81,12 +64,11 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                     onCancel={() => setDatePickerVisibility(false)}
                     mode="date"
                     date={date}
-                    isDarkModeEnabled={true}
                     maximumDate={new Date()}
                     minimumDate={new Date(1900, 0, 1)}
                     buttonTextColorIOS='white'
-                    className='w-full bg-neutral-800'
-                    timePickerModeAndroid='spinner'
+                    timePickerModeAndroid='default'
+                    pickerContainerStyleIOS={{ alignSelf: "center", width: "100%", alignItems: "center" }}
                 />
             </View>
         );
@@ -141,6 +123,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                                     selectedValue={numValue.toString()}
                                     onValueChange={(itemValue) => {
                                         onChangeText(itemValue.toString());
+                                    setShowPicker(false);
                                     }}
                                     style={{ color: 'white' }}
                                     renderToHardwareTextureAndroid
@@ -190,56 +173,4 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
             </ScrollView>
         );
     }
-
-    return (
-        <View className='space-y-4'>
-            <View className='flex-row items-center space-x-4'>
-                <TextInput
-                    mode='outlined'
-                    value={value}
-                    onChangeText={(text) => {
-                        const num = text.replace(/[^0-9.]/g, '');
-                        if (slide.min !== undefined && parseFloat(num) < slide.min) return;
-                        if (slide.max !== undefined && parseFloat(num) > slide.max) return;
-                        onChangeText(num);
-                    }}
-                    placeholder={slide.placeholder}
-                    placeholderTextColor="#9ca3af"
-                    keyboardType='decimal-pad'
-                    style={{ height: 60, flex: 1 }}
-                    theme={{
-                    colors: {
-                        primary: 'white',
-                        text: 'white',
-                        placeholder: '#9ca3af',
-                        background: '#262626'
-                    },
-                    roundness: 10
-                    }}
-                />
-                {slide.unit && (
-                    <Text className='text-lg font-medium text-white min-w-[50]'>
-                        {slide.unit}
-                    </Text>
-                )}
-            </View>
-
-            <View className='flex-row justify-between px-2'>
-                {[-5, -1, 1, 5].map((change) => {
-                    const newValue = Math.max(slide.min || 0, Math.min(slide.max || 999, parseInt(value) + change));
-                    return (
-                        <TouchableOpacity
-                            key={change}
-                            onPress={() => onChangeText(newValue.toString())}
-                            className='bg-neutral-800 p-3 rounded-lg'
-                        >
-                            <Text className='text-white font-medium'>
-                                {change > 0 ? `+${change}` : change}
-                            </Text>
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
-        </View>
-    );
 };
