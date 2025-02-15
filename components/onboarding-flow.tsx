@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View, Modal } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Input from './input';
-import BotSheet from './bot-sheet';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import MeasurementPicker from './picker';
 
 interface OnboardingSlide {
   type: 'text' | 'choice' | 'date' | 'number';
@@ -75,72 +74,12 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
     }
 
     if (slide.type === 'number') {
-        const [showPicker, setShowPicker] = useState(false);
-        const numValue = value ? parseInt(value) : slide.min || 0;
-        const formattedValue = `${numValue}${slide.unit ? ` ${slide.unit}` : ''}`;
-
-        // Generate numbers array based on min/max
-        const numbers = Array.from(
-            { length: (slide.max || 250) - (slide.min || 0) + 1 },
-            (_, i) => (slide.min || 0) + i
-        );
-
         return (
-            <View className='w-full'>
-                <TouchableOpacity
-                    onPress={() => setShowPicker(true)}
-                    className='px-4 py-5 rounded-xl border border-neutral-700 bg-neutral-800/50 w-full'
-                >
-                    <Text className='text-lg text-white font-poppins'>
-                        {formattedValue}
-                    </Text>
-                </TouchableOpacity>
-
-                <Modal
-                    visible={showPicker}
-                    transparent
-                    animationType="slide"
-                >
-                    <View className='flex-1 justify-end bg-black/50'>
-                        <View className='bg-neutral-900 rounded-t-3xl'>
-                            <View className='flex-row justify-between items-center p-4 border-b border-neutral-800'>
-                                <TouchableOpacity 
-                                    onPress={() => setShowPicker(false)}
-                                    className='px-4 py-2'
-                                >
-                                    <Text className='text-neutral-400 text-lg font-poppins'>Cancel</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    onPress={() => setShowPicker(false)}
-                                    className='px-4 py-2'
-                                >
-                                    <Text className='text-white text-lg font-medium font-poppins'>Confirm</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            <View className='px-4 py-2'>
-                                <Picker
-                                    selectedValue={numValue.toString()}
-                                    onValueChange={(itemValue) => {
-                                        onChangeText(itemValue.toString());
-                                    setShowPicker(false);
-                                    }}
-                                    style={{ color: 'white' }}
-                                    renderToHardwareTextureAndroid
-                                >
-                                    {numbers.map((num) => (
-                                        <Picker.Item 
-                                            key={num} 
-                                            label={`${num}${slide.unit ? ` ${slide.unit}` : ''}`}
-                                            value={num.toString()}
-                                            color='white'
-                                        />
-                                    ))}
-                                </Picker>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
+            <View className='w-full h-full p-5'>
+                <MeasurementPicker
+                    initialHeight={165}
+                    initialWeight={63}
+                />
             </View>
         );
     }
