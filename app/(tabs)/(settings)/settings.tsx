@@ -19,7 +19,7 @@ const SettingsOption = ({
   value = false, 
   onToggle = () => {} 
 }: SettingsOptionProps) => (
-  <View className="flex-row items-center justify-between bg-neutral-800 p-4 rounded-xl mb-4">
+  <View className="flex-row items-center justify-between bg-neutral-900 p-4 rounded-2xl mb-4">
     <View className="flex-row items-center flex-1">
       <Icon size={24} color="white" />
       <View className="ml-3 flex-1">
@@ -44,9 +44,9 @@ const Settings = () => {
   const [metricSystem, setMetricSystem] = useState(true)
 
   return (
-    <SafeAreaView className='bg-neutral-900 flex-1'>
+    <SafeAreaView className='bg-black flex-1'>
       <ScrollView 
-        className='flex-1 px-4'
+        className='flex-1 px-4 bg-black'
         showsVerticalScrollIndicator={false}
       >
         

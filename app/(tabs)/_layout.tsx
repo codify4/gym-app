@@ -123,7 +123,7 @@ const TabsLayout = () => {
                 title: 'Settings',
                 headerShown: true,
                 headerStyle: {
-                    backgroundColor: '#171717',
+                    backgroundColor: '#000000',
                 },
                 headerTitleStyle: {
                     color: '#fff',

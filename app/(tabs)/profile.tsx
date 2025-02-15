@@ -42,10 +42,9 @@ const Profile = () => {
   ];
 
   return (
-    <SafeAreaView className={`flex-1 bg-neutral-900 ${platform === 'ios' ? '' : 'pt-5'}`}>
+    <SafeAreaView className={`flex-1 bg-black ${platform === 'ios' ? '' : 'pt-5'}`}>
       <Animated.View
-        className={`flex-1 bg-neutral-900 pt-7`}
-        key={4}
+        className={`flex-1 bg-black pt-7`}
         entering={SlideInRight}
       >
       <ScrollView 
@@ -70,7 +69,7 @@ const Profile = () => {
           {stats.map((stat, index) => (
             <View 
               key={index} 
-              className="bg-neutral-800 rounded-2xl px-6 py-3 w-[33%] items-center"
+              className="bg-neutral-900 rounded-2xl px-6 py-3 w-[33%] items-center"
             >
               <Text className="text-white text-xl font-poppins-semibold">{stat.value}</Text>
               <Text className="text-neutral-400 text-base">{stat.label}</Text>
@@ -84,7 +83,7 @@ const Profile = () => {
             <Text className="text-white text-2xl font-poppins-semibold mb-4">
               {section.title}
             </Text>
-            <View className="bg-neutral-800 rounded-2xl overflow-hidden">
+            <View className="bg-neutral-900 rounded-2xl overflow-hidden">
               {section.items ? (
                 section.items.map((item, index) => (
                   <TouchableOpacity 
@@ -113,7 +112,7 @@ const Profile = () => {
         ))}
 
         {/* Logout */}      
-        <View className="mt-4 bg-neutral-800 rounded-2xl overflow-hidden">
+        <View className="mt-4 bg-neutral-900 rounded-2xl overflow-hidden">
           <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={signOut}>
               <View className="flex-row items-center">
                   <LogOut size={24} color="red" />
