@@ -13,27 +13,12 @@ export const slides: Slide[] = [
     }
   },
   {
-    type: 'number',
-    title: "What's your height?",
-    field: 'height',
-    placeholder: "Enter height (cm)",
-    min: 100,
-    max: 250,
+    type: 'measurement',
+    title: "What are your height and weight?",
+    field: 'measurements',
     validation: (value: string) => {
-      const num = parseFloat(value);
-      return !isNaN(num) && num >= 100 && num <= 250;
-    }
-  },
-  {
-    type: 'number',
-    title: "What's your weight?",
-    field: 'weight',
-    placeholder: "Enter weight",
-    min: 30,
-    max: 250,
-    validation: (value: string) => {
-      const num = parseFloat(value);
-      return !isNaN(num) && num >= 30 && num <= 250;
+      const [height, weight, heightUnit, weightUnit] = value.split(',');
+      return !!height && !!weight && !!heightUnit && !!weightUnit;
     }
   },
   {

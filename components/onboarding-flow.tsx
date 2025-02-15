@@ -5,7 +5,7 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import MeasurementPicker from './picker';
 
 interface OnboardingSlide {
-  type: 'text' | 'choice' | 'date' | 'number';
+  type: 'text' | 'choice' | 'date' | 'number' | 'measurement';
   title: string;
   placeholder?: string;
   choices?: string[];
@@ -73,12 +73,19 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
         );
     }
 
-    if (slide.type === 'number') {
+    if (slide.type === 'measurement') {
+        const [height, weight, heightUnit, weightUnit] = value.split(',');
         return (
-            <View className='w-full h-full p-5'>
+            <View className='w-full h-full'>
                 <MeasurementPicker
-                    initialHeight={165}
-                    initialWeight={63}
+                    initialHeight={parseInt(height) || 165}
+                    initialWeight={parseInt(weight) || 63}
+                    onHeightChange={(newHeight, unit) => {
+                        onChangeText(`${newHeight},${weight || ''},${unit},${weightUnit || ''}`);
+                    }}
+                    onWeightChange={(newWeight, unit) => {
+                        onChangeText(`${height || ''},${newWeight},${heightUnit || ''},${unit}`);
+                    }}
                 />
             </View>
         );

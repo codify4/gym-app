@@ -11,8 +11,7 @@ import { useAuth } from "@/context/auth"
 interface OnboardingData {
   name: string
   birthDate: string
-  height: string
-  weight: string
+  measurements: string // Changed from separate height and weight
   goal: string
   min: string
   max: string
@@ -20,8 +19,7 @@ interface OnboardingData {
   experience: string
 }
 
-type SlideType = "text" | "choice" | "date" | "number"
-
+type SlideType = "text" | "choice" | "date" | "number" | "measurement"
 export interface Slide {
   type: SlideType
   title: string
@@ -40,8 +38,7 @@ const Onboarding = () => {
   const [formData, setFormData] = useState<OnboardingData>({
     name: "",
     birthDate: "",
-    height: "",
-    weight: "",
+    measurements: "",
     goal: "",
     frequency: "",
     experience: "",
