@@ -59,7 +59,7 @@ export const monthlyStats: Stats[] = [
 ];
 
 export const bodyParts = [
-  { name: "All", image: require('@/assets/images/activity.png') },
+  { name: "All", image: require('@/assets/images/all.png') },
   { name: "Chest", image: require('@/assets/images/chest.png') },
   { name: "Back", image: require('@/assets/images/back.png') },
   { name: "Legs", image: require('@/assets/images/knee.png') },

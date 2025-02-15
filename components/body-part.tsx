@@ -16,7 +16,7 @@ const BodyPartButton = ({ part, selectedBodyPart, setSelectedBodyPart }: BodyPar
             onPress={() => setSelectedBodyPart(part.name)}
         >
             <View className="items-center">
-                <Image source={part.image} resizeMode="contain" style={{ width: 50, height: 50 }} />
+                <Image source={part.image} resizeMode="cover" style={{ width: 60, height: 60 }} />
                 <Text className="text-white text-sm mt-2 font-poppins-semibold">{part.name}</Text>
             </View>
         </TouchableOpacity>
