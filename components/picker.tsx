@@ -64,14 +64,14 @@ export default function MeasurementPicker({
   return (
     <View className="flex flex-col items-center justify-center bg-black p-5 w-full">
         <View className="flex-row items-center mb-10 gap-3">
-            <Text className={`${!isMetric ? 'text-white' : 'text-neutral-500'} text-lg font-poppins-semibold`}>Imperial</Text>
+            <Text className={`${!isMetric ? 'text-white' : 'text-neutral-500'} text-lg font-poppins-medium`}>Imperial</Text>
             <Switch
                 trackColor={{ false: '#4A4A4A', true: '#22C55E' }}
                 thumbColor={isMetric ? '#171717' : '#22C55E'}
                 onValueChange={toggleUnit}
                 value={isMetric}
             />
-            <Text className={`${isMetric ? 'text-white' : 'text-neutral-500'} text-lg font-poppins-semibold`}>Metric</Text>
+            <Text className={`${isMetric ? 'text-white' : 'text-neutral-500'} text-lg font-poppins-medium`}>Metric</Text>
         </View>
         <View className="flex-row justify-evenly items-center mb-6 gap-32">
             <Text className="text-white text-2xl font-bold">Height</Text>
@@ -85,7 +85,7 @@ export default function MeasurementPicker({
               selectedValue={selectedHeight}
               onValueChange={handleHeightChange}
               dropdownIconColor="white"
-              style={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
+              style={{ color: 'white' }}
               itemStyle={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
             >
               {heightValues.map((height) => (
@@ -106,8 +106,8 @@ export default function MeasurementPicker({
               selectedValue={selectedWeight}
               onValueChange={handleWeightChange}
               dropdownIconColor="white"
-              style={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
-              itemStyle={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
+              style={{ color: 'white' }}
+              itemStyle={{ color: 'white' }}
             >
               {weightValues.map((weight) => (
                 <Picker.Item
