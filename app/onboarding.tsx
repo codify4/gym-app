@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { View, Text, Platform, KeyboardAvoidingView, TouchableOpacity } from "react-native"
 import Animated, { SlideInRight, SlideOutLeft, SlideInLeft, SlideOutRight } from "react-native-reanimated"
 import { useRouter } from "expo-router"
-import { OnboardingInput } from "../components/onboarding-flow"
+import { OnboardingInput } from "../components/onboarding/onboarding-flow"
 import { slides } from "@/constants/slides"
 import { useAuth } from "@/context/auth"
 

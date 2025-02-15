@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import Input from './input';
+import Input from '../input';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import MeasurementPicker from './picker';
 

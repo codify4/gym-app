@@ -4,8 +4,8 @@ import { useState, useRef  } from "react"
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform, StyleSheet } from "react-native"
 import { TrendingUp, Plus } from "lucide-react-native"
 import BottomSheet from '@gorhom/bottom-sheet';
-import BodyPartButton from "@/components/body-part"
-import RoutineCard from "@/components/routine-card"
+import BodyPartButton from "@/components/routine/body-part"
+import RoutineCard from "@/components/routine/routine-card"
 import { bodyParts, routines } from "@/constants/data"
 import BotSheet from "@/components/bot-sheet"
 
