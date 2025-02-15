@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Switch } from 'react-native';
+import { View, Text, Switch, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 interface MeasurementPickerProps {
@@ -63,11 +63,11 @@ export default function MeasurementPicker({
 
   return (
     <View className="flex flex-col items-center justify-center bg-black p-5 w-full">
-        <View className="flex-row items-center mb-6 gap-3">
+        <View className="flex-row items-center mb-10 gap-3">
             <Text className={`${!isMetric ? 'text-white' : 'text-neutral-500'} text-lg font-poppins-semibold`}>Imperial</Text>
             <Switch
                 trackColor={{ false: '#4A4A4A', true: '#22C55E' }}
-                thumbColor={'#171717'}
+                thumbColor={isMetric ? '#171717' : '#22C55E'}
                 onValueChange={toggleUnit}
                 value={isMetric}
             />
@@ -85,14 +85,15 @@ export default function MeasurementPicker({
               selectedValue={selectedHeight}
               onValueChange={handleHeightChange}
               dropdownIconColor="white"
-              className="text-white h-72"
+              style={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
+              itemStyle={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
             >
               {heightValues.map((height) => (
                 <Picker.Item
                   key={height}
                   label={formatHeight(height)}
                   value={height}
-                  color="white"
+                  color={Platform.OS === 'android' ? 'black' : 'white'}
                 />
               ))}
             </Picker>
@@ -105,14 +106,15 @@ export default function MeasurementPicker({
               selectedValue={selectedWeight}
               onValueChange={handleWeightChange}
               dropdownIconColor="white"
-              className="text-white h-72"
+              style={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
+              itemStyle={{ color: Platform.OS === 'android' ? 'black' : 'white' }}
             >
               {weightValues.map((weight) => (
                 <Picker.Item
                   key={weight}
                   label={formatWeight(weight)}
                   value={weight}
-                  color="white"
+                  color={Platform.OS === 'android' ? 'black' : 'white'}
                 />
               ))}
             </Picker>

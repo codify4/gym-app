@@ -62,6 +62,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                     }}
                     onCancel={() => setDatePickerVisibility(false)}
                     mode="date"
+                    isDarkModeEnabled
                     date={date}
                     maximumDate={new Date()}
                     minimumDate={new Date(1900, 0, 1)}
