@@ -5,7 +5,7 @@ import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Pla
 import { StatusBar } from "expo-status-bar"
 import { LineChart } from "react-native-chart-kit"
 import { Calendar } from "react-native-calendars"
-import { Dumbbell, Flame, type LucideIcon, Plus, TrendingUp } from "lucide-react-native"
+import { Dumbbell, Flame, Plus, TrendingUp } from "lucide-react-native"
 import StatCard from "@/components/stat-card"
 
 const { width: screenWidth } = Dimensions.get("window")
@@ -75,10 +75,10 @@ const Stats = () => {
             <Text className="text-white text-2xl font-poppins-semibold mb-2">
               Weight Progress
             </Text>
-            <View className="px-2 -mx-4">
+            <View className="px-2 ml-2 -mx-4">
               <LineChart
                 data={weightData}
-                width={screenWidth - 32}
+                width={screenWidth}
                 height={220}
                 chartConfig={chartConfig}
                 bezier

@@ -2,9 +2,8 @@
 
 import { useState, useRef  } from "react"
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform, StyleSheet } from "react-native"
-import { StatusBar } from "expo-status-bar"
 import { TrendingUp, Plus } from "lucide-react-native"
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import BodyPartButton from "@/components/body-part"
 import RoutineCard from "@/components/routine-card"
 import { bodyParts, routines } from "@/constants/data"

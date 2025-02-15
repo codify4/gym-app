@@ -1,13 +1,12 @@
 import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, FlatList, Platform } from "react-native"
 import { Avatar } from "react-native-paper"
 import { dummyWorkouts, monthlyStats } from "@/constants/data"
-import { Bell, Search } from "lucide-react-native"
+import { Bell } from "lucide-react-native"
 import WorkoutCard from "@/components/workout-card"
 import TodayWorkout from "@/components/today-workout"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
 import StatCard from "@/components/stat-card"
-import { LinearGradient } from "expo-linear-gradient"
 
 const Home = () => {
   const { session } = useAuth()

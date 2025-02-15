@@ -1,4 +1,4 @@
-import { Home, Dumbbell, Lightbulb, ChartLine, ArrowBigLeft, ChevronLeft } from 'lucide-react-native'
+import { Home, Dumbbell, Lightbulb, ChartLine, ChevronLeft } from 'lucide-react-native'
 import { router, Tabs } from 'expo-router'
 import { Platform, TouchableOpacity } from 'react-native'
 import React from 'react'
