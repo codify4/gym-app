@@ -1,6 +1,6 @@
 import { Home, Dumbbell, Lightbulb, ChartLine, ArrowBigLeft, ChevronLeft } from 'lucide-react-native'
 import { router, Tabs } from 'expo-router'
-import { TouchableOpacity } from 'react-native'
+import { Platform, TouchableOpacity } from 'react-native'
 import React from 'react'
 
 const TabsLayout = () => {
@@ -13,7 +13,7 @@ const TabsLayout = () => {
                 backgroundColor: '#121212',
                 position: 'absolute',
                 borderTopColor: '#1A1A1A',
-                borderTopWidth: 1,
+                borderTopWidth: Platform.OS === 'ios' ? 1 : 0,
                 minHeight: 70,
                 alignContent: 'center',
             },

@@ -18,7 +18,7 @@ const Home = () => {
     <SafeAreaView className={`flex-1 bg-black ${platform === "ios" ? "" : "pt-5"}`}>
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 60 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: platform === "ios" ? 60 : 80 }}
         showsVerticalScrollIndicator={false}
       >
         <View className="px-1">

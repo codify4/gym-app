@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from "react-native"
+import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { LineChart } from "react-native-chart-kit"
 import { Calendar } from "react-native-calendars"
@@ -59,9 +59,9 @@ const Stats = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className={`flex-1 bg-black ${Platform.OS === "ios" ? "" : "pt-5"}`}>
       <StatusBar style="light" />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 5, paddingBottom: Platform.OS === "ios" ? 0 : 60 }}>
         <View className="px-4 py-6">
           <Text className="text-white text-3xl font-bold mb-6">My Stats</Text>
 
