@@ -5,13 +5,18 @@ import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Pla
 import { StatusBar } from "expo-status-bar"
 import { LineChart } from "react-native-chart-kit"
 import { Calendar } from "react-native-calendars"
-import { Dumbbell, Flame, Plus, TrendingUp } from "lucide-react-native"
+import { Bell, Dumbbell, Flame, Plus, TrendingUp } from "lucide-react-native"
 import StatCard from "@/components/stat-card"
+import { router } from "expo-router"
+import { Avatar } from "react-native-paper"
+import { useAuth } from "@/context/auth"
 
 const { width: screenWidth } = Dimensions.get("window")
 
 const Stats = () => {
   const [selected, setSelected] = useState("")
+  const { session } = useAuth()
+  const user = session?.user
 
   const workoutDates = {
     "2025-02-01": { selected: true, selectedColor: "#FF3737" },
@@ -63,7 +68,27 @@ const Stats = () => {
       <StatusBar style="light" />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 5, paddingBottom: Platform.OS === "ios" ? 0 : 60 }}>
         <View className="px-4 py-6">
-          <Text className="text-white text-3xl font-bold mb-6">My Stats</Text>
+          {/* Header Section - Matching Home Screen */}
+          <View className="flex-row justify-between items-center mb-8">
+            <TouchableOpacity className="flex-row items-center" onPress={() => router.push("/(tabs)/profile")}>
+              <Avatar.Image
+                size={45}
+                source={{ uri: user?.user_metadata?.avatar_url }}
+                className="bg-neutral-800 rounded-full"
+              />
+              <View className="ml-4">
+                <Text className="text-neutral-400 text-sm font-poppins-medium">Your Stats</Text>
+                <Text className="text-white text-xl font-poppins-semibold">
+                  {user?.user_metadata?.full_name || "User"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <View className="flex-row gap-4">
+              <TouchableOpacity className="bg-neutral-900 p-2 rounded-xl">
+                <Bell size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+          </View>
 
           <View className="flex-row justify-between items-center mb-4 gap-2">
             <StatCard title="Workouts" value="23" Icon={Dumbbell} trend={5} />
