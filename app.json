@@ -4,7 +4,7 @@
     "slug": "workout-mate",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/icons/ios-light.png",
     "scheme": "workoutmate",
     "runtimeVersion": "exposdk:52.0.0",
     "updates": {
@@ -14,12 +14,18 @@
     "backgroundColor": "#000000",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": {
+        "light": "./assets/icons/ios-light.png",
+        "dark": "./assets/icons/ios-dark.png",
+        "tinted": "./assets/icons/ios-tinted.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./assets/icons/android-icon.png",
+        "monochromeImage": "./assets/icons/android-icon.png",
+        "backgroundColor": "#d9d9d9"
       },
       "navigationBarColor": "#121212",
       "statusBar": {
@@ -37,10 +43,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
+          "image": "./assets/icons/splash-icon-dark.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#d9d9d9",
+          "dark": {
+            "image": "./assets/icons/splash-icon-light.png",
+            "backgroundColor": "#000000"
+          }
         }
       ]
     ],
