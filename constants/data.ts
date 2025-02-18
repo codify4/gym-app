@@ -2,12 +2,28 @@ import { Activity, BicepsFlexed, Carrot, Clock, Dumbbell, Flame, LucideIcon } fr
 
 export interface Exercise {
   name: string;
-  sets: string;
+  sets: number;
+  reps: number;
+  image: string;
 }
 
+export interface Routine {
+  id: string;
+  name: string;
+  exercises: Exercise[];
+  duration: string;
+  lastPerformed: string;
+  bodyPart: string;
+  image: string;
+}
+
+export interface homeExcercise {
+  name: string
+  sets: string
+}
 export interface Workout {
   title: string;
-  exercises: Exercise[];
+  exercises: homeExcercise[];
 }
   
 export interface Stats {
@@ -16,6 +32,7 @@ export interface Stats {
   icon: LucideIcon;
   trend: number;
 }
+
   
 export const dummyWorkouts: Workout[] = [
   {
@@ -67,40 +84,48 @@ export const bodyParts = [
   { name: "Shoulders", image: require('@/assets/images/shoulder.png') }
 ]
 
-export const routines = [
+export const routines: Routine[] = [
   {
+    id: "upper-body-power",
     name: "Upper Body Power",
-    exercises: 8,
+    exercises: [
+      { name: "Bench Press", sets: 3, reps: 10, image: "https://example.com/bench-press.png" },
+      { name: "Shoulder Press", sets: 3, reps: 12, image: "https://example.com/shoulder-press.png" },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
+    ],
     duration: "45 min",
     lastPerformed: "2 days ago",
     bodyPart: "Chest",
+    image: "https://example.com/upper-body.jpg",
   },
   {
+    id: "lower-body-focus",
     name: "Lower Body Focus",
-    exercises: 6,
+    exercises: [
+      { name: "Squats", sets: 4, reps: 8, image: "https://example.com/squats.png" },
+      { name: "Leg Press", sets: 3, reps: 12, image: "https://example.com/leg-press.png" },
+      { name: "Calf Raises", sets: 3, reps: 15, image: "https://example.com/calf-raises.png" },
+    ],
     duration: "40 min",
     lastPerformed: "5 days ago",
     bodyPart: "Legs",
+    image: "https://example.com/lower-body.jpg",
   },
   {
-    name: "Full Body Workout",
-    exercises: 12,
-    duration: "60 min",
-    lastPerformed: "Yesterday",
-    bodyPart: "All",
-  },
-  {
-    name: "Back and Biceps",
-    exercises: 7,
+    id: "full-body-strength",
+    name: "Full Body Strength",
+    exercises: [
+      { name: "Bench Press", sets: 3, reps: 10, image: "https://example.com/bench-press.png" },
+      { name: "Squats", sets: 3, reps: 12, image: "https://example.com/squats.png" },
+      { name: "Deadlifts", sets: 3, reps: 15, image: "https://example.com/deadlifts.png" },
+    ],
     duration: "50 min",
     lastPerformed: "3 days ago",
-    bodyPart: "Back",
+    bodyPart: "All",
+    image: "https://example.com/full-body.jpg",
   },
-  {
-    name: "Shoulder Sculpt",
-    exercises: 5,
-    duration: "35 min",
-    lastPerformed: "1 week ago",
-    bodyPart: "Shoulders",
-  },
-]
+  // ... (add more routines with similar structure)
+];
