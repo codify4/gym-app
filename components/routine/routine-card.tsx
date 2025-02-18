@@ -11,7 +11,7 @@ type Routine = {
 
 const RoutineCard = ({ routine }: { routine: Routine }) => {
     return (
-        <TouchableOpacity className="bg-neutral-800 rounded-3xl py-4 px-5 mb-3">
+        <TouchableOpacity className="bg-neutral-900 rounded-3xl py-4 px-5 mb-3">
             <View>
                 <Text className="text-white text-lg font-semibold mb-2">{routine.name}</Text>
                 <View className="flex-row items-center mb-2">

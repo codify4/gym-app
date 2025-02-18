@@ -146,7 +146,7 @@ const WorkoutRoutines = () => {
         </View>
 
         {/* Workout Streak Card */}
-        <View className="bg-neutral-900 rounded-3xl py-6 px-6">
+        <View className="bg-neutral-900 rounded-3xl py-5 px-6">
           <Text className="text-white text-xl font-poppins-semibold mb-3">Workout Streak</Text>
           <View className="flex-row items-center">
             <View className="bg-red-500/20 p-2 rounded-xl mr-3">
