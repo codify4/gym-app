@@ -1,11 +1,15 @@
 import React, { useRef } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { routines } from '@/constants/data';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Clock, Dumbbell, Flame, PlayCircle } from 'lucide-react-native';
 import BotSheet from '@/components/bot-sheet';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MotiView } from 'moti';
+import { MotiPressable } from 'moti/interactions'
+import * as Haptics from 'expo-haptics';
 
 const RoutineDetailScreen = () => {
   const { id } = useLocalSearchParams();
@@ -16,6 +20,9 @@ const RoutineDetailScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const handleOpenBottomSheet = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     bottomSheetRef.current?.expand();
   };
 
@@ -36,7 +43,7 @@ const RoutineDetailScreen = () => {
       >
         <View className="relative w-full" style={{ height: windowHeight / 2 }}>
             <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b' }} 
+              source={{ uri: routine.image }} 
               className='size-full' 
               resizeMode='cover'
             />
@@ -71,7 +78,7 @@ const RoutineDetailScreen = () => {
                     </View>
                     <View className="flex-row items-center gap-2">
                       <Flame size={16} color="#FF3737" />
-                      <Text className="text-neutral-400 font-poppins">~320 kcal</Text>
+                      <Text className="text-neutral-400 font-poppins">320 kcal</Text>
                     </View>
                   </View>
                 </View>
@@ -85,34 +92,85 @@ const RoutineDetailScreen = () => {
               </View>
 
               {routine.exercises.map((exercise, index) => (
-                <TouchableOpacity 
-                  key={index} 
-                  className="bg-neutral-800 rounded-2xl py-5 px-4 mb-3"
-                  onPress={handleOpenBottomSheet}
+                <MotiView
+                  key={index}
+                  from={{ opacity: 0, translateY: 20 }}
+                  animate={{ opacity: 1, translateY: 0 }}
+                  transition={{ delay: index * 100, type: 'timing', duration: 500 }}
                 >
-                  <View className="flex-row justify-between items-start">
-                    <View className="flex-1">
-                      <Text className="text-white text-xl font-poppins-medium mb-1">
-                        {exercise.name}
-                      </Text>
-                      <View className="flex-row items-center">
-                        <View className="bg-neutral-700/50 rounded-lg px-3 py-1 mr-2">
-                          <Text className="text-neutral-300 font-poppins">
-                            {exercise.sets} sets
-                          </Text>
+                  <MotiPressable
+                    onPress={handleOpenBottomSheet}
+                    animate={({ pressed }) => {
+                      'worklet';
+                      return {
+                        scale: pressed ? 0.98 : 1,
+                        opacity: pressed ? 0.9 : 1,
+                      };
+                    }}
+                    transition={{ type: 'timing', duration: 150 }}
+                    style={{ marginBottom: 15, borderRadius: 30 }}
+                  >
+                    <LinearGradient
+                      colors={['#2A2A2A', '#1A1A1A']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      className="p-[1px] mb-3"
+                      style={{ borderRadius: 24 }}
+                    >
+                      <MotiView
+                        className="flex-row items-center rounded-3xl py-4 px-4 pl-6"
+                        animate={{ opacity: 1 }}
+                        from={{ opacity: 0 }}
+                        transition={{
+                          type: 'timing',
+                          duration: 500,
+                          delay: index * 100,
+                        }}
+                      >
+                        <View className="flex-row justify-between items-center">
+                          <View className="flex-1 gap-1">
+                            <Text className="text-white text-xl font-poppins-medium mb-1">
+                              {exercise.name}
+                            </Text>
+                            <View className="flex-row items-center gap-2">
+                              <LinearGradient
+                                colors={['#3A3A3A', '#2A2A2A']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                className="p-[1px] mr-2"
+                                style={{ borderRadius: 20 }}
+                              >
+                                <View className="bg-white/60 rounded-lg px-3 py-0.5">
+                                  <Text className="text-black font-poppins-semibold">
+                                    {exercise.sets} sets
+                                  </Text>
+                                </View>
+                              </LinearGradient>
+                              <LinearGradient
+                                colors={['#3A3A3A', '#2A2A2A']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                className="p-[1px]"
+                                style={{ borderRadius: 20 }}
+                              >
+                                <View className="bg-white/60 rounded-lg px-3 py-0.5">
+                                  <Text className="text-black font-poppins-semibold">
+                                    {exercise.sets} sets
+                                  </Text>
+                                </View>
+                              </LinearGradient>
+                            </View>
+                          </View>
+                          <Image 
+                            source={exercise.image} 
+                            style={{ width: 80, height: 80 }} 
+                            resizeMode='contain'
+                          />
                         </View>
-                        <View className="bg-neutral-700/50 rounded-lg px-3 py-1">
-                          <Text className="text-neutral-300 font-poppins">
-                            {exercise.reps} reps
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                    <View className="bg-red-500/10 p-2 rounded-xl">
-                      <Dumbbell size={20} color="#FF3737" />
-                    </View>
-                  </View>
-                </TouchableOpacity>
+                      </MotiView>
+                    </LinearGradient>
+                  </MotiPressable>
+                </MotiView>
               ))}
             </View>
           </View>
@@ -143,6 +201,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 88,
     right: 22,
+  },
+  exerciseButton: {
+    marginBottom: 12,
   }
 });
 
