@@ -1,10 +1,11 @@
 import { Activity, BicepsFlexed, Carrot, Clock, Dumbbell, Flame, LucideIcon } from "lucide-react-native";
+import { ImageSourcePropType } from "react-native";
 
 export interface Exercise {
   name: string;
   sets: number;
   reps: number;
-  image: string;
+  image: ImageSourcePropType;
 }
 
 export interface Routine {
@@ -89,43 +90,43 @@ export const routines: Routine[] = [
     id: "upper-body-power",
     name: "Upper Body Power",
     exercises: [
-      { name: "Bench Press", sets: 3, reps: 10, image: "https://example.com/bench-press.png" },
-      { name: "Shoulder Press", sets: 3, reps: 12, image: "https://example.com/shoulder-press.png" },
-      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
-      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
-      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
-      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: "https://example.com/tricep-pushdowns.png" },
+      { name: "Bench Press", sets: 3, reps: 10, image: require("@/assets/images/anatomy/chest.png") },
+      { name: "Shoulder Press", sets: 3, reps: 12, image: require("@/assets/images/anatomy/side-dealts.png") },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: require("@/assets/images/anatomy/tricep.png") },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: require("@/assets/images/anatomy/tricep.png") },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: require("@/assets/images/anatomy/tricep.png") },
+      { name: "Tricep Pushdowns", sets: 3, reps: 15, image: require("@/assets/images/anatomy/tricep.png") },
     ],
     duration: "45 min",
     lastPerformed: "2 days ago",
     bodyPart: "Chest",
-    image: "https://example.com/upper-body.jpg",
+    image: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     id: "lower-body-focus",
     name: "Lower Body Focus",
     exercises: [
-      { name: "Squats", sets: 4, reps: 8, image: "https://example.com/squats.png" },
-      { name: "Leg Press", sets: 3, reps: 12, image: "https://example.com/leg-press.png" },
-      { name: "Calf Raises", sets: 3, reps: 15, image: "https://example.com/calf-raises.png" },
+      { name: "Squats", sets: 4, reps: 8, image: require("@/assets/images/anatomy/quads.png") },
+      { name: "Leg Press", sets: 3, reps: 12, image: require("@/assets/images/anatomy/quads.png") },
+      { name: "Calf Raises", sets: 3, reps: 15, image: require("@/assets/images/anatomy/calves.png") },
     ],
     duration: "40 min",
     lastPerformed: "5 days ago",
     bodyPart: "Legs",
-    image: "https://example.com/lower-body.jpg",
+    image: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     id: "full-body-strength",
     name: "Full Body Strength",
     exercises: [
-      { name: "Bench Press", sets: 3, reps: 10, image: "https://example.com/bench-press.png" },
-      { name: "Squats", sets: 3, reps: 12, image: "https://example.com/squats.png" },
-      { name: "Deadlifts", sets: 3, reps: 15, image: "https://example.com/deadlifts.png" },
+      { name: "Bench Press", sets: 3, reps: 10, image: require("@/assets/images/anatomy/chest.png") },
+      { name: "Squats", sets: 3, reps: 12, image: require("@/assets/images/anatomy/quads.png") },
+      { name: "Deadlifts", sets: 3, reps: 15, image: require("@/assets/images/anatomy/lats.png") },
     ],
     duration: "50 min",
     lastPerformed: "3 days ago",
     bodyPart: "All",
-    image: "https://example.com/full-body.jpg",
+    image: "https://images.unsplash.com/photo-1584863231364-2edc166de576?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   // ... (add more routines with similar structure)
 ];
