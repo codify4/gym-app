@@ -9,8 +9,7 @@ import { bodyParts, routines } from "@/constants/data"
 import BotSheet from "@/components/bot-sheet"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
-
-const { width } = Dimensions.get('window')
+import * as Haptics from 'expo-haptics';
 
 const WorkoutRoutines = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -24,6 +23,9 @@ const WorkoutRoutines = () => {
     : routines.filter((routine) => routine.bodyPart === selectedBodyPart)
 
   const handleOpenBottomSheet = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     bottomSheetRef.current?.expand();
   };
 
