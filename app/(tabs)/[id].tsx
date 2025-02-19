@@ -202,9 +202,6 @@ const styles = StyleSheet.create({
     bottom: 88,
     right: 22,
   },
-  exerciseButton: {
-    marginBottom: 12,
-  }
 });
 
 export default RoutineDetailScreen;
