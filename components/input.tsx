@@ -5,9 +5,12 @@ type InputProps = {
     value: string
     onChangeText: (text: string) => void
     placeholder: string | undefined
+    focus?: boolean
+    keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'ascii-capable' | 'numbers-and-punctuation' | 'url' | 'number-pad' | 'name-phone-pad' | 'decimal-pad' | 'twitter' | 'web-search'
+    moreStyles?: object
 }
 
-const Input = ({ mode, value, onChangeText, placeholder }: InputProps) => {
+const Input = ({ mode, value, onChangeText, placeholder, focus, keyboardType, moreStyles }: InputProps) => {
     return (
         <TextInput
             mode={mode}
@@ -16,7 +19,7 @@ const Input = ({ mode, value, onChangeText, placeholder }: InputProps) => {
             placeholder={placeholder}
             placeholderTextColor="#9ca3af"
             placeholderClassName='font-poppins'
-            style={{ height: 60 }}
+            style={{ height: 60, ...moreStyles }}
             theme={{
                 colors: {
                     primary: 'white',
@@ -27,7 +30,8 @@ const Input = ({ mode, value, onChangeText, placeholder }: InputProps) => {
                 roundness: 10
                 }
             }
-            autoFocus
+            autoFocus={focus ? true : false}
+            keyboardType={keyboardType}
         />
     )
 }
