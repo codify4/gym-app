@@ -1,4 +1,4 @@
-import { Activity, BicepsFlexed, Carrot, Clock, Dumbbell, Flame, LucideIcon } from "lucide-react-native";
+import { Flame, LucideIcon } from "lucide-react-native";
 import { ImageSourcePropType } from "react-native";
 
 export interface Exercise {
@@ -33,6 +33,14 @@ export interface Stats {
   count: string;
   icon: LucideIcon;
   trend: number;
+}
+
+export interface Video {
+  id: string
+  title: string
+  duration: string
+  thumbnail: string
+  module: string
 }
 
   
@@ -236,5 +244,50 @@ export const routines: Routine[] = [
     bodyPart: "All",
     image:
       "https://images.unsplash.com/photo-1584863231364-2edc166de576?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+]
+
+export const suggestionVideos: Video[] = [
+  {
+    id: "1",
+    title: "Leg Extension",
+    duration: "3:22",
+    thumbnail: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    module: "Module 1: Exercises",
+  },
+  {
+    id: "2",
+    title: "Chest Fly (Dumbbell)",
+    duration: "2:34",
+    thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    module: "Module 1: Exercises",
+  },
+  {
+    id: "3",
+    title: "Shoulder Press",
+    duration: "1:45",
+    thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    module: "Module 1: Exercises",
+  },
+  {
+    id: "4",
+    title: "Romanian Twist",
+    duration: "0:16",
+    thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    module: "Module 2: Mobility",
+  },
+  {
+    id: "5",
+    title: "Chest Supporter",
+    duration: "0:24",
+    thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    module: "Module 2: Mobility",
+  },
+  {
+    id: "6",
+    title: "Trap Stretching",
+    duration: "1:12",
+    thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    module: "Module 2: Mobility",
   },
 ]
