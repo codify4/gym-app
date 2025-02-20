@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, FlatList, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Avatar } from "react-native-paper"
-import { Book, Dumbbell, Play, ChevronRight, Bell, ChevronUp } from "lucide-react-native"
+import { Book, Dumbbell, Play, ChevronRight, Bell, ChevronUp, Zap } from "lucide-react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { MotiView } from "moti"
 import { useAuth } from "@/context/auth"
@@ -112,22 +112,21 @@ const SuggestionsScreen = () => {
 
         {/* Common Topics Section */}
         <View className="mb-8">
-          <Text className="text-white text-2xl font-poppins-semibold mb-4">Commonly asked topics</Text>
           <View className="flex-row gap-4">
             <TouchableOpacity className="flex-1">
-              <View className="p-4 bg-neutral-900 rounded-3xl">
-                <View className="bg-red-500/20 self-start p-2 rounded-xl mb-3">
-                  <Book size={24} color="#FF3737" />
+              <View className="bg-neutral-900 rounded-3xl p-4">
+                <View className="bg-[#3b82f6]/20 self-start p-2 rounded-xl mb-3">
+                  <Zap size={24} color="#3b82f6" />
                 </View>
-                <Text className="text-white text-lg font-poppins-medium mb-1">Getting Started</Text>
-                <Text className="text-neutral-400 text-sm font-poppins mb-3">Learn the basics</Text>
+                <Text className="text-white text-lg font-poppins-medium mb-1">Quick HIIT</Text>
+                <Text className="text-neutral-400 text-sm font-poppins mb-3">20-min workouts</Text>
                 <ChevronRight size={20} color="#666" />
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity className="flex-1">
-              <View className="p-4 bg-neutral-900 rounded-3xl">
-                <View className="bg-red-500/20 self-start p-2 rounded-xl mb-3">
+              <View className="bg-neutral-900 rounded-3xl p-4">
+                <View className="self-start p-2 rounded-xl mb-3">
                   <Dumbbell size={24} color="#FF3737" />
                 </View>
                 <Text className="text-white text-lg font-poppins-medium mb-1">Exercise Library</Text>
