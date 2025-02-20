@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { routines } from '@/constants/data';
+import { Exercise, routines } from '@/constants/data';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, Clock, Dumbbell, Flame, PlayCircle } from 'lucide-react-native';
+import { ChevronLeft, Clock, Dumbbell, Flame, Info, PlayCircle, X } from 'lucide-react-native';
 import BotSheet from '@/components/bot-sheet';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,14 +15,17 @@ const RoutineDetailScreen = () => {
   const { id } = useLocalSearchParams();
   const routine = routines.find(r => r.id === id);
 
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null)
+
   const windowHeight = Dimensions.get("window").height;
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const handleOpenBottomSheet = () => {
+  const handleOpenBottomSheet = (exercise: Exercise) => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+    setSelectedExercise(exercise)
     bottomSheetRef.current?.expand();
   };
 
@@ -99,7 +102,7 @@ const RoutineDetailScreen = () => {
                   transition={{ delay: index * 100, type: 'timing', duration: 500 }}
                 >
                   <MotiPressable
-                    onPress={handleOpenBottomSheet}
+                    onPress={() => handleOpenBottomSheet(exercise)}
                     animate={({ pressed }) => {
                       'worklet';
                       return {
@@ -185,7 +188,48 @@ const RoutineDetailScreen = () => {
       </TouchableOpacity>
 
       <BotSheet ref={bottomSheetRef}>
-        <Text className="text-white text-lg font-poppins-semibold">{routine.exercises[0].name}</Text>
+        {selectedExercise && (
+          <ScrollView className="flex-1 bg-neutral-900 rounded-3xl">
+            <View className="p-6">
+              <View className="flex-row justify-between items-center mb-6">
+                <Text className="text-white text-3xl font-poppins-semibold">{selectedExercise.name}</Text>
+              </View>
+              
+              <View className="mb-6">
+                <Image 
+                  source={selectedExercise.image} 
+                  style={{ width: '100%', height: 200, borderRadius: 16 }} 
+                  resizeMode='contain'
+                />
+              </View>
+
+              <View className="flex-row justify-between mb-6">
+                <View className="bg-neutral-800 rounded-2xl p-4 flex-1 mr-2">
+                  <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Sets</Text>
+                  <Text className="text-white text-2xl font-poppins-bold">{selectedExercise.sets}</Text>
+                </View>
+                <View className="bg-neutral-800 rounded-2xl p-4 flex-1 ml-2">
+                  <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Reps</Text>
+                  <Text className="text-white text-2xl font-poppins-bold">{selectedExercise.reps}</Text>
+                </View>
+              </View>
+
+              <View className="mb-6">
+                <View className="flex-row items-center mb-4">
+                  <Info size={24} color="#FF3737" />
+                  <Text className="text-white text-xl font-poppins-semibold ml-2">How to perform</Text>
+                </View>
+                <View className="bg-neutral-800 rounded-2xl p-4">
+                  {selectedExercise.tips.map((tip, index) => (
+                    <Text key={index} className="text-white text-lg font-poppins-medium leading-6 mb-2">
+                      {index + 1}. {tip}
+                    </Text>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        )}
       </BotSheet>
     </SafeAreaView>
   );

@@ -7,7 +7,7 @@ const StatCard = ({
     Icon,
     trend,
     percentage = true,
-}: { title: string; value: string; Icon: LucideIcon; trend: number; percentage: boolean }) => {
+}: { title: string; value: string; Icon: LucideIcon; trend: number; percentage?: boolean }) => {
     return (
         <View className="bg-neutral-900 rounded-2xl p-4 flex-1">
             <View className="flex-row justify-between items-center mb-2">
