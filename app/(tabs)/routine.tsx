@@ -231,12 +231,12 @@ const WorkoutRoutines = () => {
 
       <BotSheet ref={bottomSheetRef}>
         <KeyboardAvoidingView
-          className="w-full mb-20"
+          className="w-full mb-10"
           behavior={"padding"}
           keyboardVerticalOffset={keyboardVerticalOffset}
         >
-          <ScrollView className="px-2 mb-6" showsVerticalScrollIndicator={false}>
-            <Text className="text-center text-white text-2xl font-poppins-semibold mb-5">Add New Routine</Text>
+          <ScrollView className="px-2" showsVerticalScrollIndicator={false}>
+            <Text className="text-center text-white text-2xl font-poppins-semibold mb-2">Add New Routine</Text>
 
             {/* Routine Name */}
             <View className="mb-6">
@@ -284,11 +284,11 @@ const WorkoutRoutines = () => {
             <View className="mb-6">
               <Text className="text-white text-lg font-poppins-medium mb-2">Exercises</Text>
               {newRoutine.exercises?.map((exercise, index) => (
-                <View key={index} className="bg-neutral-800 p-5 rounded-3xl mb-4">
+                <View key={index} className="bg-neutral-800 p-5 rounded-3xl mb-2">
                   <View className="flex-row justify-between items-center mb-3">
                     <Text className="text-white text-xl font-poppins-medium">Exercise {index + 1}</Text>
                     <TouchableOpacity onPress={() => handleRemoveExercise(index)} className="bg-red-500/20 p-2 rounded-xl">
-                      <Trash2 size={24} color="#ef4444" />
+                      <Trash2 size={20} color="#ef4444" />
                     </TouchableOpacity>
                   </View>
                   <Input
@@ -323,7 +323,7 @@ const WorkoutRoutines = () => {
               ))}
               <TouchableOpacity
                 onPress={handleAddExercise}
-                className="bg-neutral-800 border border-white p-4 rounded-full items-center mt-3 flex-row justify-center"
+                className="bg-neutral-800 border border-white p-4 rounded-full items-center mt-2 flex-row justify-center"
               >
                 <Plus size={20} color="white" className="mr-2" />
                 <Text className="text-white text-lg font-poppins-semibold">Add Exercise</Text>
