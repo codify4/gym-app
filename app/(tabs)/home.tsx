@@ -62,7 +62,7 @@ const Home = () => {
           <Text className="text-white text-2xl font-poppins-semibold mb-4">Monthly Progress</Text>
           <View className="flex-row justify-between gap-2">
             {monthlyStats.map((stat, index) => (
-              <StatCard key={index} title={stat.category} value={stat.count} Icon={stat.icon} trend={stat.trend} />
+              <StatCard key={index} title={stat.category} value={stat.count} Icon={stat.icon} trend={stat.trend} percentage={false} />
             ))}
           </View>
         </View>
