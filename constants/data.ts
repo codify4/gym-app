@@ -6,7 +6,7 @@ export interface Exercise {
   sets: number
   reps: number
   image: ImageSourcePropType
-  tips: string[]
+  tips?: string[]
 }
 
 export interface Routine {

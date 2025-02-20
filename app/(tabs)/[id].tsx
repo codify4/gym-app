@@ -220,7 +220,7 @@ const RoutineDetailScreen = () => {
                   <Text className="text-white text-xl font-poppins-semibold ml-2">How to perform</Text>
                 </View>
                 <View className="bg-neutral-800 rounded-2xl p-4">
-                  {selectedExercise.tips.map((tip, index) => (
+                  {selectedExercise.tips!.map((tip, index) => (
                     <Text key={index} className="text-white text-lg font-poppins-medium leading-6 mb-2">
                       {index + 1}. {tip}
                     </Text>
