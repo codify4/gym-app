@@ -2,6 +2,16 @@ import { Slide } from "@/app/onboarding";
 
 export const slides: Slide[] = [
   {
+    type: 'choice',
+    title: "What's your gender?",
+    field: 'gender',
+    choices: [
+      "Male",
+      "Female"
+    ],
+    validation: (value: string) => value.length > 0
+  },
+  {
     type: 'date',
     title: "When's your birthday?",
     field: 'birthDate',

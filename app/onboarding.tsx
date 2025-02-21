@@ -17,6 +17,7 @@ interface OnboardingData {
   max: string
   frequency: string
   experience: string
+  gender: string
 }
 
 type SlideType = "text" | "choice" | "date" | "number" | "measurement"
@@ -44,6 +45,7 @@ const Onboarding = () => {
     experience: "",
     min: (0).toString(),
     max: (999).toString(),
+    gender: "",
   })
   const router = useRouter()
   const { session } = useAuth()
