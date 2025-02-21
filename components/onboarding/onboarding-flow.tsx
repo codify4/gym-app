@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Input from '../input';
-import DateTimePicker from 'react-native-modal-datetime-picker';
 import MeasurementPicker from './picker';
+import RNDateTimePicker  from "@react-native-community/datetimepicker"
 
 interface OnboardingSlide {
   type: 'text' | 'choice' | 'date' | 'number' | 'measurement';
@@ -25,6 +25,8 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
   value,
   onChangeText,
 }) => {
+    const [showDatePicker, setShowDatePicker] = useState(false)
+
     if (slide.type === 'text') {
         return (
             <Input mode='outlined' value={value} onChangeText={onChangeText} placeholder={slide.placeholder} />
@@ -41,35 +43,26 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
             })
         : 'Select date';
 
-        const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
+        const onChange = (event: any, selectedDate?: Date) => {
+            if (selectedDate) {
+              onChangeText(selectedDate.toISOString())
+            }
+        }
+      
         return (
             <View className='w-full'>
-                <TouchableOpacity
-                    onPress={() => setDatePickerVisibility(true)}
-                    className='px-4 py-5 rounded-xl border border-neutral-700 bg-neutral-800/50 w-full'
-                >
-                    <Text className='text-lg text-white font-poppins'>
-                        {formattedDate}
-                    </Text>
-                </TouchableOpacity>
-
-                <DateTimePicker
-                    isVisible={isDatePickerVisible}
-                    onConfirm={(date) => {
-                        onChangeText(date.toISOString());
-                        setDatePickerVisibility(false);
-                    }}
-                    onCancel={() => setDatePickerVisibility(false)}
-                    mode="date"
-                    isDarkModeEnabled
-                    date={date}
-                    maximumDate={new Date()}
-                    minimumDate={new Date(1900, 0, 1)}
-                    buttonTextColorIOS='white'
-                    timePickerModeAndroid='default'
-                    pickerContainerStyleIOS={{ alignSelf: "center", width: "100%", alignItems: "center" }}
-                />
+                <View className="rounded-xl p-4">
+                    <RNDateTimePicker 
+                        value={date}
+                        mode="date"
+                        display="spinner"
+                        onChange={onChange}
+                        maximumDate={new Date()}
+                        minimumDate={new Date(1900, 0, 1)}
+                        textColor="white"
+                        style={styles.datePicker}
+                    />
+                </View>
             </View>
         );
     }
@@ -121,3 +114,12 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
         );
     }
 };
+
+const styles = StyleSheet.create({
+    datePicker: {
+      backgroundColor: "transparent",
+      alignSelf: "center",
+      width: "100%",
+      height: 200,
+    },
+  })
