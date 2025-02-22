@@ -3,9 +3,11 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import Input from '../input';
 import MeasurementPicker from './picker';
 import RNDateTimePicker  from "@react-native-community/datetimepicker"
+import LoadingCircle from './loading-circle';
+import CircularProgress from './loading-circle';
 
 interface OnboardingSlide {
-  type: 'text' | 'choice' | 'date' | 'number' | 'measurement';
+  type: 'text' | 'choice' | 'date' | 'number' | 'measurement' | 'loading';
   title: string;
   placeholder?: string;
   choices?: string[];
@@ -25,7 +27,29 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
   value,
   onChangeText,
 }) => {
-    const [showDatePicker, setShowDatePicker] = useState(false)
+    const [loadingProgress, setLoadingProgress] = useState(0);
+
+
+    // Loading animation effect
+    React.useEffect(() => {
+      if (slide.type === 'loading') {
+        const interval = setInterval(() => {
+          setLoadingProgress(prev => {
+            if (prev >= 100) {
+              clearInterval(interval);
+              return 100;
+            }
+            return prev + 1;
+          });
+        }, 30);
+
+        return () => clearInterval(interval);
+      }
+    }, [slide.type]);
+
+    if (slide.type === 'loading') {
+      return <CircularProgress />;
+    }
 
     if (slide.type === 'text') {
         return (

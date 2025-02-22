@@ -1,4 +1,29 @@
-import { Slide } from "@/app/onboarding";
+// Define all shared types in a central location
+export type SlideType = "text" | "choice" | "date" | "number" | "measurement" | "loading";
+
+export interface OnboardingData {
+  name: string;
+  birthDate: string;
+  measurements: string;
+  goal: string;
+  min: string;
+  max: string;
+  frequency: string;
+  experience: string;
+  gender: string;
+  loading: string;
+}
+
+export interface Slide {
+  type: SlideType;
+  title: string;
+  field: keyof OnboardingData;
+  placeholder?: string;
+  choices?: string[];
+  min?: number;
+  max?: number;
+  validation: (value: string) => boolean;
+}
 
 export const slides: Slide[] = [
   {
@@ -67,4 +92,10 @@ export const slides: Slide[] = [
     ],
     validation: (value: string) => value.length > 0
   },
+  {
+    type: 'loading',
+    title: "Creating Your Plan",
+    field: 'loading',
+    validation: () => true
+  }
 ];

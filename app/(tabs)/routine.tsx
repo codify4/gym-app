@@ -196,7 +196,7 @@ const WorkoutRoutines = () => {
             {selectedBodyPart === "All" ? "All Routines" : `${selectedBodyPart} Routines`}
           </Text>
           {filteredRoutines.map((routine, index) => (
-            <RoutineCard key={index} routine={routine} />
+            <RoutineCard key={index} routine={routine} pressable={true} />
           ))}
         </View>
 

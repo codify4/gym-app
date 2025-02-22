@@ -5,32 +5,8 @@ import { View, Text, Platform, KeyboardAvoidingView, TouchableOpacity } from "re
 import Animated, { SlideInRight, SlideOutLeft, SlideInLeft, SlideOutRight } from "react-native-reanimated"
 import { useRouter } from "expo-router"
 import { OnboardingInput } from "../components/onboarding/onboarding-flow"
-import { slides } from "@/constants/slides"
+import { OnboardingData, slides } from "@/constants/slides"
 import { useAuth } from "@/context/auth"
-
-interface OnboardingData {
-  name: string
-  birthDate: string
-  measurements: string // Changed from separate height and weight
-  goal: string
-  min: string
-  max: string
-  frequency: string
-  experience: string
-  gender: string
-}
-
-type SlideType = "text" | "choice" | "date" | "number" | "measurement"
-export interface Slide {
-  type: SlideType
-  title: string
-  field: keyof OnboardingData
-  placeholder?: string
-  choices?: string[]
-  min?: number
-  max?: number
-  validation: (value: string) => boolean
-}
 
 const Onboarding = () => {
   const [step, setStep] = useState(0)
@@ -46,6 +22,7 @@ const Onboarding = () => {
     min: (0).toString(),
     max: (999).toString(),
     gender: "",
+    loading: ''
   })
   const router = useRouter()
   const { session } = useAuth()
@@ -56,7 +33,7 @@ const Onboarding = () => {
     if (session) {
       router.replace("/(tabs)/home")
     }
-  }, [session, router]) // Added router to dependencies
+  }, [session, router])
 
   const currentSlide = slides[step]
   const currentValue = formData[currentSlide.field]
@@ -79,9 +56,6 @@ const Onboarding = () => {
         setStep(step + 1)
         setIsAnimating(false)
       }, 300)
-    } else {
-      // When onboarding is complete, go to sign in
-      router.push("/signin")
     }
   }
 
@@ -116,41 +90,43 @@ const Onboarding = () => {
           className="flex-1"
         >
           <View className="flex-1 space-y-8 mt-32">
-            <Text className="text-white text-4xl tracking-wider mb-3 font-poppins-semibold">{currentSlide.title}</Text>
+            <Text className="text-white text-4xl tracking-wider mb-3 font-poppins-semibold">{currentSlide.field !== "loading" && currentSlide.title}</Text>
 
             <OnboardingInput slide={currentSlide} value={currentValue} onChangeText={handleInputChange} />
           </View>
         </Animated.View>
 
         {/* Buttons */}
-        <View className="mb-12 gap-4">
-          <TouchableOpacity
-            onPress={nextStep}
-            className={`py-4 rounded-full w-full items-center ${
-              isValidInput && !isAnimating ? "bg-white" : "bg-neutral-700"
-            }`}
-            disabled={!isValidInput || isAnimating}
-          >
-            <Text
-              className={`text-xl font-poppins-semibold ${
-                isValidInput && !isAnimating ? "text-black" : "text-neutral-400"
-              }`}
-            >
-              {step === slides.length - 1 ? "Get Started" : "Next"}
-            </Text>
-          </TouchableOpacity>
-
-          {step > 0 && (
+        {currentSlide.type !== 'loading' && (
+          <View className="mb-12 gap-4">
             <TouchableOpacity
-              onPress={prevStep}
-              className={`py-4 rounded-full w-full items-center 
-                border border-neutral-600 bg-neutral-800/50`}
-              disabled={isAnimating}
+              onPress={nextStep}
+              className={`py-4 rounded-full w-full items-center ${
+                isValidInput && !isAnimating ? "bg-white" : "bg-neutral-700"
+              }`}
+              disabled={!isValidInput || isAnimating}
             >
-              <Text className="text-lg text-white font-poppins-semibold">Back</Text>
+              <Text
+                className={`text-xl font-poppins-semibold ${
+                  isValidInput && !isAnimating ? "text-black" : "text-neutral-400"
+                }`}
+              >
+                {step === slides.length - 2 ? "Create My Plan" : "Next"}
+              </Text>
             </TouchableOpacity>
-          )}
-        </View>
+
+            {step > 0 && (
+              <TouchableOpacity
+                onPress={prevStep}
+                className={`py-4 rounded-full w-full items-center 
+                  border border-neutral-600 bg-neutral-800/50`}
+                disabled={isAnimating}
+              >
+                <Text className="text-lg text-white font-poppins-semibold">Back</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
     </KeyboardAvoidingView>
   )
