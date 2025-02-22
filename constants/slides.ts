@@ -1,5 +1,5 @@
 // Define all shared types in a central location
-export type SlideType = "text" | "choice" | "date" | "number" | "measurement" | "loading";
+export type SlideType = "text" | "choice" | "date" | "number" | "measurement" | "loading" | "age";
 
 export interface OnboardingData {
   name: string;
@@ -12,6 +12,7 @@ export interface OnboardingData {
   experience: string;
   gender: string;
   loading: string;
+  age: string;
 }
 
 export interface Slide {
@@ -27,6 +28,12 @@ export interface Slide {
 
 export const slides: Slide[] = [
   {
+    type: 'loading',
+    title: "Creating Your Plan",
+    field: 'loading',
+    validation: () => true
+  },
+  {
     type: 'choice',
     title: "What's your gender?",
     field: 'gender',
@@ -34,6 +41,12 @@ export const slides: Slide[] = [
       "Male",
       "Female"
     ],
+    validation: (value: string) => value.length > 0
+  },
+  {
+    type: 'age',
+    title: "How old are you?",
+    field: 'age',
     validation: (value: string) => value.length > 0
   },
   {

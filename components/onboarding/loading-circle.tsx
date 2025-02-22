@@ -55,9 +55,9 @@ const CircularProgress = () => {
 
   return (
     <View className="flex-1 bg-black">
-      <View className="flex-1 items-center pt-12"> {/* Adjusted padding top */}
+      <View className="flex-1 items-center pt-12">
         {/* Progress Circle Section */}
-        <View className="items-center mb-8"> {/* Added margin bottom */}
+        <View className="items-center mb-8">
           <Svg width={200} height={200} viewBox="0 0 100 100">
             {/* Background Circle */}
             <Circle
@@ -82,12 +82,16 @@ const CircularProgress = () => {
             />
           </Svg>
           <View className="absolute top-[85px]">
-            <Text className="text-white text-2xl font-bold">
-              {Math.round(progress.value)}%
+            <Text className="text-white text-3xl font-bold">
+              {Math.round(progress.value)}{'%'}
             </Text>
           </View>
           <View className="mt-4">
-            <Text className="text-white text-xl font-poppins-bold">{progress.value === 100 ? "Done!" : "Building a custom plan just for you..."}</Text>
+            {progress.value === 100 ? (
+              <Text className="text-white text-xl font-poppins-bold">Done!</Text>
+            ) : (
+              <Text className="text-white text-xl font-poppins-bold">Building a custom plan just for you...</Text>
+            )}
           </View>
         </View>
 

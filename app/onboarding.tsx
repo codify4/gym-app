@@ -22,7 +22,8 @@ const Onboarding = () => {
     min: (0).toString(),
     max: (999).toString(),
     gender: "",
-    loading: ''
+    loading: '',
+    age: (0).toString()
   })
   const router = useRouter()
   const { session } = useAuth()

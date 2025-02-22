@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Input from '../input';
 import MeasurementPicker from './picker';
 import RNDateTimePicker  from "@react-native-community/datetimepicker"
-import LoadingCircle from './loading-circle';
 import CircularProgress from './loading-circle';
+import { Picker } from '@react-native-picker/picker';
 
 interface OnboardingSlide {
-  type: 'text' | 'choice' | 'date' | 'number' | 'measurement' | 'loading';
+  type: 'text' | 'choice' | 'date' | 'number' | 'measurement' | 'loading' | 'age';
   title: string;
   placeholder?: string;
   choices?: string[];
@@ -55,6 +55,35 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
         return (
             <Input mode='outlined' value={value} onChangeText={onChangeText} placeholder={slide.placeholder} />
         );
+    }
+
+    if(slide.type === 'age') {
+        const [selectedAge, setSelectedAge] = useState(value);
+        
+        const ageValues = Array.from({ length: 101 }, (_, i) => 5 + i);
+
+        return (
+            <View className="flex-1 ml-2">
+                <View className="bg-transparent rounded-2xl overflow-hidden">
+                    <Picker
+                        selectedValue={selectedAge}
+                        onValueChange={setSelectedAge}
+                        dropdownIconColor="white"
+                        style={{ color: 'white' }}
+                        itemStyle={{ color: 'white' }}
+                    >
+                        {ageValues.map((age) => (
+                            <Picker.Item
+                                key={age}
+                                label={age.toString()}
+                                value={age.toString()}
+                                color={Platform.OS === 'android' ? 'black' : 'white'}
+                            />
+                        ))}
+                    </Picker>
+                </View>
+            </View>
+        )
     }
 
     if (slide.type === 'date') {
