@@ -28,12 +28,6 @@ export interface Slide {
 
 export const slides: Slide[] = [
   {
-    type: 'loading',
-    title: "Creating Your Plan",
-    field: 'loading',
-    validation: () => true
-  },
-  {
     type: 'choice',
     title: "What's your gender?",
     field: 'gender',
@@ -41,12 +35,6 @@ export const slides: Slide[] = [
       "Male",
       "Female"
     ],
-    validation: (value: string) => value.length > 0
-  },
-  {
-    type: 'age',
-    title: "How old are you?",
-    field: 'age',
     validation: (value: string) => value.length > 0
   },
   {
