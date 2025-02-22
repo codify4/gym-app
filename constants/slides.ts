@@ -38,6 +38,12 @@ export const slides: Slide[] = [
     validation: (value: string) => value.length > 0
   },
   {
+    type: 'age',
+    title: "How old are you?",
+    field: 'age',
+    validation: (value: string) => value.length > 0
+  },
+  {
     type: 'date',
     title: "When's your birthday?",
     field: 'birthDate',
