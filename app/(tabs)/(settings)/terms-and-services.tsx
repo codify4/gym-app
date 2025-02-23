@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, StyleSheet, Linking, SafeAreaView } from 'react-native';
+import { ScrollView, Text, View, StyleSheet, SafeAreaView } from 'react-native';
 import { Stack } from 'expo-router';
 
 export default function TermsAndServices() {
@@ -95,31 +95,33 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-Bold',
     marginBottom: 8,
     color: '#fff',
   },
   date: {
     fontSize: 14,
+    fontFamily: 'Poppins-Regular',
     color: '#fff',
     marginBottom: 16,
   },
   heading: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-Bold',
     marginTop: 24,
     marginBottom: 12,
     color: '#fff',
   },
   subheading: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-Bold',
     marginTop: 16,
     marginBottom: 8,
     color: '#fff',
   },
   paragraph: {
     fontSize: 16,
+    fontFamily: 'Poppins-Regular',
     lineHeight: 24,
     color: '#fff',
     marginBottom: 16,
@@ -130,6 +132,7 @@ const styles = StyleSheet.create({
   },
   bulletItem: {
     fontSize: 16,
+    fontFamily: 'Poppins-Regular',
     lineHeight: 24,
     color: '#fff',
     marginBottom: 8,

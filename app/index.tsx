@@ -41,10 +41,10 @@ const Welcome = () => {
           className='space-y-6'
         >
           <View className='space-y-4'>
-            <Text className='text-white text-3xl font-bold text-center font-poppins-medium'>
+            <Text className='text-white text-3xl text-center font-poppins-semibold'>
               Your Personal Fitness Journey
             </Text>
-            <Text className='text-gray-200 text-center text-lg font-poppins'>
+            <Text className='text-gray-200 text-center text-lg font-poppins-medium'>
               Track workouts, set goals, and achieve your fitness dreams with a personalized experience
             </Text>
           </View>
@@ -53,14 +53,14 @@ const Welcome = () => {
             onPress={() => router.push('/onboarding')}
             className='flex flex-row justify-center bg-white py-4 rounded-full w-full items-center mt-5'
           >
-            <Text className='text-black text-xl font-semibold font-poppins mr-2'>Get Started</Text>
+            <Text className='text-black text-xl font-poppins-semibold mr-2'>Get Started</Text>
             <ChevronRight size={24} color="black" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => router.push('/signin')}
             className='bg-black py-4 rounded-full w-full items-center mt-5'
           >
-            <Text className='text-white underline text-xl font-semibold font-poppins'>Already have an account</Text>
+            <Text className='text-white underline text-xl font-poppins-semibold'>Already have an account</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>

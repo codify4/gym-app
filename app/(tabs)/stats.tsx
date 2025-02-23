@@ -5,7 +5,7 @@ import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Pla
 import { StatusBar } from "expo-status-bar"
 import { LineChart } from "react-native-chart-kit"
 import { Calendar } from "react-native-calendars"
-import { Bell, Dumbbell, Flame, Plus, TrendingUp } from "lucide-react-native"
+import { Dumbbell, Flame, TrendingUp } from "lucide-react-native"
 import StatCard from "@/components/stat-card"
 import { router } from "expo-router"
 import { Avatar } from "react-native-paper"
@@ -77,17 +77,12 @@ const Stats = () => {
                 className="bg-neutral-800 rounded-full"
               />
               <View className="ml-4">
-                <Text className="text-neutral-400 text-sm font-poppins-medium">Your Stats</Text>
-                <Text className="text-white text-xl font-poppins-semibold">
-                  {user?.user_metadata?.full_name || "User"}
+                <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
+                <Text className="text-neutral-400 text-base font-poppins-semibold">
+                  Your Stats
                 </Text>
               </View>
             </TouchableOpacity>
-            <View className="flex-row gap-4">
-              <TouchableOpacity className="bg-neutral-900 p-2 rounded-xl">
-                <Bell size={24} color="white" />
-              </TouchableOpacity>
-            </View>
           </View>
 
           <View className="flex-row justify-between items-center mb-4 gap-2">
@@ -156,9 +151,6 @@ const Stats = () => {
           </View>
         </View>
       </ScrollView>
-      <TouchableOpacity className="absolute bottom-6 right-6 bg-red-600 w-14 h-14 rounded-full items-center justify-center shadow-lg">
-        <Plus size={24} color="white" />
-      </TouchableOpacity>
     </SafeAreaView>
   )
 }

@@ -20,7 +20,7 @@ const WorkoutCard = ({ workout }: { workout: Workout }) => {
         <View className="p-4 rounded-3xl">
           <View className="flex-row justify-between items-center mb-4">
             <View>
-              <Text className="font-poppins-semibold text-white text-3xl mb-1">{workout.title}</Text>
+              <Text className="font-poppins-semibold text-white text-2xl mb-1">{workout.title}</Text>
               <Text className="text-neutral-400 font-poppins-medium">{workout.exercises.length} exercises</Text>
             </View>
             <View className="bg-neutral-800/50 p-3 rounded-2xl">

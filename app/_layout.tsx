@@ -52,13 +52,13 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    'poppins': require('@/assets/fonts/Poppins-Regular.ttf'),
-    'poppins-bold': require('@/assets/fonts/Poppins-Bold.ttf'),
-    'poppins-medium': require('@/assets/fonts/Poppins-Medium.ttf'),
-    'poppins-semibold': require('@/assets/fonts/Poppins-SemiBold.ttf'),
-    'poppins-light': require('@/assets/fonts/Poppins-Light.ttf'),
-    'poppins-black': require('@/assets/fonts/Poppins-Black.ttf'),
-    'poppins-extrabold': require('@/assets/fonts/Poppins-ExtraBold.ttf'),
+    'Poppins-Regular': require('@/assets/fonts/Poppins-Regular.ttf'),
+    'Poppins-Bold': require('@/assets/fonts/Poppins-Bold.ttf'),
+    'Poppins-Medium': require('@/assets/fonts/Poppins-Medium.ttf'),
+    'Poppins-SemiBold': require('@/assets/fonts/Poppins-SemiBold.ttf'),
+    'Poppins-Light': require('@/assets/fonts/Poppins-Light.ttf'),
+    'Poppins-Black': require('@/assets/fonts/Poppins-Black.ttf'),
+    'Poppins-ExtraBold': require('@/assets/fonts/Poppins-ExtraBold.ttf'),
   });
 
   useEffect(()=>{

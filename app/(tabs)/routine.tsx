@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from "react"
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform, StyleSheet } from "react-native"
-import { TrendingUp, Plus, Bell, CheckCircle2, Clock } from "lucide-react-native"
+import { TrendingUp, Plus, CheckCircle2, Clock } from "lucide-react-native"
 import BottomSheet from '@gorhom/bottom-sheet';
 import { Avatar } from "react-native-paper"
 import BodyPartButton from "@/components/routine/body-part"
@@ -135,17 +135,12 @@ const WorkoutRoutines = () => {
               className="bg-neutral-800 rounded-full"
             />
             <View className="ml-4">
-              <Text className="text-neutral-400 text-sm font-poppins-medium">Your Routines</Text>
-              <Text className="text-white text-xl font-poppins-semibold">
-                {user?.user_metadata?.full_name || "User"}
+              <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
+              <Text className="text-neutral-400 text-base font-poppins-semibold">
+                Your Routines
               </Text>
             </View>
           </TouchableOpacity>
-          <View className="flex-row gap-4">
-            <TouchableOpacity className="bg-neutral-900 p-2 rounded-xl">
-              <Bell size={24} color="white" />
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* Weekly Overview */}

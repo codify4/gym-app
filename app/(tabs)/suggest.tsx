@@ -4,8 +4,7 @@ import { useMemo } from "react"
 import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, FlatList, Platform } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Avatar } from "react-native-paper"
-import { Book, Dumbbell, Play, ChevronRight, Bell, ChevronUp, Zap } from "lucide-react-native"
-import { LinearGradient } from "expo-linear-gradient"
+import { Dumbbell, Play, ChevronRight, Zap } from "lucide-react-native"
 import { MotiView } from "moti"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
@@ -98,15 +97,12 @@ const SuggestionsScreen = () => {
                 className="bg-neutral-800 rounded-full"
               />
               <View className="ml-4">
-                <Text className="text-neutral-400 text-sm font-poppins-medium">Your Routines</Text>
-                <Text className="text-white text-xl font-poppins-semibold">
-                  {user?.user_metadata?.full_name || "User"}
+                <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
+                <Text className="text-neutral-400 text-base font-poppins-semibold">
+                  Suggestions
                 </Text>
               </View>
             </View>
-            <TouchableOpacity className="bg-neutral-900 p-2 rounded-xl">
-              <Bell size={24} color="white" />
-            </TouchableOpacity>
           </TouchableOpacity>
         </View>
 
@@ -126,7 +122,7 @@ const SuggestionsScreen = () => {
 
             <TouchableOpacity className="flex-1">
               <View className="bg-neutral-900 rounded-3xl p-4">
-                <View className="self-start p-2 rounded-xl mb-3">
+                <View className="self-start bg-[#FF3737]/20 p-2 rounded-xl mb-3">
                   <Dumbbell size={24} color="#FF3737" />
                 </View>
                 <Text className="text-white text-lg font-poppins-medium mb-1">Exercise Library</Text>

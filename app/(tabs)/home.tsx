@@ -1,7 +1,6 @@
 import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, FlatList, Platform } from "react-native"
 import { Avatar } from "react-native-paper"
 import { dummyWorkouts, monthlyStats } from "@/constants/data"
-import { Bell } from "lucide-react-native"
 import WorkoutCard from "@/components/workout-card"
 import TodayWorkout from "@/components/today-workout"
 import { useAuth } from "@/context/auth"
@@ -29,17 +28,12 @@ const Home = () => {
                 className="bg-neutral-800 rounded-full"
               />
               <View className="ml-4">
-                <Text className="text-neutral-400 text-sm font-poppins-medium">Welcome back</Text>
-                <Text className="text-white text-xl font-poppins-semibold">
+                <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
+                <Text className="text-neutral-400 text-base font-poppins-semibold">
                   {user?.user_metadata?.full_name || "User"}
                 </Text>
               </View>
             </TouchableOpacity>
-            <View className="flex-row gap-4">
-              <TouchableOpacity className="bg-neutral-900 p-2 rounded-xl">
-                <Bell size={24} color="white" />
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
 

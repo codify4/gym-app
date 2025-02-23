@@ -13,6 +13,36 @@
     "userInterfaceStyle": "dark",
     "backgroundColor": "#000000",
     "newArchEnabled": true,
+    "fonts": [
+      {
+        "asset": "assets/fonts/Poppins-Regular.ttf",
+        "family": "Poppins-Regular"
+      },
+      {
+        "asset": "assets/fonts/Poppins-Medium.ttf",
+        "family": "Poppins-Medium"
+      },
+      {
+        "asset": "assets/fonts/Poppins-Bold.ttf",
+        "family": "Poppins-Bold"
+      },
+      {
+        "asset": "assets/fonts/Poppins-SemiBold.ttf",
+        "family": "Poppins-SemiBold"
+      },
+      {
+        "asset": "assets/fonts/Poppins-ExtraBold.ttf",
+        "family": "Poppins-ExtraBold"
+      },
+      {
+        "asset": "assets/fonts/Poppins-Black.ttf",
+        "family": "Poppins-Black"
+      },
+      {
+        "asset": "assets/fonts/Poppins-Light.ttf",
+        "family": "Poppins-Light"
+      }
+    ],
     "ios": {
       "supportsTablet": true,
       "icon": {

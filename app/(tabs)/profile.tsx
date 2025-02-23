@@ -93,7 +93,7 @@ const Profile = () => {
                   >
                     <View className="flex-row items-center">
                       <item.icon size={24} color="white" />
-                      <Text className="text-white text-lg ml-3">{item.title}</Text>
+                      <Text className="text-white text-lg font-poppins ml-3">{item.title}</Text>
                     </View>
                     <ChevronRight size={24} color="white" />
                   </TouchableOpacity>
@@ -102,7 +102,7 @@ const Profile = () => {
                 <View className="flex-row items-center justify-between p-4">
                   <View className="flex-row items-center">
                     <section.icon size={24} color="white" />
-                    <Text className="text-white text-lg ml-3">{section.title}</Text>
+                    <Text className="text-white text-lg font-poppins ml-3">{section.title}</Text>
                   </View>
                   {section.rightElement}
                 </View>
@@ -116,7 +116,7 @@ const Profile = () => {
           <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={signOut}>
               <View className="flex-row items-center">
                   <LogOut size={24} color="red" />
-                  <Text style={{color: 'red'}} className="text-lg ml-3">Logout</Text>
+                  <Text style={{color: 'red'}} className="text-lg ml-3 font-poppins">Logout</Text>
               </View>
               <ChevronRight size={24} color="red" />
           </TouchableOpacity>

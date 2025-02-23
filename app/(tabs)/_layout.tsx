@@ -14,11 +14,14 @@ const TabsLayout = () => {
                 position: 'absolute',
                 borderTopColor: '#1A1A1A',
                 borderTopWidth: Platform.OS === 'ios' ? 1 : 0,
-                minHeight: 70,
+                minHeight: Platform.OS === 'ios' ? 70 : 40,
                 alignContent: 'center',
             },
             tabBarActiveTintColor: '#fff',
             tabBarHideOnKeyboard: true,
+            tabBarLabelStyle: {
+                fontFamily: 'Poppins-Regular'
+            }
         }}
     >
         <Tabs.Screen 

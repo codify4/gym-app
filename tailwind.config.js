@@ -6,14 +6,14 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'poppins': 'Poppins',
-        'poppins-bold': 'Poppins-Bold',
-        'poppins-medium': 'Poppins-Medium',
-        'poppins-semibold': 'Poppins-SemiBold',
-        'poppins-light': 'Poppins-Light',
-        'poppins-black': 'Poppins-Black',
-        'poppins-extrabold': 'Poppins-ExtraBold',
-      }
+        'poppins': ['Poppins-Regular'],
+        'poppins-medium': ['Poppins-Medium'],
+        'poppins-semibold': ['Poppins-SemiBold'],
+        'poppins-bold': ['Poppins-Bold'],
+        'poppins-black': ['Poppins-Black'],
+        'poppins-extrabold': ['Poppins-ExtraBold'],
+        'poppins-light': ['Poppins-Light'],
+      },
     },
   },
   plugins: [],
