@@ -19,6 +19,10 @@
         "light": "./assets/icons/ios-light.png",
         "dark": "./assets/icons/ios-dark.png",
         "tinted": "./assets/icons/ios-tinted.png"
+      },
+      "bundleIdentifier": "com.ijon007.workoutmate",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -31,7 +35,8 @@
       "statusBar": {
         "backgroundColor": "#121212",
         "barStyle": "light-content"
-      }
+      },
+      "package": "com.ijon007.workoutmate"
     },
     "web": {
       "bundler": "metro",

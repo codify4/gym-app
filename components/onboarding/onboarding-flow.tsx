@@ -5,6 +5,7 @@ import MeasurementPicker from './picker';
 import RNDateTimePicker  from "@react-native-community/datetimepicker"
 import CircularProgress from './loading-circle';
 import { Picker } from '@react-native-picker/picker';
+import * as Haptics from 'expo-haptics';
 
 interface OnboardingSlide {
   type: 'text' | 'choice' | 'date' | 'number' | 'measurement' | 'loading' | 'age';
@@ -139,6 +140,10 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
     }
 
     if (slide.type === 'choice') {
+        const onSelect = (choice: string) => {
+            onChangeText(choice);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        };
         return (
             <ScrollView 
                 showsVerticalScrollIndicator={false}
@@ -147,7 +152,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                 {slide.choices?.map((choice, index) => (
                     <TouchableOpacity
                         key={index}
-                        onPress={() => onChangeText(choice)}
+                        onPress={() => onSelect(choice)}
                         className={`px-4 py-5 mt-4 rounded-xl border ${
                             value === choice 
                                 ? 'bg-white border-white' 

@@ -1,10 +1,11 @@
+import React from 'react'
 import { Routine } from '@/constants/data'
 import { Link } from 'expo-router'
 import { ChevronRight, Dumbbell, Timer } from 'lucide-react-native'
 import { View, Text, TouchableOpacity } from 'react-native'
 
 
-const RoutineCard = ({ routine, pressable }: { routine: Routine, pressable?: boolean }) => {
+const RoutineCard = ({ routine, pressable = true }: { routine: Routine, pressable?: boolean }) => {
     return (
         <>
             {pressable ? (
