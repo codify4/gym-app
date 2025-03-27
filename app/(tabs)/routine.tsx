@@ -116,7 +116,7 @@ const WorkoutRoutines = () => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {weekDays.map((item, index) => (
               <TouchableOpacity
-                key={index}
+                key={item.day} 
                 className={`mr-4 items-center ${item.isToday ? "opacity-100" : "opacity-70"}`}
                 style={{ width: 65 }}
               >
@@ -141,9 +141,9 @@ const WorkoutRoutines = () => {
         <View className="bg-neutral-900 rounded-3xl p-6 mb-6">
           <Text className="text-white text-xl font-poppins-semibold mb-4">Target Muscle Groups</Text>
           <View className="flex-row flex-wrap justify-between">
-            {bodyParts.map((part, index) => (
+            {bodyParts.map((part) => (
               <BodyPartButton
-                key={index}
+                key={part.name}
                 part={part}
                 selectedBodyPart={selectedBodyPart}
                 setSelectedBodyPart={setSelectedBodyPart}
@@ -165,10 +165,10 @@ const WorkoutRoutines = () => {
           ) : filteredWorkouts.length > 0 ? (
             filteredWorkouts.map((workout) => (
               <WorkoutCard
-                key={workout.id}
+                key={workout.workout_id}
                 workout={workout}
-                onComplete={() => completeWorkout(workout.id)}
-                isCompleted={isWorkoutCompletedOnDate(workout.id)}
+                onComplete={() => completeWorkout(workout.workout_id)}
+                isCompleted={isWorkoutCompletedOnDate(workout.workout_id)}
               />
             ))
           ) : (
@@ -221,4 +221,3 @@ const styles = StyleSheet.create({
 })
 
 export default WorkoutRoutines
-

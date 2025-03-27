@@ -23,7 +23,7 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, isCompleted = fals
         <Link
           href={{
             pathname: "/(tabs)/[id]",
-            params: { id: workout.id },
+            params: { id: workout.workout_id },
           }}
           asChild
         >

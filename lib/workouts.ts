@@ -1,394 +1,339 @@
-"use client"
-
 import { supabase } from "./supabase"
 
-// Update the Exercise and Workout interfaces to match your database schema
-// Replace the existing interfaces with these:
-
+// Types
 export interface Exercise {
-  id: string
+  id: string // or number if your IDs are integers
   name: string
   sets: number
   reps: number
   image: string | null
   tips: string | null
-  exercise_id: string
+  workout_id?: string // or number if your IDs are integers
+  user_id?: string
 }
 
 export interface Workout {
-  id: string
+  // Use the correct primary key name based on your schema
+  // This could be 'id' or 'workout_id' based on the error
+  workout_id: string // or number if your IDs are integers
   title: string
-  exercise_id: string
   duration: number
-  last_performed: string | null
   body_part: string
   image: string | null
+  last_performed: string | null
   user_id: string
-  workout_id: string
-  created_at?: string
-  exercises?: Exercise[] // This is for convenience in the UI, not in the database
+  exercises?: Exercise[]
 }
 
 export interface CompletedWorkout {
-  id: string
-  workout_id: string
-  completed_date: string
+  id: string // or number
+  workout_id: string // or number
   user_id: string
+  completed_date: string
 }
 
-export const getTodayDateString = (): string => {
-  return new Date().toISOString().split("T")[0]
-}
+// Fetch all workouts for a user with their exercises
+export const fetchWorkouts = async (userId: string | undefined): Promise<Workout[]> => {
+  if (!userId) return []
 
-export const getWorkouts = async (userId: string): Promise<Workout[] | null> => {
   try {
-    if (!userId) {
-      console.error("User ID is required to fetch workouts")
-      return null
-    }
-
-    const { data: workouts, error } = await supabase
+    // First get all workouts
+    // Note: Use the correct column name for the primary key (workout_id or id)
+    const { data: workouts, error: workoutsError } = await supabase
       .from("workout")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
 
-    if (error) {
-      console.error("Error fetching workouts:", error.message)
-      throw error
+    if (workoutsError) {
+      console.error("Error fetching workouts:", workoutsError)
+      return []
     }
 
-    return workouts
-  } catch (error: any) {
-    console.error("Error fetching workouts:", error.message)
-    return null
+    if (!workouts || workouts.length === 0) {
+      return []
+    }
+
+    // Then get all exercises for these workouts
+    // Use the correct primary key name from workout table
+    const workoutIds = workouts.map((workout) => workout.workout_id || workout.id)
+    const { data: exercises, error: exercisesError } = await supabase
+      .from("exercise")
+      .select("*")
+      .in("workout_id", workoutIds)
+
+    if (exercisesError) {
+      console.error("Error fetching exercises:", exercisesError)
+      return workouts
+    }
+
+    // Map exercises to their respective workouts
+    // Use the correct primary key name
+    const workoutsWithExercises = workouts.map((workout) => ({
+      ...workout,
+      exercises: exercises?.filter((exercise) => exercise.workout_id === (workout.workout_id || workout.id)) || [],
+    }))
+
+    return workoutsWithExercises
+  } catch (error) {
+    console.error("Error in fetchWorkouts:", error)
+    return []
   }
 }
 
-// Update the getWorkoutWithExercises function to match the new schema
-// Replace the existing function with this:
+// Add a new workout with multiple exercises
+export const addWorkout = async (
+  userId: string | undefined,
+  workoutData: Omit<Workout, "workout_id">,
+  exercisesData: Omit<Exercise, "id" | "workout_id">[],
+): Promise<Workout | null> => {
+  if (!userId) return null
 
-export const getWorkoutWithExercises = async (workoutId: string): Promise<Workout | null> => {
   try {
-    if (!workoutId) {
-      console.error("Workout ID is required")
-      return null
-    }
-
-    // First get the workout
+    // Insert the workout with the generated workout_id
     const { data: workout, error: workoutError } = await supabase
       .from("workout")
-      .select("*")
-      .eq("id", workoutId)
+      .insert([
+        {
+          ...workoutData,
+          user_id: userId,
+        },
+      ])
+      .select()
       .single()
 
     if (workoutError) {
-      console.error("Error fetching workout:", workoutError.message)
-      throw workoutError
+      console.error("Error adding workout:", workoutError)
+      return null
     }
 
     if (!workout) {
+      console.error("No workout returned after insert")
       return null
     }
 
-    // Then get the exercise for this workout
-    const { data: exercise, error: exerciseError } = await supabase
-      .from("exercise")
-      .select("*")
-      .eq("id", workout.exercise_id)
-      .single()
-
-    if (exerciseError) {
-      console.error("Error fetching exercise:", exerciseError.message)
-      throw exerciseError
+    // Insert all exercises with the workout_id and user_id
+    if (exercisesData.length > 0) {
+      const exercisesWithIds = exercisesData.map((exercise) => ({
+        ...exercise,
+        workout_id: workout.workout_id, // Use the workout_id returned from Supabase
+        user_id: userId // Add user_id to satisfy RLS policy
+      }))
+    
+      const { data: exercises, error: exercisesError } = await supabase
+        .from("exercise")
+        .insert(exercisesWithIds)
+        .select()
+    
+      if (exercisesError) {
+        console.error("Error adding exercises:", exercisesError)
+        // We still return the workout even if exercises failed
+      }
+    
+      // Return the workout with exercises
+      return {
+        ...workout,
+        exercises: exercises || [],
+      }
     }
 
-    // Combine the workout with its exercise
-    return {
-      ...workout,
-      exercises: exercise ? [exercise] : [],
-    }
-  } catch (error: any) {
-    console.error("Error fetching workout with exercise:", error.message)
+    return workout
+  } catch (error) {
+    console.error("Error in addWorkout:", error)
     return null
   }
 }
 
-// Update the getExercises function signature to accept a single workoutId
-export const getExercises = async (workoutId: string): Promise<Exercise | null> => {
-  try {
-    if (!workoutId) {
-      console.error("Workout ID is required to fetch exercise")
-      return null
-    }
-
-    // First get the workout to get its exercise_id
-    const { data: workout, error: workoutError } = await supabase
-      .from("workout")
-      .select("exercise_id")
-      .eq("id", workoutId)
-      .single()
-
-    if (workoutError) {
-      console.error("Error fetching workout:", workoutError.message)
-      throw workoutError
-    }
-
-    if (!workout || !workout.exercise_id) {
-      return null
-    }
-
-    // Get the exercise
-    const { data: exercise, error: exerciseError } = await supabase
-      .from("exercise")
-      .select("*")
-      .eq("id", workout.exercise_id)
-      .single()
-
-    if (exerciseError) {
-      console.error("Error fetching exercise:", exerciseError.message)
-      throw exerciseError
-    }
-
-    return exercise
-  } catch (error: any) {
-    console.error("Error fetching exercise:", error.message)
-    return null
-  }
-}
-
-// Update the createWorkout function to accept a single exercise
-export const createWorkout = async (
-  workout: Omit<Workout, "id" | "workout_id" | "exercise_id">,
-  exercise: Omit<Exercise, "id" | "exercise_id">,
+// Update a workout
+export const updateWorkout = async (
+  workoutId: string | number,
+  workoutData: Partial<Workout>,
 ): Promise<Workout | null> => {
   try {
-    if (!workout.user_id) {
-      console.error("User ID is required to create a workout")
-      return null
-    }
-
-    // First create the exercise
-    const { data: newExercise, error: exerciseError } = await supabase
-      .from("exercise")
-      .insert({
-        name: exercise.name,
-        sets: exercise.sets,
-        reps: exercise.reps,
-        image: exercise.image,
-        tips: exercise.tips,
-      })
-      .select()
-      .single()
-
-    if (exerciseError) {
-      console.error("Error creating exercise:", exerciseError.message)
-      throw exerciseError
-    }
-
-    // Then create the workout with the exercise_id
-    const { data: newWorkout, error: workoutError } = await supabase
+    // Use the correct primary key column name
+    const { data, error } = await supabase
       .from("workout")
-      .insert({
-        title: workout.title,
-        exercise_id: newExercise.id,
-        duration: workout.duration,
-        body_part: workout.body_part,
-        image: workout.image,
-        user_id: workout.user_id,
-      })
+      .update(workoutData)
+      .eq("workout_id", workoutId) // Change to "id" if that's your primary key
       .select()
       .single()
 
-    if (workoutError) {
-      console.error("Error creating workout:", workoutError.message)
-      throw workoutError
-    }
-
-    return {
-      ...newWorkout,
-      exercises: [newExercise],
-    }
-  } catch (error: any) {
-    console.error("Error creating workout:", error.message)
-    return null
-  }
-}
-
-export const updateWorkout = async (id: string, updates: Partial<Workout>): Promise<Workout | null> => {
-  try {
-    if (!id) {
-      console.error("Workout ID is required for updates")
+    if (error) {
+      console.error("Error updating workout:", error)
       return null
     }
 
-    const { data, error } = await supabase.from("workout").update(updates).eq("id", id).select().single()
-
-    if (error) {
-      console.error("Error updating workout:", error.message)
-      throw error
-    }
-
     return data
-  } catch (error: any) {
-    console.error("Error updating workout:", error.message)
+  } catch (error) {
+    console.error("Error in updateWorkout:", error)
     return null
   }
 }
 
-export const updateExercise = async (id: string, updates: Partial<Exercise>): Promise<Exercise | null> => {
+// Delete a workout and its exercises
+export const deleteWorkout = async (workoutId: string | number): Promise<boolean> => {
   try {
-    if (!id) {
-      console.error("Exercise ID is required for updates")
-      return null
-    }
-
-    const { data, error } = await supabase.from("exercise").update(updates).eq("id", id).select().single()
-
-    if (error) {
-      console.error("Error updating exercise:", error.message)
-      throw error
-    }
-
-    return data
-  } catch (error: any) {
-    console.error("Error updating exercise:", error.message)
-    return null
-  }
-}
-
-export const deleteWorkout = async (id: string): Promise<boolean> => {
-  try {
-    if (!id) {
-      console.error("Workout ID is required for deletion")
-      return false
-    }
-
-    // First delete all exercises associated with this workout
-    const { error: exercisesError } = await supabase.from("exercise").delete().eq("workout_id", id)
+    // First delete all exercises for this workout
+    const { error: exercisesError } = await supabase.from("exercise").delete().eq("workout_id", workoutId)
 
     if (exercisesError) {
-      console.error("Error deleting exercises:", exercisesError.message)
-      throw exercisesError
+      console.error("Error deleting exercises:", exercisesError)
+      return false
     }
 
     // Then delete the workout
-    const { error: workoutError } = await supabase.from("workout").delete().eq("id", id)
+    // Use the correct primary key column name
+    const { error: workoutError } = await supabase.from("workout").delete().eq("workout_id", workoutId) // Change to "id" if that's your primary key
 
     if (workoutError) {
-      console.error("Error deleting workout:", workoutError.message)
-      throw workoutError
-    }
-
-    return true
-  } catch (error: any) {
-    console.error("Error deleting workout:", error.message)
-    return false
-  }
-}
-
-export const deleteExercise = async (id: string): Promise<boolean> => {
-  try {
-    if (!id) {
-      console.error("Exercise ID is required for deletion")
+      console.error("Error deleting workout:", workoutError)
       return false
     }
 
-    const { error } = await supabase.from("exercise").delete().eq("id", id)
-
-    if (error) {
-      console.error("Error deleting exercise:", error.message)
-      throw error
-    }
-
     return true
-  } catch (error: any) {
-    console.error("Error deleting exercise:", error.message)
+  } catch (error) {
+    console.error("Error in deleteWorkout:", error)
     return false
   }
 }
 
-export const recordWorkoutCompletion = async (
-  workoutId: string,
-  userId: string,
-  date: string = getTodayDateString(),
-): Promise<boolean> => {
-  try {
-    // Record the completion
-    const { error: completionError } = await supabase.from("completed_workout").insert({
-      workout_id: workoutId,
-      user_id: userId,
-      completed_date: date,
-    })
+// Add an exercise to a workout
+export const addExercise = async (
+  userId: string | undefined,
+  workoutId: string | number,
+  exerciseData: Omit<Exercise, "id" | "workout_id" | "user_id">,
+): Promise<Exercise | null> => {
+  if (!userId) return null
 
-    if (completionError) {
-      console.error("Error recording workout completion:", completionError.message)
-      throw completionError
+  try {
+    const { data, error } = await supabase
+      .from("exercise")
+      .insert([
+        {
+          ...exerciseData,
+          workout_id: workoutId,
+          user_id: userId, // Add user_id to satisfy RLS policy
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error adding exercise:", error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error in addExercise:", error)
+    return null
+  }
+}
+
+// Update an exercise
+export const updateExercise = async (
+  exerciseId: string | number,
+  exerciseData: Partial<Exercise>,
+): Promise<Exercise | null> => {
+  try {
+    const { data, error } = await supabase.from("exercise").update(exerciseData).eq("id", exerciseId).select().single()
+
+    if (error) {
+      console.error("Error updating exercise:", error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error in updateExercise:", error)
+    return null
+  }
+}
+
+// Delete an exercise
+export const deleteExercise = async (exerciseId: string | number): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from("exercise").delete().eq("id", exerciseId)
+
+    if (error) {
+      console.error("Error deleting exercise:", error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error in deleteExercise:", error)
+    return false
+  }
+}
+
+// Mark a workout as completed
+export const completeWorkout = async (
+  userId: string | undefined,
+  workoutId: string | number,
+): Promise<CompletedWorkout | null> => {
+  if (!userId) return null
+
+  try {
+    const completedDate = new Date().toISOString()
+
+    const { data, error } = await supabase
+      .from("completed_workout")
+      .insert([
+        {
+          workout_id: workoutId,
+          user_id: userId,
+          completed_date: completedDate,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error completing workout:", error)
+      return null
     }
 
     // Update the last_performed date on the workout
-    const { error: updateError } = await supabase.from("workout").update({ last_performed: date }).eq("id", workoutId)
+    // Use the correct primary key column name
+    await supabase.from("workout").update({ last_performed: completedDate }).eq("workout_id", workoutId) // Change to "id" if that's your primary key
 
-    if (updateError) {
-      console.error("Error updating workout last_performed date:", updateError.message)
-      throw updateError
-    }
-
-    return true
-  } catch (error: any) {
-    console.error("Error recording workout completion:", error.message)
-    return false
+    return data
+  } catch (error) {
+    console.error("Error in completeWorkout:", error)
+    return null
   }
 }
 
+// Check if a workout is completed on a specific date
 export const isWorkoutCompletedOnDate = async (
-  workoutId: string,
-  userId: string,
-  date: string = getTodayDateString(),
+  userId: string | undefined,
+  workoutId: string | number,
+  date: Date = new Date(),
 ): Promise<boolean> => {
+  if (!userId) return false
+
   try {
+    // Format the date to match the database format (YYYY-MM-DD)
+    const formattedDate = date.toISOString().split("T")[0]
+
     const { data, error } = await supabase
       .from("completed_workout")
       .select("*")
       .eq("workout_id", workoutId)
       .eq("user_id", userId)
-      .eq("completed_date", date)
-      .single()
+      .gte("completed_date", `${formattedDate}T00:00:00.000Z`)
+      .lt("completed_date", `${formattedDate}T23:59:59.999Z`)
 
-    if (error && error.code !== "PGRST116") {
-      // PGRST116 is the error code for "no rows returned"
-      console.error("Error checking workout completion:", error.message)
-      throw error
+    if (error) {
+      console.error("Error checking completed workout:", error)
+      return false
     }
 
-    return !!data
-  } catch (error: any) {
-    console.error("Error checking workout completion:", error.message)
+    return data && data.length > 0
+  } catch (error) {
+    console.error("Error in isWorkoutCompletedOnDate:", error)
     return false
   }
 }
 
-export const getCompletedWorkouts = async (userId: string): Promise<CompletedWorkout[] | null> => {
-  try {
-    if (!userId) {
-      console.error("User ID is required to fetch completed workouts")
-      return null
-    }
-
-    const { data: completedWorkouts, error } = await supabase
-      .from("completed_workout")
-      .select("*")
-      .eq("user_id", userId)
-      .order("completed_date", { ascending: false })
-
-    if (error) {
-      console.error("Error fetching completed workouts:", error.message)
-      throw error
-    }
-
-    return completedWorkouts
-  } catch (error: any) {
-    console.error("Error fetching completed workouts:", error.message)
-    return null
-  }
-}

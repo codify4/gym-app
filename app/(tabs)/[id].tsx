@@ -34,14 +34,13 @@ const WorkoutDetailScreen = () => {
   const { workouts, completeWorkout, isWorkoutCompletedOnDate } = useWorkouts(userId)
 
   const [workout, setWorkout] = useState<Workout | null>(null)
-  const [exercise, setExercise] = useState<Exercise | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null)
 
   const windowHeight = Dimensions.get("window").height
   const bottomSheetRef = useRef<BottomSheet>(null)
 
-  // Fetch workout and exercise data
+  // Fetch workout data
   useEffect(() => {
     const fetchWorkoutData = async () => {
       if (!id) return
@@ -49,7 +48,16 @@ const WorkoutDetailScreen = () => {
       try {
         setLoading(true)
 
-        // First get the workout
+        // Find the workout in our already loaded workouts
+        const foundWorkout = workouts.find((w) => w.workout_id === id)
+
+        if (foundWorkout) {
+          setWorkout(foundWorkout)
+          setLoading(false)
+          return
+        }
+
+        // If not found in state, fetch from database
         const { data: workoutData, error: workoutError } = await supabase
           .from("workout")
           .select("*")
@@ -66,21 +74,20 @@ const WorkoutDetailScreen = () => {
           return
         }
 
-        setWorkout(workoutData)
+        // Then get the exercises for this workout
+        const { data: exercisesData, error: exercisesError } = await supabase
+          .from("exercise")
+          .select("*")
+          .eq("workout_id", workoutData.id)
 
-        // Then get the exercise for this workout
-        if (workoutData.exercise_id) {
-          const { data: exerciseData, error: exerciseError } = await supabase
-            .from("exercise")
-            .select("*")
-            .eq("id", workoutData.exercise_id)
-            .single()
-
-          if (exerciseError) {
-            console.error("Error fetching exercise:", exerciseError)
-          } else if (exerciseData) {
-            setExercise(exerciseData)
-          }
+        if (exercisesError) {
+          console.error("Error fetching exercises:", exercisesError)
+        } else {
+          // Set the workout with exercises
+          setWorkout({
+            ...workoutData,
+            exercises: exercisesData || [],
+          })
         }
       } catch (error) {
         console.error("Error fetching workout data:", error)
@@ -90,7 +97,7 @@ const WorkoutDetailScreen = () => {
     }
 
     fetchWorkoutData()
-  }, [id])
+  }, [id, workouts])
 
   const handleOpenBottomSheet = (exercise: Exercise) => {
     if (Platform.OS !== "web") {
@@ -103,7 +110,7 @@ const WorkoutDetailScreen = () => {
   const handleCompleteWorkout = async () => {
     if (!workout || !userId) return
 
-    await completeWorkout(workout.id)
+    await completeWorkout(workout.workout_id)
     // Optionally navigate back or show a success message
   }
 
@@ -126,7 +133,7 @@ const WorkoutDetailScreen = () => {
   // Default image if none is provided
   const imageUrl =
     workout.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2070&auto=format&fit=crop"
-  const isCompleted = userId ? isWorkoutCompletedOnDate(workout.id) : false
+  const isCompleted = userId ? isWorkoutCompletedOnDate(workout.workout_id) : false
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -150,7 +157,7 @@ const WorkoutDetailScreen = () => {
         </View>
 
         {/* Content Container with rounded corners */}
-        <View className="-mt-8 bg-neutral-900 rounded-t-[32px]">
+        <View className="-mt-8 bg-neutral-900 rounded-t-[32px] h-full">
           <View className="bg-neutral-900 rounded-t-[32px] overflow-hidden">
             {/* Workout Info Card */}
             <View className="px-6 pt-8 pb-6">
@@ -160,7 +167,9 @@ const WorkoutDetailScreen = () => {
                   <View className="flex-row items-center flex-wrap gap-4">
                     <View className="flex-row items-center gap-2">
                       <Dumbbell size={16} color="#888" />
-                      <Text className="text-neutral-400 font-poppins">1 exercise</Text>
+                      <Text className="text-neutral-400 font-poppins">
+                        {workout.exercises?.length || 0} {workout.exercises?.length === 1 ? "exercise" : "exercises"}
+                      </Text>
                     </View>
                     <View className="flex-row items-center gap-2">
                       <Clock size={16} color="#888" />
@@ -178,97 +187,91 @@ const WorkoutDetailScreen = () => {
             {/* Exercises List */}
             <View className="px-5 pb-5">
               <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-white text-2xl font-poppins-semibold">Exercise</Text>
+                <Text className="text-white text-2xl font-poppins-semibold">Exercises</Text>
               </View>
 
-              {exercise ? (
-                <MotiView
-                  from={{ opacity: 0, translateY: 20 }}
-                  animate={{ opacity: 1, translateY: 0 }}
-                  transition={{ type: "timing", duration: 500 }}
-                >
-                  <MotiPressable
-                    onPress={() => handleOpenBottomSheet(exercise)}
-                    animate={({ pressed }) => {
-                      "worklet"
-                      return {
-                        scale: pressed ? 0.98 : 1,
-                        opacity: pressed ? 0.9 : 1,
-                      }
-                    }}
-                    transition={{ type: "timing", duration: 150 }}
-                    style={{ marginBottom: 15, borderRadius: 30 }}
+              {workout.exercises && workout.exercises.length > 0 ? (
+                workout.exercises.map((exercise, index) => (
+                  <MotiView
+                    key={exercise.id}
+                    from={{ opacity: 0, translateY: 20 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{ type: "timing", duration: 500, delay: index * 100 }}
                   >
-                    <LinearGradient
-                      colors={["#2A2A2A", "#1A1A1A"]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      className="p-[1px] mb-3"
-                      style={{ borderRadius: 24 }}
+                    <MotiPressable
+                      onPress={() => handleOpenBottomSheet(exercise)}
+                      animate={({ pressed }) => {
+                        "worklet"
+                        return {
+                          scale: pressed ? 0.98 : 1,
+                          opacity: pressed ? 0.9 : 1,
+                        }
+                      }}
+                      transition={{ type: "timing", duration: 150 }}
+                      style={{ marginBottom: 15, borderRadius: 30 }}
                     >
-                      <MotiView
-                        className="flex-row items-center rounded-3xl py-4 px-4 pl-6"
-                        animate={{ opacity: 1 }}
-                        from={{ opacity: 0 }}
-                        transition={{
-                          type: "timing",
-                          duration: 500,
-                        }}
+                      <LinearGradient
+                        colors={["#2A2A2A", "#1A1A1A"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="p-[1px] mb-3"
+                        style={{ borderRadius: 24 }}
                       >
-                        <View className="flex-row justify-between items-center">
-                          <View className="flex-1 gap-1">
-                            <Text className="text-white text-xl font-poppins-medium mb-1">{exercise.name}</Text>
-                            <View className="flex-row items-center gap-2">
-                              <LinearGradient
-                                colors={["#3A3A3A", "#2A2A2A"]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                className="p-[1px] mr-2"
-                                style={{ borderRadius: 20 }}
-                              >
-                                <View className="bg-white/60 rounded-lg px-3 py-0.5">
-                                  <Text className="text-black font-poppins-semibold">{exercise.sets} sets</Text>
-                                </View>
-                              </LinearGradient>
-                              <LinearGradient
-                                colors={["#3A3A3A", "#2A2A2A"]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                className="p-[1px]"
-                                style={{ borderRadius: 20 }}
-                              >
-                                <View className="bg-white/60 rounded-lg px-3 py-0.5">
-                                  <Text className="text-black font-poppins-semibold">{exercise.reps} reps</Text>
-                                </View>
-                              </LinearGradient>
+                        <MotiView
+                          className="flex-row items-center rounded-3xl py-4 px-4 pl-6"
+                          animate={{ opacity: 1 }}
+                          from={{ opacity: 0 }}
+                          transition={{
+                            type: "timing",
+                            duration: 500,
+                          }}
+                        >
+                          <View className="flex-row justify-between items-center">
+                            <View className="flex-1 gap-1">
+                              <Text className="text-white text-xl font-poppins-medium mb-1">{exercise.name}</Text>
+                              <View className="flex-row items-center gap-2">
+                                <LinearGradient
+                                  colors={["#3A3A3A", "#2A2A2A"]}
+                                  start={{ x: 0, y: 0 }}
+                                  end={{ x: 1, y: 1 }}
+                                  className="p-[1px] mr-2"
+                                  style={{ borderRadius: 20 }}
+                                >
+                                  <View className="bg-white/60 rounded-lg px-3 py-0.5">
+                                    <Text className="text-black font-poppins-semibold">{exercise.sets} sets</Text>
+                                  </View>
+                                </LinearGradient>
+                                <LinearGradient
+                                  colors={["#3A3A3A", "#2A2A2A"]}
+                                  start={{ x: 0, y: 0 }}
+                                  end={{ x: 1, y: 1 }}
+                                  className="p-[1px]"
+                                  style={{ borderRadius: 20 }}
+                                >
+                                  <View className="bg-white/60 rounded-lg px-3 py-0.5">
+                                    <Text className="text-black font-poppins-semibold">{exercise.reps} reps</Text>
+                                  </View>
+                                </LinearGradient>
+                              </View>
                             </View>
+                            {exercise.image && (
+                              <Image
+                                source={{ uri: exercise.image }}
+                                style={{ width: 80, height: 80 }}
+                                resizeMode="contain"
+                              />
+                            )}
                           </View>
-                          {exercise.image && (
-                            <Image
-                              source={{ uri: exercise.image }}
-                              style={{ width: 80, height: 80 }}
-                              resizeMode="contain"
-                            />
-                          )}
-                        </View>
-                      </MotiView>
-                    </LinearGradient>
-                  </MotiPressable>
-                </MotiView>
+                        </MotiView>
+                      </LinearGradient>
+                    </MotiPressable>
+                  </MotiView>
+                ))
               ) : (
                 <View className="bg-neutral-800 rounded-3xl p-6 items-center">
                   <Text className="text-white text-lg font-poppins-medium text-center">
-                    No exercise found for this workout.
+                    No exercises found for this workout.
                   </Text>
-                </View>
-              )}
-
-              {exercise && exercise.tips && (
-                <View className="mt-4">
-                  <Text className="text-white text-xl font-poppins-semibold mb-2">Tips</Text>
-                  <View className="bg-neutral-800 rounded-3xl p-5">
-                    <Text className="text-white font-poppins">{exercise.tips}</Text>
-                  </View>
                 </View>
               )}
             </View>
@@ -312,4 +315,3 @@ const styles = StyleSheet.create({
 })
 
 export default WorkoutDetailScreen
-

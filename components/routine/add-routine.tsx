@@ -1,12 +1,13 @@
 "use client"
 
 import { View, Text, ScrollView, TouchableOpacity, Platform, KeyboardAvoidingView, Alert } from "react-native"
-import { Dumbbell } from "lucide-react-native"
+import { Dumbbell, Plus, Trash2 } from "lucide-react-native"
 import { bodyParts } from "@/constants/data"
 import Input from "@/components/input"
 import { useState } from "react"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { useAuth } from "@/context/auth"
+import type { Exercise } from "@/lib/workouts"
 
 type AddWorkoutProps = {
   onSuccess?: () => void
@@ -31,21 +32,61 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
     image: null,
   })
 
-  const [exerciseData, setExerciseData] = useState<{
-    name: string
-    sets: number
-    reps: number
-    image: string | null
-    tips: string | null
-  }>({
-    name: "",
-    sets: 3,
-    reps: 10,
-    image: null,
-    tips: null,
-  })
+  const [exercises, setExercises] = useState<
+    Array<{
+      name: string
+      sets: number
+      reps: number
+      image: string | null
+      tips: string | null
+    }>
+  >([
+    {
+      name: "",
+      sets: 3,
+      reps: 10,
+      image: null,
+      tips: null,
+    },
+  ])
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 50 : 0
+
+  const handleAddExercise = () => {
+    setExercises([
+      ...exercises,
+      {
+        name: "",
+        sets: 3,
+        reps: 10,
+        image: null,
+        tips: null,
+      },
+    ])
+  }
+
+  const handleRemoveExercise = (index: number) => {
+    if (exercises.length === 1) {
+      Alert.alert("Error", "You must have at least one exercise")
+      return
+    }
+
+    const newExercises = [...exercises]
+    newExercises.splice(index, 1)
+    setExercises(newExercises)
+  }
+
+  const handleExerciseChange = (index: number, field: keyof Omit<Exercise, "id" | "workout_id">, value: any) => {
+    const newExercises = [...exercises]
+
+    if (field === "sets" || field === "reps") {
+      newExercises[index][field] = Number.parseInt(value) || 0
+    } else {
+      newExercises[index][field as "name" | "image" | "tips"] = value
+    }
+
+    setExercises(newExercises)
+  }
 
   const handleSubmit = async () => {
     if (!userId) {
@@ -58,8 +99,10 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       return
     }
 
-    if (!exerciseData.name) {
-      Alert.alert("Error", "Please enter an exercise name")
+    // Validate all exercises have a name
+    const invalidExercises = exercises.filter((ex) => !ex.name)
+    if (invalidExercises.length > 0) {
+      Alert.alert("Error", "All exercises must have a name")
       return
     }
 
@@ -78,13 +121,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
           last_performed: new Date().toString(),
           user_id: userId,
         },
-        {
-          name: exerciseData.name,
-          sets: exerciseData.sets,
-          reps: exerciseData.reps,
-          image: exerciseData.image,
-          tips: exerciseData.tips,
-        },
+        exercises,
       )
 
       if (result) {
@@ -96,13 +133,15 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
           body_part: "All",
           image: null,
         })
-        setExerciseData({
-          name: "",
-          sets: 3,
-          reps: 10,
-          image: null,
-          tips: null,
-        })
+        setExercises([
+          {
+            name: "",
+            sets: 3,
+            reps: 10,
+            image: null,
+            tips: null,
+          },
+        ])
 
         // Call onSuccess callback if provided
         if (onSuccess) {
@@ -168,54 +207,69 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
           </ScrollView>
         </View>
 
-        {/* Exercise */}
+        {/* Exercises */}
         <View className="mb-6">
-          <Text className="text-white text-lg font-poppins-medium mb-2">Exercise</Text>
-          <View className="bg-neutral-800 p-5 rounded-3xl mb-2">
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-white text-xl font-poppins-medium">Exercise Details</Text>
-            </View>
-            <Input
-              value={exerciseData.name}
-              onChangeText={(text) => setExerciseData((prev) => ({ ...prev, name: text }))}
-              placeholder="Enter exercise name"
-              mode="outlined"
-              keyboardType="default"
-              focus={false}
-            />
-            <View className="flex-row gap-3 mt-3">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-white text-lg font-poppins-medium">Exercises</Text>
+            <TouchableOpacity onPress={handleAddExercise} className="bg-neutral-800 p-2 rounded-full">
+              <Plus size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+
+          {exercises.map((exercise, index) => (
+            <View key={index} className="bg-neutral-800 p-5 rounded-3xl mb-4">
+              <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-white text-xl font-poppins-medium">Exercise {index + 1}</Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveExercise(index)}
+                  className="bg-neutral-700 p-2 rounded-full"
+                >
+                  <Trash2 size={16} color="white" />
+                </TouchableOpacity>
+              </View>
+
               <Input
-                value={exerciseData.sets.toString()}
-                onChangeText={(text) => setExerciseData((prev) => ({ ...prev, sets: Number.parseInt(text) || 0 }))}
-                placeholder="Enter sets"
-                mode="outlined"
-                keyboardType="numeric"
-                focus={false}
-                moreStyles={{ width: "48%" }}
-              />
-              <Input
-                value={exerciseData.reps.toString()}
-                onChangeText={(text) => setExerciseData((prev) => ({ ...prev, reps: Number.parseInt(text) || 0 }))}
-                placeholder="Enter reps"
-                mode="outlined"
-                keyboardType="numeric"
-                focus={false}
-                moreStyles={{ width: "48%" }}
-              />
-            </View>
-            <View className="mt-3">
-              <Input
-                value={exerciseData.tips || ""}
-                onChangeText={(text) => setExerciseData((prev) => ({ ...prev, tips: text }))}
-                placeholder="Enter tips (optional)"
+                value={exercise.name}
+                onChangeText={(text) => handleExerciseChange(index, "name", text)}
+                placeholder="Enter exercise name"
                 mode="outlined"
                 keyboardType="default"
                 focus={false}
-                // multiline={true}
-                // numberOfLines={3}
               />
+
+              <View className="flex-row gap-3 mt-3">
+                <Input
+                  value={exercise.sets.toString()}
+                  onChangeText={(text) => handleExerciseChange(index, "sets", text)}
+                  placeholder="Enter sets"
+                  mode="outlined"
+                  keyboardType="numeric"
+                  focus={false}
+                  moreStyles={{ width: "48%" }}
+                />
+                <Input
+                  value={exercise.reps.toString()}
+                  onChangeText={(text) => handleExerciseChange(index, "reps", text)}
+                  placeholder="Enter reps"
+                  mode="outlined"
+                  keyboardType="numeric"
+                  focus={false}
+                  moreStyles={{ width: "48%" }}
+                />
+              </View>
+
+              <View className="mt-3">
+                <Input
+                  value={exercise.tips || ""}
+                  onChangeText={(text) => handleExerciseChange(index, "tips", text)}
+                  placeholder="Enter tips (optional)"
+                  mode="outlined"
+                  keyboardType="default"
+                  focus={false}
+                />
+              </View>
             </View>
-          </View>
+          ))}
         </View>
 
         {/* Submit Button */}
@@ -235,4 +289,3 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
 }
 
 export default AddWorkout
-
