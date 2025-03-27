@@ -1,123 +1,90 @@
-import { useState, useRef, useMemo } from "react"
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform, StyleSheet } from "react-native"
+"use client"
+
+import { useState, useRef } from "react"
+import {
+  View,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native"
 import { TrendingUp, Plus, CheckCircle2, Clock } from "lucide-react-native"
-import BottomSheet from '@gorhom/bottom-sheet';
+import type BottomSheet from "@gorhom/bottom-sheet"
 import { Avatar } from "react-native-paper"
 import BodyPartButton from "@/components/routine/body-part"
-import RoutineCard from "@/components/routine/routine-card"
-import { bodyParts, routines } from "@/constants/data"
+import WorkoutCard from "@/components/routine/routine-card"
+import { bodyParts } from "@/constants/data"
 import BotSheet from "@/components/bot-sheet"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
-import * as Haptics from 'expo-haptics';
-import type { Exercise, Routine } from "@/constants/data"
-import AddRoutine from "@/components/routine/add-routine";
-
-const initialExercise: Exercise = {
-  name: "",
-  sets: 3,
-  reps: 10,
-  image: require("@/assets/images/anatomy/chest.png")
-}
+import * as Haptics from "expo-haptics"
+import AddWorkout from "@/components/routine/add-routine"
+import { useWorkouts } from "@/hooks/use-workouts"
 
 const WorkoutRoutines = () => {
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null)
   const [selectedBodyPart, setSelectedBodyPart] = useState("All")
   const { session } = useAuth()
   const user = session?.user
+  const userId = user?.id
   const platform = Platform.OS
 
-  const filteredRoutines = selectedBodyPart === "All" 
-    ? routines 
-    : routines.filter((routine) => routine.bodyPart === selectedBodyPart)
+  // Use the workouts hook
+  const { workouts, loading, refreshing, onRefresh, completeWorkout, isWorkoutCompletedOnDate } = useWorkouts(userId)
+
+  // Filter workouts by body part
+  const filteredWorkouts =
+    selectedBodyPart === "All" ? workouts : workouts.filter((workout) => workout.body_part === selectedBodyPart)
 
   const handleOpenBottomSheet = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     }
-    bottomSheetRef.current?.expand();
-  };
-  
-  // New Routine Form State
-  const [newRoutine, setNewRoutine] = useState<Partial<Routine>>({
-    name: "",
-    exercises: [{ ...initialExercise }],
-    duration: "",
-    bodyPart: "All",
-  })
-
-  const handleAddExercise = () => {
-    setNewRoutine(prev => ({
-      ...prev,
-      exercises: [...(prev.exercises || []), { ...initialExercise }]
-    }))
+    bottomSheetRef.current?.expand()
   }
 
-  const handleRemoveExercise = (index: number) => {
-    setNewRoutine(prev => ({
-      ...prev,
-      exercises: prev.exercises?.filter((_, i) => i !== index)
-    }))
-  }
-
-  const handleExerciseChange = (index: number, field: keyof Exercise, value: string | number) => {
-    setNewRoutine(prev => ({
-      ...prev,
-      exercises: prev.exercises?.map((exercise, i) => 
-        i === index ? { ...exercise, [field]: value } : exercise
-      )
-    }))
-  }
-
-  const handleSubmit = () => {
-    // Here you would typically send the data to your backend
-    console.log('New Routine:', newRoutine)
-    // Reset form and close bottom sheet
-    setNewRoutine({
-      name: "",
-      exercises: [{ ...initialExercise }],
-      duration: "",
-      bodyPart: "All",
-    })
+  const handleWorkoutAdded = () => {
     bottomSheetRef.current?.close()
+    onRefresh() // Refresh the workouts list
   }
 
-  // TODO: add check if it has passed an its not done then use red x as icon
+  // Helper function to get workout name for each day
+  const getWorkoutForDay = (day: string) => {
+    const workoutSchedule: { [key: string]: string } = {
+      Mon: "Upper Body",
+      Tue: "Lower Body",
+      Wed: "Core",
+      Thu: "Cardio",
+      Fri: "Full Body",
+      Sat: "Rest",
+      Sun: "Rest",
+    }
+    return workoutSchedule[day]
+  }
 
-  // Helper function to get routine name for each day
-  const getRoutineForDay = (day: string) => {
-    const routineSchedule: { [key: string]: string } = {
-      'Mon': 'Upper Body',
-      'Tue': 'Lower Body',
-      'Wed': 'Core',
-      'Thu': 'Cardio',
-      'Fri': 'Full Body',
-      'Sat': 'Rest',
-      'Sun': 'Rest'
-    };
-    return routineSchedule[day];
-  };
-
-  const weekDays = useMemo(() => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const currentDate = new Date();
-    const currentDay = currentDate.getDay(); // 0-6, starting from Sunday
-    const mondayOffset = currentDay === 0 ? 6 : currentDay - 1; // Calculate days since Monday
+  const weekDays = (() => {
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    const currentDate = new Date()
+    const currentDay = currentDate.getDay() // 0-6, starting from Sunday
+    const mondayOffset = currentDay === 0 ? 6 : currentDay - 1 // Calculate days since Monday
 
     return days.map((day, index) => {
       // Calculate if this day is before or after today in the current week
-      const dayOffset = index - mondayOffset;
-      const isToday = dayOffset === 0;
-      const isPastDay = dayOffset < 0;
-      
+      const dayOffset = index - mondayOffset
+      const isToday = dayOffset === 0
+      const isPastDay = dayOffset < 0
+
       return {
         day,
         completed: isPastDay, // Only past days are completed
-        routineName: getRoutineForDay(day),
-        isToday
-      };
-    });
-  }, []);
+        workoutName: getWorkoutForDay(day),
+        isToday,
+      }
+    })
+  })()
 
   return (
     <SafeAreaView className={`flex flex-col flex-1 bg-black ${platform === "ios" ? "" : "pt-5"}`}>
@@ -125,6 +92,8 @@ const WorkoutRoutines = () => {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: platform === "ios" ? 60 : 80 }}
         showsVerticalScrollIndicator={false}
+        // refreshing={refreshing}
+        // onRefresh={onRefresh}
       >
         {/* Header Section */}
         <View className="flex-row justify-between items-center mb-6">
@@ -136,9 +105,7 @@ const WorkoutRoutines = () => {
             />
             <View className="ml-4">
               <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
-              <Text className="text-neutral-400 text-base font-poppins-semibold">
-                Your Routines
-              </Text>
+              <Text className="text-neutral-400 text-base font-poppins-semibold">Your Workouts</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -146,30 +113,25 @@ const WorkoutRoutines = () => {
         {/* Weekly Overview */}
         <View className="bg-neutral-900 rounded-3xl p-6 mb-6">
           <Text className="text-white text-xl font-poppins-semibold mb-4">Weekly Overview</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-          >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {weekDays.map((item, index) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={index}
-                className={`mr-4 items-center ${item.isToday ? 'opacity-100' : 'opacity-70'}`}
+                className={`mr-4 items-center ${item.isToday ? "opacity-100" : "opacity-70"}`}
                 style={{ width: 65 }}
               >
-                <View 
+                <View
                   className={`w-12 h-12 rounded-full items-center justify-center mb-2
-                    ${item.isToday ? 'bg-red-500' : 'bg-neutral-800'}`}
+                    ${item.isToday ? "bg-red-500" : "bg-neutral-800"}`}
                 >
                   {item.completed ? (
-                    <CheckCircle2 size={20} color={item.isToday ? '#fff' : '#22c55e'} />
+                    <CheckCircle2 size={20} color={item.isToday ? "#fff" : "#22c55e"} />
                   ) : (
-                    <Clock size={20} color={item.isToday ? '#fff' : '#fff'} />
+                    <Clock size={20} color={item.isToday ? "#fff" : "#fff"} />
                   )}
                 </View>
                 <Text className="text-white text-sm font-poppins-medium">{item.day}</Text>
-                <Text className="text-neutral-400 text-xs font-poppins-medium text-center">
-                  {item.routineName}
-                </Text>
+                <Text className="text-neutral-400 text-xs font-poppins-medium text-center">{item.workoutName}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -180,19 +142,42 @@ const WorkoutRoutines = () => {
           <Text className="text-white text-xl font-poppins-semibold mb-4">Target Muscle Groups</Text>
           <View className="flex-row flex-wrap justify-between">
             {bodyParts.map((part, index) => (
-              <BodyPartButton key={index} part={part} selectedBodyPart={selectedBodyPart} setSelectedBodyPart={setSelectedBodyPart} />
+              <BodyPartButton
+                key={index}
+                part={part}
+                selectedBodyPart={selectedBodyPart}
+                setSelectedBodyPart={setSelectedBodyPart}
+              />
             ))}
           </View>
         </View>
 
-        {/* Routines Section */}
+        {/* Workouts Section */}
         <View className="mb-5">
           <Text className="text-white text-2xl font-poppins-semibold mb-4">
-            {selectedBodyPart === "All" ? "All Routines" : `${selectedBodyPart} Routines`}
+            {selectedBodyPart === "All" ? "All Workouts" : `${selectedBodyPart} Workouts`}
           </Text>
-          {filteredRoutines.map((routine, index) => (
-            <RoutineCard key={index} routine={routine} pressable={true} />
-          ))}
+
+          {loading ? (
+            <View className="items-center justify-center py-10">
+              <ActivityIndicator size="large" color="#fff" />
+            </View>
+          ) : filteredWorkouts.length > 0 ? (
+            filteredWorkouts.map((workout) => (
+              <WorkoutCard
+                key={workout.id}
+                workout={workout}
+                onComplete={() => completeWorkout(workout.id)}
+                isCompleted={isWorkoutCompletedOnDate(workout.id)}
+              />
+            ))
+          ) : (
+            <View className="bg-neutral-800 rounded-3xl p-6 items-center">
+              <Text className="text-white text-lg font-poppins-medium text-center">
+                No workouts found. Add your first workout!
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Workout Streak Card */}
@@ -211,23 +196,12 @@ const WorkoutRoutines = () => {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity 
-        style={styles.floatingButton}
-        onPress={handleOpenBottomSheet}
-        className="bg-white"
-      >
+      <TouchableOpacity style={styles.floatingButton} onPress={handleOpenBottomSheet} className="bg-white">
         <Plus size={24} color="black" />
       </TouchableOpacity>
 
       <BotSheet ref={bottomSheetRef}>
-        <AddRoutine 
-          newRoutine={newRoutine}
-          setNewRoutine={setNewRoutine}
-          handleAddExercise={handleAddExercise}
-          handleRemoveExercise={handleRemoveExercise}
-          handleExerciseChange={handleExerciseChange}
-          handleSubmit={handleSubmit}
-        />
+        <AddWorkout onSuccess={handleWorkoutAdded} />
       </BotSheet>
     </SafeAreaView>
   )
@@ -243,7 +217,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 100,
     right: 20,
-  }
-});
+  },
+})
 
 export default WorkoutRoutines
+
