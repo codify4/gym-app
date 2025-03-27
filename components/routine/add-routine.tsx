@@ -53,7 +53,9 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
   const keyboardVerticalOffset = Platform.OS === "ios" ? 50 : 0
 
   const handleAddExercise = () => {
-    setExercises([
+    console.log("Adding exercise, current count:", exercises.length)
+    // Create a new array with the existing exercises plus a new one
+    const newExercises = [
       ...exercises,
       {
         name: "",
@@ -62,7 +64,9 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
         image: null,
         tips: null,
       },
-    ])
+    ]
+    setExercises(newExercises)
+    console.log("New exercises count:", newExercises.length)
   }
 
   const handleRemoveExercise = (index: number) => {
@@ -112,6 +116,18 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       // Convert duration to number if it's a string
       const durationNumber = Number.parseInt(workoutData.duration) || 0
 
+      console.log("Adding workout with data:", {
+        workoutData: {
+          title: workoutData.title,
+          duration: durationNumber,
+          body_part: workoutData.body_part,
+          image: workoutData.image,
+          last_performed: new Date().toString(),
+          user_id: userId,
+        },
+        exercises,
+      })
+
       const result = await addWorkout(
         {
           title: workoutData.title,
@@ -125,7 +141,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       )
 
       if (result) {
-        Alert.alert("Success", "Workout created successfully")
+        console.log("Workout created successfully:", result)
         // Reset form
         setWorkoutData({
           title: "",
@@ -147,6 +163,9 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
         if (onSuccess) {
           onSuccess()
         }
+      } else {
+        console.error("Failed to create workout, no result returned")
+        Alert.alert("Error", "Failed to create workout. Please try again.")
       }
     } catch (error) {
       console.error("Error creating workout:", error)
@@ -211,7 +230,11 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
         <View className="mb-6">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-white text-lg font-poppins-medium">Exercises</Text>
-            <TouchableOpacity onPress={handleAddExercise} className="bg-neutral-800 p-2 rounded-full">
+            <TouchableOpacity
+              onPress={() => handleAddExercise()}
+              activeOpacity={0.7}
+              className="bg-neutral-800 p-2 rounded-full"
+            >
               <Plus size={20} color="white" />
             </TouchableOpacity>
           </View>
@@ -289,3 +312,4 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
 }
 
 export default AddWorkout
+

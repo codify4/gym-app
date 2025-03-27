@@ -2,7 +2,7 @@ import React from "react"
 import { Link } from "expo-router"
 import { ChevronRight, Dumbbell, Timer, CheckCircle } from "lucide-react-native"
 import { View, Text, TouchableOpacity } from "react-native"
-import type { Workout } from "@/lib/workouts"
+import type { Exercise, Workout } from "@/lib/workouts"
 
 interface WorkoutCardProps {
   workout: Workout
@@ -16,6 +16,12 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, isCompleted = fals
   const lastPerformed = workout.last_performed
     ? new Date(workout.last_performed).toLocaleDateString("en-US", { month: "short", day: "numeric" })
     : "Not performed yet"
+
+  const countExercises = (exercises: Exercise[] | undefined) => {
+    if(!exercises) return 0
+    if(exercises.length === 1) return  "1 exercise"
+    return `${exercises.length} exercises`
+  }
 
   return (
     <>
@@ -36,7 +42,7 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, isCompleted = fals
               <View className="flex-row items-center mb-2">
                 <Dumbbell size={16} color="#FF3737" />
                 <Text className="text-neutral-400 text-sm font-poppins-medium ml-1 mr-3">
-                  {workout.exercises && workout.exercises.length > 0 ? "1 exercise" : "No exercises"}
+                  {countExercises(workout.exercises)}
                 </Text>
                 <Timer size={16} color="#FF3737" />
                 <Text className="text-neutral-400 text-sm font-poppins-medium ml-1">{workout.duration} min</Text>
