@@ -1,3 +1,4 @@
+import React from "react";
 import { forwardRef } from "react"
 import { StyleSheet } from "react-native"
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';

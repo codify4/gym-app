@@ -1,4 +1,4 @@
-import { Home, Dumbbell, Lightbulb, ChartLine, ChevronLeft } from 'lucide-react-native'
+import { Home, Dumbbell, Lightbulb, ChevronLeft, ChartNoAxesColumnIncreasing } from 'lucide-react-native'
 import { router, Tabs } from 'expo-router'
 import { Platform, TouchableOpacity } from 'react-native'
 import React from 'react'
@@ -54,7 +54,7 @@ const TabsLayout = () => {
             options={{
                 title: 'Stats',
                 tabBarIcon: ({ color, size }) => (
-                    <ChartLine color={color} size={size} />
+                    <ChartNoAxesColumnIncreasing color={color} size={size} />
                 )
             }}
         />

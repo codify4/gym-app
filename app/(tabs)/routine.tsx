@@ -138,9 +138,9 @@ const WorkoutRoutines = () => {
         </View>
 
         {/* Body Parts Filter */}
-        <View className="bg-neutral-900 rounded-3xl p-6 mb-6">
+        <View className="bg-neutral-900 rounded-3xl px-6 py-5 mb-6">
           <Text className="text-white text-xl font-poppins-semibold mb-4">Target Muscle Groups</Text>
-          <View className="flex-row flex-wrap justify-between">
+          <View className="flex-row flex-wrap justify-between gap-3">
             {bodyParts.map((part) => (
               <BodyPartButton
                 key={part.name}

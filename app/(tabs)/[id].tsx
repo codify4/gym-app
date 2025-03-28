@@ -286,7 +286,7 @@ const WorkoutDetailScreen = () => {
       {!isCompleted && (
         <TouchableOpacity style={styles.floatingButton} className="bg-white" onPress={handleCompleteWorkout}>
           <View className="flex-row justify-center items-center">
-            <Text className="text-black text-center text-xl font-poppins-semibold mr-2">Complete workout</Text>
+            <Text className="text-black text-center text-xl font-poppins-semibold mr-2">Start workout</Text>
             <PlayCircle size={24} color="black" />
           </View>
         </TouchableOpacity>
