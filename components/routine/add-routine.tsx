@@ -7,7 +7,7 @@ import Input from "@/components/input"
 import { useState } from "react"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { useAuth } from "@/context/auth"
-import type { Exercise } from "@/lib/workouts"
+import { getExerciseImage, type Exercise } from "@/lib/workouts"
 
 type AddWorkoutProps = {
   onSuccess?: () => void
@@ -87,6 +87,11 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       newExercises[index][field] = Number.parseInt(value) || 0
     } else {
       newExercises[index][field as "name" | "image" | "tips"] = value
+    }
+
+    // If the name field is being updated, automatically set the image based on the exercise name
+    if (field === "name" && value) {
+      newExercises[index].image = getExerciseImage(value, workoutData.body_part)
     }
 
     setExercises(newExercises)

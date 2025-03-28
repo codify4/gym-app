@@ -9,6 +9,8 @@ import { MotiPressable } from "moti/interactions"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, Layout } from "react-native-reanimated"
 import type { Exercise } from "@/lib/workouts"
+import { getExerciseImage } from "@/lib/workouts"
+import { getImageSource } from "@/utils/exercise-muscle"
 
 interface ExerciseCardProps {
   exercise: Exercise
@@ -123,9 +125,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
                     </LinearGradient>
                   </View>
                 </View>
-                {exercise.image && (
-                  <Image source={{ uri: exercise.image }} style={{ width: 80, height: 80 }} resizeMode="contain" />
-                )}
+                <Image source={getImageSource(exercise)} style={{ width: 80, height: 80 }} resizeMode="contain" />
               </View>
             </MotiView>
           </LinearGradient>
@@ -159,7 +159,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
       </View>
 
       <GestureDetector gesture={panGesture}>
-        <Animated.View style={[rStyle]} className="mb-3">
+        <Animated.View style={[rStyle]}>
           <MotiView
             from={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
@@ -221,9 +221,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
                         </LinearGradient>
                       </View>
                     </View>
-                    {exercise.image && (
-                      <Image source={{ uri: exercise.image }} style={{ width: 80, height: 80 }} resizeMode="contain" />
-                    )}
+                    <Image source={getImageSource(exercise)} style={{ width: 80, height: 80 }} resizeMode="contain" />
                   </View>
                 </MotiView>
               </LinearGradient>
@@ -236,3 +234,4 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
 }
 
 export default ExerciseCard
+

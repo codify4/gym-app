@@ -2,6 +2,7 @@ import React from "react"
 import { View, Text, ScrollView, Image } from "react-native"
 import { Info } from "lucide-react-native"
 import type { Exercise } from "@/lib/workouts"
+import { getImageSource } from "@/utils/exercise-muscle"
 
 const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
   // Create a default array of tips if tips is a string or null
@@ -35,7 +36,7 @@ const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
             <View className="mb-6">
               {exercise.image ? (
                 <Image
-                  source={{ uri: exercise.image }}
+                  source={getImageSource(exercise)}
                   style={{ width: "100%", height: 200, borderRadius: 16 }}
                   resizeMode="contain"
                 />
