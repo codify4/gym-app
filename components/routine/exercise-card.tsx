@@ -37,12 +37,8 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
       }
     })
     .onEnd((event) => {
-      console.log("Gesture ended, translation:", event.translationX, "threshold:", -SWIPE_THRESHOLD)
-
       // Check if we've passed the threshold and we have both an onDelete function and an exercise ID
       if (translateX.value < -SWIPE_THRESHOLD && onDelete && exercise.exercise_id) {
-        console.log("Threshold passed, deleting exercise with ID:", exercise.exercise_id)
-
         // Animate the card off-screen
         translateX.value = withTiming(-SCREEN_WIDTH, { duration: 300 })
         opacity.value = withTiming(0, { duration: 300 })

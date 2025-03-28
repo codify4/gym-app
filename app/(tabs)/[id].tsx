@@ -63,11 +63,6 @@ const WorkoutDetailScreen = () => {
           // Map exercise_id to id if needed
           if (foundWorkout.exercises) {
             const mappedExercises = mapExerciseData(foundWorkout.exercises)
-            console.log(
-              "Exercise IDs after mapping:",
-              mappedExercises.map((e) => e.exercise_id),
-            )
-
             setWorkout({
               ...foundWorkout,
               exercises: mappedExercises,
@@ -106,19 +101,8 @@ const WorkoutDetailScreen = () => {
         if (exercisesError) {
           console.error("Error fetching exercises:", exercisesError)
         } else {
-          console.log("Fetched exercises:", exercisesData)
-
           // Map exercise_id to id
           const mappedExercises = exercisesData ? mapExerciseData(exercisesData) : []
-
-          if (mappedExercises.length > 0) {
-            console.log(
-              "Exercise IDs after mapping:",
-              mappedExercises.map((e) => e.exercise_id),
-            )
-          }
-
-          // Set the workout with exercises
           setWorkout({
             ...workoutData,
             exercises: mappedExercises,
@@ -151,9 +135,7 @@ const WorkoutDetailScreen = () => {
 
   // Modified to handle exercise deletion properly
   const handleDeleteExercise = async (exerciseId: number) => {
-    console.log("Deleting exercise with ID:", exerciseId)
     if (!exerciseId) {
-      console.error("Exercise ID is undefined or invalid")
       return
     }
 
@@ -162,7 +144,6 @@ const WorkoutDetailScreen = () => {
     try {
       const success = await deleteExercise(exerciseId)
       if (success) {
-        console.log("Exercise deleted successfully")
         // Update local state to remove the deleted exercise
         if (workout && workout.exercises) {
           setWorkout({
@@ -256,9 +237,6 @@ const WorkoutDetailScreen = () => {
 
               {workout.exercises && workout.exercises.length > 0 ? (
                 workout.exercises.map((exercise, index) => {
-                  // Debug the exercise object to see if it has an ID
-                  console.log(`Exercise ${index}:`, exercise)
-
                   // Generate a unique key for the exercise
                   const uniqueKey = `exercise-${index}-${exercise.exercise_id || exercise.name || Date.now()}`
 
