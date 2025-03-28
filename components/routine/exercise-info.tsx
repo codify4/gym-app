@@ -2,10 +2,11 @@ import React from "react"
 import { View, Text, ScrollView, Image } from "react-native"
 import { Info } from "lucide-react-native"
 import type { Exercise } from "@/lib/workouts"
-import { getImageSource } from "@/utils/exercise-muscle"
 import { getExerciseTips } from "@/utils/exercise-tips"
+import { getImageSource } from "@/utils/exercise-muscle"
 
 const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
+  // Get tips based on exercise name and body part
   const tipsList =
     exercise.tips && Array.isArray(exercise.tips) ? exercise.tips : getExerciseTips(exercise.name, exercise.body_part)
 

@@ -15,7 +15,7 @@ interface ExerciseCardProps {
   exercise: Exercise
   index: number
   onPress: () => void
-  onDelete?: (id: string) => void
+  onDelete?: (id: number) => void
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window")
@@ -36,13 +36,22 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
         translateX.value = event.translationX
       }
     })
-    .onEnd(() => {
-      if (translateX.value < -SWIPE_THRESHOLD && onDelete && exercise.id) {
+    .onEnd((event) => {
+      console.log("Gesture ended, translation:", event.translationX, "threshold:", -SWIPE_THRESHOLD)
+
+      // Check if we've passed the threshold and we have both an onDelete function and an exercise ID
+      if (translateX.value < -SWIPE_THRESHOLD && onDelete && exercise.exercise_id) {
+        console.log("Threshold passed, deleting exercise with ID:", exercise.exercise_id)
+
+        // Animate the card off-screen
         translateX.value = withTiming(-SCREEN_WIDTH, { duration: 300 })
         opacity.value = withTiming(0, { duration: 300 })
+
+        // Set the deleting flag to prevent multiple delete calls
         isDeleting.current = true
-        runOnJS(onDelete)(exercise.id)
+        runOnJS(onDelete)(exercise.exercise_id)
       } else {
+        // Reset position if threshold not met
         translateX.value = withTiming(0)
       }
     })
@@ -63,7 +72,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
   if (!onDelete) {
     return (
       <MotiView
-        key={`exercise-${exercise.id || index}`}
+        key={`exercise-${exercise.exercise_id || index}`}
         from={{ opacity: 0, translateY: 20 }}
         animate={{ opacity: 1, translateY: 0 }}
         transition={{ type: "timing", duration: 500, delay: index * 100 }}

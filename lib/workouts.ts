@@ -2,19 +2,19 @@ import { supabase } from "./supabase"
 
 // Types
 export interface Exercise {
-  id: string // or number if your IDs are integers
+  exercise_id: number
   name: string
   sets: number
   reps: number
   image: string | null
   tips: string | null
-  workout_id?: string // or number if your IDs are integers
+  workout_id?: string 
   user_id?: string
   body_part?: string
 }
 
 export interface Workout {
-  workout_id: string // or number if your IDs are integers
+  workout_id: string
   title: string
   duration: number
   body_part: string
@@ -41,7 +41,7 @@ export const fetchWorkouts = async (userId: string | undefined): Promise<Workout
       .from("workout")
       .select("*")
       .eq("user_id", userId)
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: true })
 
     if (workoutsError) {
       console.error("Error fetching workouts:", workoutsError)
@@ -310,11 +310,11 @@ export const getExerciseImage = (exerciseName: string, bodyPart?: string): any =
   }
 
   if (name.includes("hip thrust") || name.includes("glute bridge") || name.includes("hip")) {
-    return require("@/assets/images/anatomy/hips.png")
+    return require("@/assets/images/anatomy/hip.png")
   }
 
   if (name.includes("adductor") || name.includes("inner thigh")) {
-    return require("@/assets/images/anatomy/hip-adductors.png")
+    return require("@/assets/images/anatomy/hip-adductor.png")
   }
 
   if (
@@ -463,18 +463,21 @@ export const updateExercise = async (
 }
 
 // Delete an exercise
-export const deleteExercise = async (exerciseId: string | number): Promise<boolean> => {
+export const deleteExercise = async (exerciseId: number): Promise<boolean> => {
   try {
-    const { error } = await supabase.from("exercise").delete().eq("id", exerciseId)
+    console.log("API: Deleting exercise with ID:", exerciseId)
+
+    const { error } = await supabase.from("exercise").delete().eq("exercise_id", exerciseId)
 
     if (error) {
-      console.error("Error deleting exercise:", error)
+      console.error("API: Error deleting exercise:", error)
       return false
     }
 
+    console.log("API: Successfully deleted exercise")
     return true
   } catch (error) {
-    console.error("Error in deleteExercise:", error)
+    console.error("API: Error in deleteExercise:", error)
     return false
   }
 }

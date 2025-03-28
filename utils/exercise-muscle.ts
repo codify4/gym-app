@@ -49,9 +49,9 @@ export const getImageSource = (exercise: Exercise) => {
         case "forearms.png":
           return require("@/assets/images/anatomy/forearms.png")
         case "hip.png":
-          return require("@/assets/images/anatomy/hips.png")
+          return require("@/assets/images/anatomy/hip.png")
         case "hip-adductor.png":
-          return require("@/assets/images/anatomy/hip-adductors.png")
+          return require("@/assets/images/anatomy/hip-adductor.png")
         case "up-back.png":
           return require("@/assets/images/anatomy/up-back.png")
         default:

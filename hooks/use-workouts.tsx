@@ -163,11 +163,11 @@ export const useWorkouts = (userId: string | undefined) => {
       if (updatedExercise) {
         setWorkouts((prev) =>
           prev.map((workout) => {
-            if (workout.exercises?.some((exercise) => exercise.id === exerciseId)) {
+            if (workout.exercises?.some((exercise) => exercise.exercise_id === exerciseId)) {
               return {
                 ...workout,
                 exercises: workout.exercises.map((exercise) =>
-                  exercise.id === exerciseId ? { ...exercise, ...updatedExercise } : exercise,
+                  exercise.exercise_id === exerciseId ? { ...exercise, ...updatedExercise } : exercise,
                 ),
               }
             }
@@ -184,16 +184,23 @@ export const useWorkouts = (userId: string | undefined) => {
   }, [])
 
   // Delete an exercise
-  const deleteExercise = useCallback(async (exerciseId: string | number) => {
+  const deleteExercise = useCallback(async (exerciseId: number) => {
     try {
+      console.log("useWorkouts: Deleting exercise with ID:", exerciseId)
+
+      // Call the deleteExercise function from the API
       const success = await deleteExerciseApi(exerciseId)
+      console.log("useWorkouts: API response for delete:", success)
+
       if (success) {
+        // Update the workouts state to remove the deleted exercise
         setWorkouts((prev) =>
           prev.map((workout) => {
-            if (workout.exercises?.some((exercise) => exercise.id === exerciseId)) {
+            if (workout.exercises?.some((exercise) => exercise.exercise_id === exerciseId)) {
+              console.log("useWorkouts: Found workout containing exercise, updating state")
               return {
                 ...workout,
-                exercises: workout.exercises.filter((exercise) => exercise.id !== exerciseId),
+                exercises: workout.exercises.filter((exercise) => exercise.exercise_id !== exerciseId),
               }
             }
             return workout

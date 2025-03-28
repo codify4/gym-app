@@ -38,6 +38,14 @@ const WorkoutDetailScreen = () => {
   const windowHeight = Dimensions.get("window").height
   const bottomSheetRef = useRef<BottomSheet>(null)
 
+  // Helper function to map exercise_id to id
+  const mapExerciseData = (exercises: any[]): Exercise[] => {
+    return exercises.map((exercise) => ({
+      ...exercise,
+      id: exercise.exercise_id
+    }))
+  }
+
   // Fetch workout data
   useEffect(() => {
     const fetchWorkoutData = async () => {
@@ -50,7 +58,24 @@ const WorkoutDetailScreen = () => {
         const foundWorkout = workouts.find((w) => w.workout_id === id)
 
         if (foundWorkout) {
-          setWorkout(foundWorkout)
+          console.log("Found workout in state:", foundWorkout)
+
+          // Map exercise_id to id if needed
+          if (foundWorkout.exercises) {
+            const mappedExercises = mapExerciseData(foundWorkout.exercises)
+            console.log(
+              "Exercise IDs after mapping:",
+              mappedExercises.map((e) => e.exercise_id),
+            )
+
+            setWorkout({
+              ...foundWorkout,
+              exercises: mappedExercises,
+            })
+          } else {
+            setWorkout(foundWorkout)
+          }
+
           setLoading(false)
           return
         }
@@ -81,10 +106,22 @@ const WorkoutDetailScreen = () => {
         if (exercisesError) {
           console.error("Error fetching exercises:", exercisesError)
         } else {
+          console.log("Fetched exercises:", exercisesData)
+
+          // Map exercise_id to id
+          const mappedExercises = exercisesData ? mapExerciseData(exercisesData) : []
+
+          if (mappedExercises.length > 0) {
+            console.log(
+              "Exercise IDs after mapping:",
+              mappedExercises.map((e) => e.exercise_id),
+            )
+          }
+
           // Set the workout with exercises
           setWorkout({
             ...workoutData,
-            exercises: exercisesData || [],
+            exercises: mappedExercises,
           })
         }
       } catch (error) {
@@ -112,19 +149,29 @@ const WorkoutDetailScreen = () => {
     // Optionally navigate back or show a success message
   }
 
-  const handleDeleteExercise = async (exerciseId: string) => {
+  // Modified to handle exercise deletion properly
+  const handleDeleteExercise = async (exerciseId: number) => {
+    console.log("Deleting exercise with ID:", exerciseId)
+    if (!exerciseId) {
+      console.error("Exercise ID is undefined or invalid")
+      return
+    }
+
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
+
     try {
-      // Call the deleteExercise function from useWorkouts
       const success = await deleteExercise(exerciseId)
       if (success) {
-        // Update the local workout state to remove the deleted exercise
-        setWorkout((prev) => {
-          if (!prev) return null
-          return {
-            ...prev,
-            exercises: prev.exercises?.filter((ex) => ex.id !== exerciseId) || [],
-          }
-        })
+        console.log("Exercise deleted successfully")
+        // Update local state to remove the deleted exercise
+        if (workout && workout.exercises) {
+          setWorkout({
+            ...workout,
+            exercises: workout.exercises.filter((e) => e.exercise_id !== exerciseId),
+          })
+        }
+      } else {
+        console.error("Failed to delete exercise")
       }
     } catch (error) {
       console.error("Error deleting exercise:", error)
@@ -209,7 +256,11 @@ const WorkoutDetailScreen = () => {
 
               {workout.exercises && workout.exercises.length > 0 ? (
                 workout.exercises.map((exercise, index) => {
-                  const uniqueKey = `exercise-${index}-${exercise.id || exercise.name || Date.now()}`
+                  // Debug the exercise object to see if it has an ID
+                  console.log(`Exercise ${index}:`, exercise)
+
+                  // Generate a unique key for the exercise
+                  const uniqueKey = `exercise-${index}-${exercise.exercise_id || exercise.name || Date.now()}`
 
                   return (
                     <ExerciseCard
