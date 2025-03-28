@@ -10,11 +10,10 @@ export interface Exercise {
   tips: string | null
   workout_id?: string // or number if your IDs are integers
   user_id?: string
+  body_part?: string
 }
 
 export interface Workout {
-  // Use the correct primary key name based on your schema
-  // This could be 'id' or 'workout_id' based on the error
   workout_id: string // or number if your IDs are integers
   title: string
   duration: number
@@ -38,7 +37,6 @@ export const fetchWorkouts = async (userId: string | undefined): Promise<Workout
 
   try {
     // First get all workouts
-    // Note: Use the correct column name for the primary key (workout_id or id)
     const { data: workouts, error: workoutsError } = await supabase
       .from("workout")
       .select("*")
@@ -55,8 +53,7 @@ export const fetchWorkouts = async (userId: string | undefined): Promise<Workout
     }
 
     // Then get all exercises for these workouts
-    // Use the correct primary key name from workout table
-    const workoutIds = workouts.map((workout) => workout.workout_id || workout.id)
+    const workoutIds = workouts.map((workout) => workout.workout_id)
     const { data: exercises, error: exercisesError } = await supabase
       .from("exercise")
       .select("*")
@@ -68,10 +65,9 @@ export const fetchWorkouts = async (userId: string | undefined): Promise<Workout
     }
 
     // Map exercises to their respective workouts
-    // Use the correct primary key name
     const workoutsWithExercises = workouts.map((workout) => ({
       ...workout,
-      exercises: exercises?.filter((exercise) => exercise.workout_id === (workout.workout_id || workout.id)) || [],
+      exercises: exercises?.filter((exercise) => exercise.workout_id === workout.workout_id) || [],
     }))
 
     return workoutsWithExercises
@@ -90,7 +86,8 @@ export const addWorkout = async (
   if (!userId) return null
 
   try {
-    // Insert the workout with the generated workout_id
+    // Insert the workout without explicitly providing a workout_id
+    // Supabase will handle the UUID generation
     const { data: workout, error: workoutError } = await supabase
       .from("workout")
       .insert([
@@ -118,6 +115,7 @@ export const addWorkout = async (
         ...exercise,
         workout_id: workout.workout_id,
         user_id: userId, // Add user_id to satisfy RLS policy
+        body_part: workoutData.body_part, // Add the body part from the workout
       }))
 
       const { data: exercises, error: exercisesError } = await supabase
@@ -154,7 +152,7 @@ export const updateWorkout = async (
     const { data, error } = await supabase
       .from("workout")
       .update(workoutData)
-      .eq("workout_id", workoutId) // Change to "id" if that's your primary key
+      .eq("workout_id", workoutId)
       .select()
       .single()
 
@@ -182,8 +180,7 @@ export const deleteWorkout = async (workoutId: string | number): Promise<boolean
     }
 
     // Then delete the workout
-    // Use the correct primary key column name
-    const { error: workoutError } = await supabase.from("workout").delete().eq("workout_id", workoutId) // Change to "id" if that's your primary key
+    const { error: workoutError } = await supabase.from("workout").delete().eq("workout_id", workoutId)
 
     if (workoutError) {
       console.error("Error deleting workout:", workoutError)
@@ -370,44 +367,6 @@ export const getExerciseImage = (exerciseName: string, bodyPart?: string): any =
   return require("@/assets/images/anatomy/chest.png")
 }
 
-// Update the addExercise function to use the getExerciseImage utility
-export const addExercise = async (
-  userId: string | undefined,
-  workoutId: string | number,
-  exerciseData: Omit<Exercise, "id" | "workout_id" | "user_id" | "image">,
-): Promise<Exercise | null> => {
-  if (!userId) return null
-
-  try {
-    // For database storage, we need to convert the require() result to a string path
-    // We'll store the path in a format that can be used by the Image component
-    const imagePath = `anatomy/${getImageNameFromExercise(exerciseData.name)}`
-
-    const { data, error } = await supabase
-      .from("exercise")
-      .insert([
-        {
-          ...exerciseData,
-          image: imagePath, // Store the path in the database
-          workout_id: workoutId,
-          user_id: userId, // Add user_id to satisfy RLS policy
-        },
-      ])
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Error adding exercise:", error)
-      return null
-    }
-
-    return data
-  } catch (error) {
-    console.error("Error in addExercise:", error)
-    return null
-  }
-}
-
 // Helper function to get just the image name based on exercise
 function getImageNameFromExercise(exerciseName: string, bodyPart?: string): string {
   const name = exerciseName.toLowerCase().trim()
@@ -429,6 +388,58 @@ function getImageNameFromExercise(exerciseName: string, bodyPart?: string): stri
 
   // Default
   return "chest.png"
+}
+
+// Update the addExercise function to use the getExerciseImage utility
+export const addExercise = async (
+  userId: string | undefined,
+  workoutId: string | number,
+  exerciseData: Omit<Exercise, "id" | "workout_id" | "user_id" | "image">,
+): Promise<Exercise | null> => {
+  if (!userId) return null
+
+  try {
+    // For database storage, we need to convert the require() result to a string path
+    // We'll store the path in a format that can be used by the Image component
+    const imagePath = `anatomy/${getImageNameFromExercise(exerciseData.name, exerciseData.body_part)}`
+
+    // Get the workout to get its body_part
+    const { data: workout, error: workoutError } = await supabase
+      .from("workout")
+      .select("body_part")
+      .eq("workout_id", workoutId)
+      .single()
+
+    if (workoutError) {
+      console.error("Error fetching workout for body part:", workoutError)
+    }
+
+    const body_part = workout?.body_part || exerciseData.body_part || "All"
+
+    const { data, error } = await supabase
+      .from("exercise")
+      .insert([
+        {
+          ...exerciseData,
+          image: imagePath, // Store the path in the database
+          workout_id: workoutId,
+          user_id: userId, // Add user_id to satisfy RLS policy
+          body_part, // Add the body part from the workout
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error("Error adding exercise:", error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error("Error in addExercise:", error)
+    return null
+  }
 }
 
 // Update an exercise
@@ -496,8 +507,7 @@ export const completeWorkout = async (
     }
 
     // Update the last_performed date on the workout
-    // Use the correct primary key column name
-    await supabase.from("workout").update({ last_performed: completedDate }).eq("workout_id", workoutId) // Change to "id" if that's your primary key
+    await supabase.from("workout").update({ last_performed: completedDate }).eq("workout_id", workoutId)
 
     return data
   } catch (error) {
@@ -537,4 +547,3 @@ export const isWorkoutCompletedOnDate = async (
     return false
   }
 }
-

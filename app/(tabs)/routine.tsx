@@ -171,7 +171,7 @@ const WorkoutRoutines = () => {
               />
             ))
           ) : (
-            <View className="bg-neutral-800 rounded-3xl p-6 items-center">
+            <View className="bg-neutral-900 rounded-3xl p-6 items-center">
               <Text className="text-white text-lg font-poppins-medium text-center">
                 No workouts found. Add your first workout!
               </Text>

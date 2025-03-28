@@ -3,26 +3,11 @@ import { View, Text, ScrollView, Image } from "react-native"
 import { Info } from "lucide-react-native"
 import type { Exercise } from "@/lib/workouts"
 import { getImageSource } from "@/utils/exercise-muscle"
+import { getExerciseTips } from "@/utils/exercise-tips"
 
 const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
-  // Create a default array of tips if tips is a string or null
-  const tipsList = exercise.tips
-    ? typeof exercise.tips === "string"
-      ? [
-          "Start with proper form and positioning",
-          "Perform the movement with controlled motion",
-          "Focus on the target muscle group",
-          "Breathe properly throughout the exercise",
-          "Complete all reps with good form",
-        ]
-      : exercise.tips
-    : [
-        "Start with proper form and positioning",
-        "Perform the movement with controlled motion",
-        "Focus on the target muscle group",
-        "Breathe properly throughout the exercise",
-        "Complete all reps with good form",
-      ]
+  const tipsList =
+    exercise.tips && Array.isArray(exercise.tips) ? exercise.tips : getExerciseTips(exercise.name, exercise.body_part)
 
   return (
     <>
