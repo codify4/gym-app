@@ -33,7 +33,7 @@ const WorkoutRoutines = () => {
   const platform = Platform.OS
 
   // Use the workouts hook
-  const { workouts, loading, refreshing, onRefresh, completeWorkout, isWorkoutCompletedOnDate } = useWorkouts(userId)
+  const { workouts, loading, refreshing, onRefresh, deleteWorkout, completeWorkout, isWorkoutCompletedOnDate } = useWorkouts(userId)
 
   // Filter workouts by body part
   const filteredWorkouts =
@@ -164,11 +164,10 @@ const WorkoutRoutines = () => {
             </View>
           ) : filteredWorkouts.length > 0 ? (
             filteredWorkouts.map((workout) => (
-              <WorkoutCard
+              <WorkoutCard 
                 key={workout.workout_id}
-                workout={workout}
-                onComplete={() => completeWorkout(workout.workout_id)}
-                isCompleted={isWorkoutCompletedOnDate(workout.workout_id)}
+                workout={workout} 
+                onDelete={(id) => deleteWorkout(id)} 
               />
             ))
           ) : (

@@ -17,11 +17,9 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft, Clock, Dumbbell, Flame, PlayCircle } from "lucide-react-native"
 import BotSheet from "@/components/bot-sheet"
 import type BottomSheet from "@gorhom/bottom-sheet"
-import { LinearGradient } from "expo-linear-gradient"
-import { MotiView } from "moti"
-import { MotiPressable } from "moti/interactions"
 import * as Haptics from "expo-haptics"
 import ExerciseInfo from "@/components/routine/exercise-info"
+import ExerciseCard from "@/components/routine/exercise-card"
 import { useAuth } from "@/context/auth"
 import { supabase } from "@/lib/supabase"
 import type { Exercise, Workout } from "@/lib/workouts"
@@ -31,7 +29,7 @@ const WorkoutDetailScreen = () => {
   const { id } = useLocalSearchParams()
   const { session } = useAuth()
   const userId = session?.user?.id
-  const { workouts, completeWorkout, isWorkoutCompletedOnDate } = useWorkouts(userId)
+  const { workouts, completeWorkout, isWorkoutCompletedOnDate, deleteExercise } = useWorkouts(userId)
 
   const [workout, setWorkout] = useState<Workout | null>(null)
   const [loading, setLoading] = useState(true)
@@ -112,6 +110,25 @@ const WorkoutDetailScreen = () => {
 
     await completeWorkout(workout.workout_id)
     // Optionally navigate back or show a success message
+  }
+
+  const handleDeleteExercise = async (exerciseId: string) => {
+    try {
+      // Call the deleteExercise function from useWorkouts
+      const success = await deleteExercise(exerciseId)
+      if (success) {
+        // Update the local workout state to remove the deleted exercise
+        setWorkout((prev) => {
+          if (!prev) return null
+          return {
+            ...prev,
+            exercises: prev.exercises?.filter((ex) => ex.id !== exerciseId) || [],
+          }
+        })
+      }
+    } catch (error) {
+      console.error("Error deleting exercise:", error)
+    }
   }
 
   if (loading) {
@@ -195,80 +212,13 @@ const WorkoutDetailScreen = () => {
                   const uniqueKey = `exercise-${index}-${exercise.id || exercise.name || Date.now()}`
 
                   return (
-                    <MotiView
+                    <ExerciseCard
                       key={uniqueKey}
-                      from={{ opacity: 0, translateY: 20 }}
-                      animate={{ opacity: 1, translateY: 0 }}
-                      transition={{ type: "timing", duration: 500, delay: index * 100 }}
-                    >
-                      <MotiPressable
-                        onPress={() => handleOpenBottomSheet(exercise)}
-                        animate={({ pressed }) => {
-                          "worklet"
-                          return {
-                            scale: pressed ? 0.98 : 1,
-                            opacity: pressed ? 0.9 : 1,
-                          }
-                        }}
-                        transition={{ type: "timing", duration: 150 }}
-                        style={{ marginBottom: 15, borderRadius: 30 }}
-                      >
-                        <LinearGradient
-                          colors={["#2A2A2A", "#1A1A1A"]}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                          className="p-[1px] mb-3"
-                          style={{ borderRadius: 24 }}
-                        >
-                          <MotiView
-                            className="flex-row items-center rounded-3xl py-4 px-4 pl-6"
-                            animate={{ opacity: 1 }}
-                            from={{ opacity: 0 }}
-                            transition={{
-                              type: "timing",
-                              duration: 500,
-                            }}
-                          >
-                            <View className="flex-row justify-between items-center">
-                              <View className="flex-1 gap-1">
-                                <Text className="text-white text-xl font-poppins-medium mb-1">{exercise.name}</Text>
-                                <View className="flex-row items-center gap-2">
-                                  <LinearGradient
-                                    colors={["#3A3A3A", "#2A2A2A"]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                    className="p-[1px] mr-2"
-                                    style={{ borderRadius: 20 }}
-                                  >
-                                    <View className="bg-white/60 rounded-lg px-3 py-0.5">
-                                      <Text className="text-black font-poppins-semibold">{exercise.sets} sets</Text>
-                                    </View>
-                                  </LinearGradient>
-                                  <LinearGradient
-                                    colors={["#3A3A3A", "#2A2A2A"]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 1 }}
-                                    className="p-[1px]"
-                                    style={{ borderRadius: 20 }}
-                                  >
-                                    <View className="bg-white/60 rounded-lg px-3 py-0.5">
-                                      <Text className="text-black font-poppins-semibold">{exercise.reps} reps</Text>
-                                    </View>
-                                  </LinearGradient>
-                                </View>
-                              </View>
-                              {exercise.image && (
-                                <Image
-                                  source={{ uri: exercise.image }}
-                                  style={{ width: 80, height: 80 }}
-                                  resizeMode="contain"
-                                />
-                              )}
-                            </View>
-                          </MotiView>
-                        </LinearGradient>
-                      </MotiPressable>
-                    </MotiView>
+                      exercise={exercise}
+                      index={index}
+                      onPress={() => handleOpenBottomSheet(exercise)}
+                      onDelete={handleDeleteExercise}
+                    />
                   )
                 })
               ) : (
@@ -319,4 +269,3 @@ const styles = StyleSheet.create({
 })
 
 export default WorkoutDetailScreen
-
