@@ -2,11 +2,12 @@
 
 import { useRef } from "react"
 import { Link } from "expo-router"
-import { ChevronRight, Dumbbell, Timer, CheckCircle, Trash2 } from "lucide-react-native"
+import { ChevronRight, Dumbbell, Timer, CheckCircle, Trash2, Flame } from "lucide-react-native"
 import { View, Text, TouchableOpacity, Dimensions } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, Layout } from "react-native-reanimated"
 import type { Exercise, Workout } from "@/lib/workouts"
+import { formatCalories } from "@/utils/calories"
 
 interface WorkoutCardProps {
   workout: Workout
@@ -81,7 +82,11 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
           {countExercises(workout.exercises)}
         </Text>
         <Timer size={16} color="#FF3737" />
-        <Text className="text-neutral-400 text-base font-poppins-medium ml-1">{workout.duration} min</Text>
+        <Text className="text-neutral-400 text-base font-poppins-medium ml-1 mr-3">{workout.duration} min</Text>
+        <Flame size={16} color="#FF3737" />
+        <Text className="text-neutral-400 text-base font-poppins-medium ml-1">
+          {workout.calories ? formatCalories(workout.calories) : "~150 kcal"}
+        </Text>
       </View>
       <View className="flex-row items-center justify-between">
         <Text className="text-neutral-500 text-base font-poppins-semibold">{lastPerformed}</Text>
@@ -184,3 +189,4 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
 }
 
 export default WorkoutCard
+

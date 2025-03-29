@@ -14,12 +14,18 @@ import {
   type Workout,
   type Exercise,
 } from "@/lib/workouts"
+import { calculateCaloriesBurned } from "@/utils/calories"
 
 export const useWorkouts = (userId: string | undefined) => {
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [completedWorkouts, setCompletedWorkouts] = useState<Record<string, boolean>>({})
+
+  // Calculate calories for a workout
+  const getWorkoutCalories = useCallback((workout: Workout): number => {
+    return calculateCaloriesBurned(workout.body_part, workout.duration)
+  }, [])
 
   // Fetch workouts
   const fetchWorkoutsData = useCallback(async () => {
@@ -32,7 +38,14 @@ export const useWorkouts = (userId: string | undefined) => {
     try {
       setLoading(true)
       const data = await fetchWorkouts(userId)
-      setWorkouts(data)
+
+      // Add calories to each workout
+      const workoutsWithCalories = data.map((workout) => ({
+        ...workout,
+        calories: getWorkoutCalories(workout),
+      }))
+
+      setWorkouts(workoutsWithCalories)
 
       // Check which workouts are completed today
       const completedMap: Record<string, boolean> = {}
@@ -46,7 +59,7 @@ export const useWorkouts = (userId: string | undefined) => {
     } finally {
       setLoading(false)
     }
-  }, [userId])
+  }, [userId, getWorkoutCalories])
 
   // Initial fetch
   useEffect(() => {
@@ -73,8 +86,14 @@ export const useWorkouts = (userId: string | undefined) => {
       try {
         const newWorkout = await addWorkoutApi(userId, workoutData, exercisesData)
         if (newWorkout) {
-          setWorkouts((prev) => [newWorkout, ...prev])
-          return newWorkout
+          // Calculate calories for the new workout
+          const workoutWithCalories = {
+            ...newWorkout,
+            calories: calculateCaloriesBurned(newWorkout.body_part, newWorkout.duration),
+          }
+
+          setWorkouts((prev) => [workoutWithCalories, ...prev])
+          return workoutWithCalories
         }
         return null
       } catch (error) {
@@ -93,7 +112,24 @@ export const useWorkouts = (userId: string | undefined) => {
         setWorkouts((prev) =>
           prev.map((workout) => {
             const currentId = workout.workout_id
-            return currentId === workoutId ? { ...workout, ...updatedWorkout } : workout
+            if (currentId === workoutId) {
+              // Recalculate calories if duration or body part changed
+              const updatedWithCalories = {
+                ...workout,
+                ...updatedWorkout,
+              }
+
+              // Only recalculate if relevant fields changed
+              if (workoutData.duration || workoutData.body_part) {
+                updatedWithCalories.calories = calculateCaloriesBurned(
+                  updatedWithCalories.body_part,
+                  updatedWithCalories.duration,
+                )
+              }
+
+              return updatedWithCalories
+            }
+            return workout
           }),
         )
         return updatedWorkout
@@ -157,7 +193,7 @@ export const useWorkouts = (userId: string | undefined) => {
   )
 
   // Update an exercise
-  const updateExercise = useCallback(async (exerciseId: string | number, exerciseData: Partial<Exercise>) => {
+  const updateExercise = useCallback(async (exerciseId: number, exerciseData: Partial<Exercise>) => {
     try {
       const updatedExercise = await updateExerciseApi(exerciseId, exerciseData)
       if (updatedExercise) {
@@ -271,6 +307,6 @@ export const useWorkouts = (userId: string | undefined) => {
     deleteExercise, // Make sure this is exposed
     completeWorkout,
     isWorkoutCompletedOnDate,
+    getWorkoutCalories,
   }
 }
-

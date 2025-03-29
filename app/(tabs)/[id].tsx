@@ -11,6 +11,7 @@ import {
   Dimensions,
   Platform,
   ActivityIndicator,
+  Alert,
 } from "react-native"
 import { router, useLocalSearchParams } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -38,14 +39,6 @@ const WorkoutDetailScreen = () => {
   const windowHeight = Dimensions.get("window").height
   const bottomSheetRef = useRef<BottomSheet>(null)
 
-  // Helper function to map exercise_id to id
-  const mapExerciseData = (exercises: any[]): Exercise[] => {
-    return exercises.map((exercise) => ({
-      ...exercise,
-      id: exercise.exercise_id
-    }))
-  }
-
   // Fetch workout data
   useEffect(() => {
     const fetchWorkoutData = async () => {
@@ -58,19 +51,7 @@ const WorkoutDetailScreen = () => {
         const foundWorkout = workouts.find((w) => w.workout_id === id)
 
         if (foundWorkout) {
-          console.log("Found workout in state:", foundWorkout)
-
-          // Map exercise_id to id if needed
-          if (foundWorkout.exercises) {
-            const mappedExercises = mapExerciseData(foundWorkout.exercises)
-            setWorkout({
-              ...foundWorkout,
-              exercises: mappedExercises,
-            })
-          } else {
-            setWorkout(foundWorkout)
-          }
-
+          setWorkout(foundWorkout)
           setLoading(false)
           return
         }
@@ -88,7 +69,6 @@ const WorkoutDetailScreen = () => {
         }
 
         if (!workoutData) {
-          console.error("Workout not found")
           return
         }
 
@@ -101,11 +81,10 @@ const WorkoutDetailScreen = () => {
         if (exercisesError) {
           console.error("Error fetching exercises:", exercisesError)
         } else {
-          // Map exercise_id to id
-          const mappedExercises = exercisesData ? mapExerciseData(exercisesData) : []
+          // Set the workout with exercises
           setWorkout({
             ...workoutData,
-            exercises: mappedExercises,
+            exercises: exercisesData || [],
           })
         }
       } catch (error) {
@@ -133,29 +112,26 @@ const WorkoutDetailScreen = () => {
     // Optionally navigate back or show a success message
   }
 
-  // Modified to handle exercise deletion properly
   const handleDeleteExercise = async (exerciseId: number) => {
-    if (!exerciseId) {
-      return
-    }
-
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
-
     try {
       const success = await deleteExercise(exerciseId)
       if (success) {
-        // Update local state to remove the deleted exercise
-        if (workout && workout.exercises) {
-          setWorkout({
-            ...workout,
-            exercises: workout.exercises.filter((e) => e.exercise_id !== exerciseId),
-          })
-        }
+        setWorkout((prev) => {
+          if (!prev) return null
+          const updatedWorkout = {
+            ...prev,
+            exercises: prev.exercises?.filter((ex) => ex.exercise_id !== exerciseId) || [],
+          }
+          console.log("Updated workout state:", updatedWorkout)
+          return updatedWorkout
+        })
       } else {
-        console.error("Failed to delete exercise")
+        console.error("Failed to delete exercise with ID:", exerciseId)
+        Alert.alert("Error", "Failed to delete exercise. Please try again.")
       }
     } catch (error) {
       console.error("Error deleting exercise:", error)
+      Alert.alert("Error", "An error occurred while deleting the exercise.")
     }
   }
 
@@ -211,18 +187,20 @@ const WorkoutDetailScreen = () => {
                   <Text className="text-white text-3xl font-poppins-semibold mb-2">{workout.title}</Text>
                   <View className="flex-row items-center flex-wrap gap-4">
                     <View className="flex-row items-center gap-2">
-                      <Dumbbell size={16} color="#888" />
+                      <Dumbbell size={16} color="#FF3737" />
                       <Text className="text-neutral-400 font-poppins">
                         {workout.exercises?.length || 0} {workout.exercises?.length === 1 ? "exercise" : "exercises"}
                       </Text>
                     </View>
                     <View className="flex-row items-center gap-2">
-                      <Clock size={16} color="#888" />
+                      <Clock size={16} color="#FF3737" />
                       <Text className="text-neutral-400 font-poppins">{workout.duration} min</Text>
                     </View>
                     <View className="flex-row items-center gap-2">
                       <Flame size={16} color="#FF3737" />
-                      <Text className="text-neutral-400 font-poppins">~150 kcal</Text>
+                      <Text className="text-neutral-400 font-poppins">
+                        {workout.calories ? `${workout.calories} kcal` : "~150 kcal"}
+                      </Text>
                     </View>
                   </View>
                 </View>

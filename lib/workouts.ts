@@ -6,7 +6,7 @@ export interface Exercise {
   name: string
   sets: number
   reps: number
-  weight: number | null // Added weight field
+  weight: number | null
   image: string | null
   tips: string | null
   workout_id?: string
@@ -23,11 +23,12 @@ export interface Workout {
   last_performed: string | null
   user_id: string
   exercises?: Exercise[]
+  calories?: number
 }
 
 export interface CompletedWorkout {
-  id: string // or number
-  workout_id: string // or number
+  id: string
+  workout_id: string
   user_id: string
   completed_date: string
 }
@@ -551,4 +552,3 @@ export const isWorkoutCompletedOnDate = async (
     return false
   }
 }
-
