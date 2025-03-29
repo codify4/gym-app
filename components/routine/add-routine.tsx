@@ -7,7 +7,7 @@ import Input from "@/components/input"
 import { useState } from "react"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { useAuth } from "@/context/auth"
-import { getExerciseImage, type Exercise } from "@/lib/workouts"
+import { getExerciseImage, type Exercise } from "@/lib/exercises"
 
 type AddWorkoutProps = {
   onSuccess?: () => void

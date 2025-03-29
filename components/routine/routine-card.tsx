@@ -6,7 +6,8 @@ import { ChevronRight, Dumbbell, Timer, CheckCircle, Trash2, Flame } from "lucid
 import { View, Text, TouchableOpacity, Dimensions } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, Layout } from "react-native-reanimated"
-import type { Exercise, Workout } from "@/lib/workouts"
+import type { Workout } from "@/lib/workouts"
+import type { Exercise } from "@/lib/exercises"
 import { formatCalories } from "@/utils/calories"
 
 interface WorkoutCardProps {

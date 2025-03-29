@@ -1,4 +1,4 @@
-import { Exercise, getExerciseImage } from "@/lib/workouts"
+import { Exercise, getExerciseImage } from "@/lib/exercises"
 
 // Add this helper function to the ExerciseCard component to handle image rendering
 export const getImageSource = (exercise: Exercise) => {

@@ -7,13 +7,15 @@ import {
   completeWorkout as completeWorkoutApi,
   isWorkoutCompletedOnDate as isWorkoutCompletedOnDateApi,
   deleteWorkout as deleteWorkoutApi,
-  addExercise as addExerciseApi,
   updateWorkout as updateWorkoutApi,
+  type Workout,
+} from "@/lib/workouts"
+import {
+  addExercise as addExerciseApi,
   updateExercise as updateExerciseApi,
   deleteExercise as deleteExerciseApi,
-  type Workout,
   type Exercise,
-} from "@/lib/workouts"
+} from "@/lib/exercises"
 import { calculateCaloriesBurned } from "@/utils/calories"
 
 export const useWorkouts = (userId: string | undefined) => {

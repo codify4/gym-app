@@ -8,7 +8,7 @@ import { MotiView } from "moti"
 import { MotiPressable } from "moti/interactions"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, Layout } from "react-native-reanimated"
-import type { Exercise } from "@/lib/workouts"
+import type { Exercise } from "@/lib/exercises"
 import { getImageSource } from "@/utils/exercise-muscle"
 
 interface ExerciseCardProps {

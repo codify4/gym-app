@@ -1,7 +1,7 @@
 import React from "react"
 import { View, Text, ScrollView, Image } from "react-native"
 import { Info, Weight } from "lucide-react-native"
-import type { Exercise } from "@/lib/workouts"
+import type { Exercise } from "@/lib/exercises"
 import { getExerciseTips } from "@/utils/exercise-tips"
 import { getImageSource } from "@/utils/exercise-muscle"
 

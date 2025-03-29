@@ -23,8 +23,9 @@ import ExerciseInfo from "@/components/routine/exercise-info"
 import ExerciseCard from "@/components/routine/exercise-card"
 import { useAuth } from "@/context/auth"
 import { supabase } from "@/lib/supabase"
-import type { Exercise, Workout } from "@/lib/workouts"
+import type { Workout } from "@/lib/workouts"
 import { useWorkouts } from "@/hooks/use-workouts"
+import { Exercise } from "@/lib/exercises"
 
 const WorkoutDetailScreen = () => {
   const { id } = useLocalSearchParams()
