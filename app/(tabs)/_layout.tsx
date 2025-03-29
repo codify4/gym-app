@@ -77,6 +77,20 @@ const TabsLayout = () => {
         />
 
         <Tabs.Screen 
+            name='workout' 
+            options={{
+                href: null,
+            }}
+        />
+        
+        <Tabs.Screen 
+            name='workout-complete' 
+            options={{
+                href: null,
+            }}
+        />
+
+        <Tabs.Screen 
             name='profile' 
             options={{
                 href: null

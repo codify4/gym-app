@@ -136,6 +136,16 @@ const WorkoutDetailScreen = () => {
     }
   }
 
+  const handleStartWorkout = () => {
+    if (!workout) return
+
+    // Navigate to the active workout screen with the workout ID
+    router.push({
+      pathname: "/(tabs)/workout",
+      params: { id: workout.workout_id },
+    })
+  }
+
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-black items-center justify-center">
@@ -242,7 +252,7 @@ const WorkoutDetailScreen = () => {
       </ScrollView>
 
       {!isCompleted && (
-        <TouchableOpacity style={styles.floatingButton} className="bg-white" onPress={handleCompleteWorkout}>
+        <TouchableOpacity style={styles.floatingButton} className="bg-white" onPress={handleStartWorkout}>
           <View className="flex-row justify-center items-center">
             <Text className="text-black text-center text-xl font-poppins-semibold mr-2">Start workout</Text>
             <PlayCircle size={24} color="black" />
