@@ -241,20 +241,20 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
         {/* Exercises */}
         <View className="mb-6">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-white text-lg font-poppins-medium">Exercises</Text>
+            <Text className="text-white text-xl font-poppins-medium">Exercises</Text>
             <TouchableOpacity
               onPress={() => handleAddExercise()}
               activeOpacity={0.7}
-              className="bg-neutral-800 p-2 rounded-full"
+              className="bg-white p-2 rounded-full"
             >
-              <Plus size={20} color="white" />
+              <Plus size={20} color="black" />
             </TouchableOpacity>
           </View>
 
           {exercises.map((exercise, index) => (
             <View key={index} className="bg-neutral-800 p-5 rounded-3xl mb-4">
               <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-white text-xl font-poppins-medium">Exercise {index + 1}</Text>
+                <Text className="text-white text-lg font-poppins-medium">Exercise {index + 1}</Text>
                 <TouchableOpacity
                   onPress={() => handleRemoveExercise(index)}
                   className="bg-neutral-700 p-2 rounded-full"
