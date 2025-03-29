@@ -199,7 +199,7 @@ const WorkoutRoutines = () => {
         <Plus size={24} color="black" />
       </TouchableOpacity>
 
-      <BotSheet ref={bottomSheetRef}>
+      <BotSheet ref={bottomSheetRef} snapPoints={["90%"]}>
         <AddWorkout onSuccess={handleWorkoutAdded} />
       </BotSheet>
     </SafeAreaView>

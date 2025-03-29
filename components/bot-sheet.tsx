@@ -3,12 +3,12 @@ import { forwardRef } from "react"
 import { StyleSheet } from "react-native"
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
-const BotSheet = forwardRef(({ children }: { children: React.ReactNode }, ref: any) => {
+const BotSheet = forwardRef(({ children, snapPoints }: { children: React.ReactNode, snapPoints: string[] }, ref: any) => {
     return (
         <>
             <BottomSheet 
                 ref={ref} 
-                snapPoints={["90%"]} 
+                snapPoints={snapPoints}
                 index={-1} 
                 enablePanDownToClose
                 handleStyle={{ backgroundColor: "#1e1e1e", borderTopLeftRadius: 40, borderTopRightRadius: 50, }} 

@@ -279,7 +279,7 @@ const WorkoutDetailScreen = () => {
         </View>
       )}
 
-      <BotSheet ref={bottomSheetRef}>{selectedExercise && <ExerciseInfo exercise={selectedExercise} />}</BotSheet>
+      <BotSheet ref={bottomSheetRef} snapPoints={["88%"]}>{selectedExercise && <ExerciseInfo exercise={selectedExercise} />}</BotSheet>
     </SafeAreaView>
   )
 }
