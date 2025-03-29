@@ -2,7 +2,7 @@
 
 import { useRef } from "react"
 import { View, Text, Image, Dimensions } from "react-native"
-import { Trash2 } from "lucide-react-native"
+import { Trash2, Weight } from "lucide-react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { MotiView } from "moti"
 import { MotiPressable } from "moti/interactions"
@@ -104,7 +104,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
               <View className="flex-row justify-between items-center">
                 <View className="flex-1 gap-1">
                   <Text className="text-white text-xl font-poppins-medium mb-1">{exercise.name}</Text>
-                  <View className="flex-row items-center gap-2">
+                  <View className="flex-row items-center gap-2 flex-wrap">
                     <LinearGradient
                       colors={["#3A3A3A", "#2A2A2A"]}
                       start={{ x: 0, y: 0 }}
@@ -120,13 +120,26 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
                       colors={["#3A3A3A", "#2A2A2A"]}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 1 }}
-                      className="p-[1px]"
+                      className="p-[1px] mr-2"
                       style={{ borderRadius: 20 }}
                     >
                       <View className="bg-white/60 rounded-lg px-3 py-0.5">
                         <Text className="text-black font-poppins-semibold">{exercise.reps} reps</Text>
                       </View>
                     </LinearGradient>
+                    {exercise.weight && (
+                      <LinearGradient
+                        colors={["#3A3A3A", "#2A2A2A"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="p-[1px]"
+                        style={{ borderRadius: 20 }}
+                      >
+                        <View className="bg-white/60 rounded-lg px-3 py-0.5 flex-row items-center">
+                          <Text className="text-black font-poppins-semibold">{exercise.weight} kg</Text>
+                        </View>
+                      </LinearGradient>
+                    )}
                   </View>
                 </View>
                 <Image source={getImageSource(exercise)} style={{ width: 80, height: 80 }} resizeMode="contain" />
@@ -200,7 +213,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
                   <View className="flex-row justify-between items-center">
                     <View className="flex-1 gap-1">
                       <Text className="text-white text-xl font-poppins-medium mb-1">{exercise.name}</Text>
-                      <View className="flex-row items-center gap-2">
+                      <View className="flex-row items-center gap-2 flex-wrap">
                         <LinearGradient
                           colors={["#3A3A3A", "#2A2A2A"]}
                           start={{ x: 0, y: 0 }}
@@ -216,13 +229,26 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
                           colors={["#3A3A3A", "#2A2A2A"]}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 1, y: 1 }}
-                          className="p-[1px]"
+                          className="p-[1px] mr-2"
                           style={{ borderRadius: 20 }}
                         >
                           <View className="bg-white/60 rounded-lg px-3 py-0.5">
                             <Text className="text-black font-poppins-semibold">{exercise.reps} reps</Text>
                           </View>
                         </LinearGradient>
+                        {exercise.weight && (
+                          <LinearGradient
+                            colors={["#3A3A3A", "#2A2A2A"]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            className="p-[1px]"
+                            style={{ borderRadius: 20 }}
+                          >
+                            <View className="bg-white/60 rounded-lg px-3 py-0.5 flex-row items-center">
+                              <Text className="text-black font-poppins-semibold">{exercise.weight} kg</Text>
+                            </View>
+                          </LinearGradient>
+                        )}
                       </View>
                     </View>
                     <Image source={getImageSource(exercise)} style={{ width: 80, height: 80 }} resizeMode="contain" />

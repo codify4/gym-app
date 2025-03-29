@@ -6,9 +6,10 @@ export interface Exercise {
   name: string
   sets: number
   reps: number
+  weight: number | null // Added weight field
   image: string | null
   tips: string | null
-  workout_id?: string 
+  workout_id?: string
   user_id?: string
   body_part?: string
 }
@@ -81,7 +82,7 @@ export const fetchWorkouts = async (userId: string | undefined): Promise<Workout
 export const addWorkout = async (
   userId: string | undefined,
   workoutData: Omit<Workout, "workout_id">,
-  exercisesData: Omit<Exercise, "id" | "workout_id">[],
+  exercisesData: Omit<Exercise, "exercise_id" | "workout_id">[],
 ): Promise<Workout | null> => {
   if (!userId) return null
 
@@ -550,3 +551,4 @@ export const isWorkoutCompletedOnDate = async (
     return false
   }
 }
+

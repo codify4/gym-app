@@ -67,7 +67,7 @@ export const useWorkouts = (userId: string | undefined) => {
 
   // Add a new workout with exercises
   const addWorkout = useCallback(
-    async (workoutData: Omit<Workout, "workout_id">, exercisesData: Omit<Exercise, "id" | "workout_id">[]) => {
+    async (workoutData: Omit<Workout, "workout_id">, exercisesData: Omit<Exercise, "exercise_id" | "workout_id">[]) => {
       if (!userId) return null
 
       try {
@@ -268,7 +268,7 @@ export const useWorkouts = (userId: string | undefined) => {
     deleteWorkout,
     addExercise,
     updateExercise,
-    deleteExercise,
+    deleteExercise, // Make sure this is exposed
     completeWorkout,
     isWorkoutCompletedOnDate,
   }

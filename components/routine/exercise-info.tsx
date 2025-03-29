@@ -1,6 +1,6 @@
 import React from "react"
 import { View, Text, ScrollView, Image } from "react-native"
-import { Info } from "lucide-react-native"
+import { Info, Weight } from "lucide-react-native"
 import type { Exercise } from "@/lib/workouts"
 import { getExerciseTips } from "@/utils/exercise-tips"
 import { getImageSource } from "@/utils/exercise-muscle"
@@ -45,6 +45,12 @@ const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
                 <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Reps</Text>
                 <Text className="text-white text-2xl font-poppins-bold">{exercise.reps}</Text>
               </View>
+              {exercise.weight && (
+                <View className="bg-neutral-800 rounded-2xl p-4 flex-1 ml-2">
+                  <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Weight</Text>
+                  <Text className="text-white text-2xl font-poppins-bold">{exercise.weight} kg</Text>
+                </View>
+              )}
             </View>
 
             <View className="mb-6">
@@ -68,4 +74,3 @@ const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
 }
 
 export default ExerciseInfo
-

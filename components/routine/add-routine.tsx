@@ -37,6 +37,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       name: string
       sets: number
       reps: number
+      weight: number | null
       image: string | null
       tips: string | null
     }>
@@ -45,6 +46,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       name: "",
       sets: 3,
       reps: 10,
+      weight: null,
       image: null,
       tips: null,
     },
@@ -61,6 +63,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
         name: "",
         sets: 3,
         reps: 10,
+        weight: null,
         image: null,
         tips: null,
       },
@@ -80,11 +83,14 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
     setExercises(newExercises)
   }
 
-  const handleExerciseChange = (index: number, field: keyof Omit<Exercise, "id" | "workout_id">, value: any) => {
+  const handleExerciseChange = (
+    index: number,
+    field: keyof Omit<Exercise, "exercise_id" | "workout_id">,
+    value: any,
+  ) => {
     const newExercises = [...exercises]
-
-    if (field === "sets" || field === "reps") {
-      newExercises[index][field] = Number.parseInt(value) || 0
+    if (field === "sets" || field === "reps" || field === "weight") {
+      newExercises[index][field] = value === "" ? 0 : Number.parseInt(value) || 0
     } else {
       newExercises[index][field as "name" | "image" | "tips"] = value
     }
@@ -142,7 +148,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
           last_performed: new Date().toString(),
           user_id: userId,
         },
-        exercises,
+        exercises as Omit<Exercise, "exercise_id" | "workout_id">[],
       )
 
       if (result) {
@@ -159,6 +165,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
             name: "",
             sets: 3,
             reps: 10,
+            weight: null,
             image: null,
             tips: null,
           },
@@ -265,20 +272,20 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
                 focus={false}
               />
 
-              <View className="flex-row gap-3 mt-3">
+              <View className="flex-row gap-4 mt-3">
                 <Input
-                  value={exercise.sets.toString()}
+                  value={exercise.sets?.toString() || ""}
                   onChangeText={(text) => handleExerciseChange(index, "sets", text)}
-                  placeholder="Enter sets"
+                  placeholder="Sets"
                   mode="outlined"
                   keyboardType="numeric"
                   focus={false}
                   moreStyles={{ width: "48%" }}
                 />
                 <Input
-                  value={exercise.reps.toString()}
+                  value={exercise.reps?.toString() || ""}
                   onChangeText={(text) => handleExerciseChange(index, "reps", text)}
-                  placeholder="Enter reps"
+                  placeholder="Reps"
                   mode="outlined"
                   keyboardType="numeric"
                   focus={false}
@@ -288,11 +295,11 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
 
               <View className="mt-3">
                 <Input
-                  value={exercise.tips || ""}
-                  onChangeText={(text) => handleExerciseChange(index, "tips", text)}
-                  placeholder="Enter tips (optional)"
+                  value={exercise.weight?.toString() || ""}
+                  onChangeText={(text) => handleExerciseChange(index, "weight", text)}
+                  placeholder="Enter weight (kg)"
                   mode="outlined"
-                  keyboardType="default"
+                  keyboardType="numeric"
                   focus={false}
                 />
               </View>
