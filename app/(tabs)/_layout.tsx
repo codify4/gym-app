@@ -70,6 +70,13 @@ const TabsLayout = () => {
         />
 
         <Tabs.Screen 
+            name='chatbot'
+            options={{
+                href: null,
+            }}
+        />
+
+        <Tabs.Screen 
             name='[id]' 
             options={{
                 href: null,

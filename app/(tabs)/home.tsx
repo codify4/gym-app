@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, FlatList, Platform } from "react-native"
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, FlatList, Platform, StyleSheet } from "react-native"
 import { Avatar } from "react-native-paper"
 import { dummyWorkouts, monthlyStats } from "@/constants/data"
 import WorkoutCard from "@/components/workout-card"
@@ -6,6 +6,7 @@ import TodayWorkout from "@/components/today-workout"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
 import StatCard from "@/components/stat-card"
+import { Brain, Plus } from "lucide-react-native"
 
 const Home = () => {
   const { session } = useAuth()
@@ -61,8 +62,25 @@ const Home = () => {
           </View>
         </View>
       </ScrollView>
+
+      <TouchableOpacity style={styles.floatingButton} className="bg-white" onPress={() => router.push("/(tabs)/chatbot")}>
+        <Brain size={24} color="black" />
+      </TouchableOpacity>
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  floatingButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 100,
+    right: 20,
+  },
+})
 
 export default Home
