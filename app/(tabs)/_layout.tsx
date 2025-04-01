@@ -80,6 +80,7 @@ const TabsLayout = () => {
             name='workout' 
             options={{
                 href: null,
+                tabBarStyle: {display: 'none'}
             }}
         />
         
@@ -87,6 +88,7 @@ const TabsLayout = () => {
             name='workout-complete' 
             options={{
                 href: null,
+                tabBarStyle: {display: 'none'}
             }}
         />
 

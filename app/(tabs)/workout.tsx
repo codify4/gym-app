@@ -336,7 +336,7 @@ export default function ActiveWorkoutScreen() {
             </View>
 
             {/* Super Prominent Timer */}
-            <View className="items-center justify-center px-5 py-8">
+            <View className="items-center justify-center px-5">
                 <Text className="text-white text-8xl mt-5 font-bold">{formatTime(timer)}</Text>
                 <TouchableOpacity
                     className="rounded-full bg-white items-center justify-center mt-4 px-5 py-2"
@@ -370,7 +370,7 @@ export default function ActiveWorkoutScreen() {
                             </View>
                         )}
 
-                        <TouchableOpacity className="bg-white px-8 py-3 rounded-full flex-row items-center justify-center w-full" onPress={handleEndRest}>
+                        <TouchableOpacity className="bg-white px-8 py-5 rounded-full flex-row items-center justify-center w-full" onPress={handleEndRest}>
                             <Text className="text-black text-lg mr-2 font-poppins-semibold">Continue</Text>
                             <ChevronRight size={20} color="black" />
                         </TouchableOpacity>
@@ -427,9 +427,9 @@ export default function ActiveWorkoutScreen() {
             </View>
 
             {/* Footer with End Workout Button - positioned to be above tab bar */}
-            <View className="px-5 py-4 border-t border-neutral-800 bg-black" style={{ paddingBottom: bottomPadding }}>
+            <View className="px-5 py-4 bg-black" style={{ paddingBottom: 30 }}>
                 <TouchableOpacity
-                className="bg-neutral-800 rounded-full py-4 items-center flex-row justify-center"
+                className="bg-neutral-800 rounded-full py-5 items-center flex-row justify-center"
                 onPress={handleCompleteWorkout}
                 >
                 <Text className="text-white text-lg font-poppins-semibold">Quit Workout</Text>
