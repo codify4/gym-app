@@ -1,22 +1,24 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import {
-  fetchWorkouts,
-  addWorkout as addWorkoutApi,
-  completeWorkout as completeWorkoutApi,
-  isWorkoutCompletedOnDate as isWorkoutCompletedOnDateApi,
-  deleteWorkout as deleteWorkoutApi,
-  updateWorkout as updateWorkoutApi,
-  type Workout,
-} from "@/lib/workouts"
+
 import {
   addExercise as addExerciseApi,
   updateExercise as updateExerciseApi,
   deleteExercise as deleteExerciseApi,
   type Exercise,
 } from "@/lib/exercises"
+import { 
+  fetchWorkouts, 
+  addWorkout as addWorkoutApi, 
+  completeWorkout as completeWorkoutApi, 
+  isWorkoutCompletedOnDate as isWorkoutCompletedOnDateApi, 
+  deleteWorkout as deleteWorkoutApi, 
+  updateWorkout as updateWorkoutApi, 
+  type Workout 
+} from "@/lib/workouts"
 import { calculateCaloriesBurned } from "@/utils/calories"
+import { supabase } from "@/lib/supabase"
 
 export const useWorkouts = (userId: string | undefined) => {
   const [workouts, setWorkouts] = useState<Workout[]>([])
@@ -51,10 +53,37 @@ export const useWorkouts = (userId: string | undefined) => {
 
       // Check which workouts are completed today
       const completedMap: Record<string, boolean> = {}
-      for (const workout of data) {
-        const workoutId = workout.workout_id
-        completedMap[workoutId] = await isWorkoutCompletedOnDateApi(userId, workoutId)
+
+      // First, get all completed workouts for this user
+      const { data: completedWorkoutsData, error: completedError } = await supabase
+        .from("completed_workout")
+        .select("*")
+        .eq("user_id", userId)
+
+      if (completedError) {
+        console.error("Error fetching completed workouts:", completedError)
+      } else if (completedWorkoutsData) {
+        console.log("Fetched completed workouts:", completedWorkoutsData.length)
+
+        // Get today's date in YYYY-MM-DD format for comparison
+        const today = new Date().toISOString().split("T")[0]
+
+        // Process each workout to check if it's completed today
+        for (const workout of data) {
+          const workoutId = workout.workout_id
+
+          // Find if this workout is completed today
+          const isCompleted = completedWorkoutsData.some((cw) => {
+            const completedDate = new Date(cw.completed_date).toISOString().split("T")[0]
+            return cw.workout_id === workoutId && completedDate === today
+          })
+
+          completedMap[workoutId] = isCompleted
+          console.log(`Workout ${workout.title} (${workoutId}) completed today: ${isCompleted}`)
+        }
       }
+
+      console.log("Completed workouts map:", completedMap)
       setCompletedWorkouts(completedMap)
     } catch (error) {
       console.error("Error fetching workouts:", error)
@@ -195,7 +224,7 @@ export const useWorkouts = (userId: string | undefined) => {
   )
 
   // Update an exercise
-  const updateExercise = useCallback(async (exerciseId: number, exerciseData: Partial<Exercise>) => {
+  const updateExercise = useCallback(async (exerciseId: string | number, exerciseData: Partial<Exercise>) => {
     try {
       const updatedExercise = await updateExerciseApi(exerciseId, exerciseData)
       if (updatedExercise) {
@@ -261,21 +290,35 @@ export const useWorkouts = (userId: string | undefined) => {
       try {
         const completed = await completeWorkoutApi(userId, workoutId)
         if (completed) {
-          setCompletedWorkouts((prev) => ({ ...prev, [workoutId]: true }))
+          console.log(`Workout ${workoutId} marked as completed today`)
+
+          // Update the completed workouts map
+          setCompletedWorkouts((prev) => {
+            const updated = { ...prev, [workoutId]: true }
+            console.log("Updated completedWorkouts:", updated)
+            return updated
+          })
 
           // Update the workout's last_performed date in the local state
           setWorkouts((prev) =>
             prev.map((workout) => {
               const currentId = workout.workout_id
               if (currentId === workoutId) {
-                return {
+                const updatedWorkout = {
                   ...workout,
                   last_performed: new Date().toISOString(),
                 }
+                console.log(`Updated workout ${workout.title} last_performed to:`, updatedWorkout.last_performed)
+                return updatedWorkout
               }
               return workout
             }),
           )
+
+          // Force a refresh to ensure we have the latest data
+          setTimeout(() => {
+            fetchWorkoutsData()
+          }, 500)
 
           return true
         }
@@ -285,7 +328,7 @@ export const useWorkouts = (userId: string | undefined) => {
         return false
       }
     },
-    [userId],
+    [userId, fetchWorkoutsData],
   )
 
   // Check if a workout is completed on a specific date
@@ -306,9 +349,10 @@ export const useWorkouts = (userId: string | undefined) => {
     deleteWorkout,
     addExercise,
     updateExercise,
-    deleteExercise, // Make sure this is exposed
+    deleteExercise,
     completeWorkout,
     isWorkoutCompletedOnDate,
     getWorkoutCalories,
+    completedWorkouts,
   }
 }

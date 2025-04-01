@@ -75,7 +75,6 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
     <View>
       <View className="flex-row justify-between">
         <Text className="text-white text-xl font-semibold mb-2">{workout.title}</Text>
-        {isCompleted && <CheckCircle size={20} color="#22c55e" />}
       </View>
       <View className="flex-row items-center mb-2">
         <Dumbbell size={16} color="#FF3737" />

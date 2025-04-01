@@ -10,7 +10,7 @@ export interface Workout {
   last_performed: string | null
   user_id: string
   exercises?: Exercise[]
-  calories?: number
+  calories?: number // Add calories field
 }
 
 export interface CompletedWorkout {
@@ -203,7 +203,9 @@ export const completeWorkout = async (
   try {
     // Format date in ISO format without timezone info
     const now = new Date()
-    const completedDate = now.toISOString().split("T")[0] + "T" + now.toISOString().split("T")[1].split(".")[0] + "Z"
+    const completedDate = now.toISOString()
+
+    console.log(`Marking workout ${workoutId} as completed at ${completedDate}`)
 
     const { data, error } = await supabase
       .from("completed_workout")
@@ -222,6 +224,8 @@ export const completeWorkout = async (
       return null
     }
 
+    console.log("Completed workout data:", data)
+
     // Update the last_performed date on the workout
     const { error: updateError } = await supabase
       .from("workout")
@@ -230,6 +234,8 @@ export const completeWorkout = async (
 
     if (updateError) {
       console.error("Error updating last_performed date:", updateError)
+    } else {
+      console.log(`Updated last_performed date for workout ${workoutId}`)
     }
 
     return data
@@ -251,23 +257,32 @@ export const isWorkoutCompletedOnDate = async (
     // Format the date to match the database format (YYYY-MM-DD)
     const formattedDate = date.toISOString().split("T")[0]
 
+    console.log(`Checking if workout ${workoutId} is completed on ${formattedDate}`)
+
     const { data, error } = await supabase
       .from("completed_workout")
       .select("*")
       .eq("workout_id", workoutId)
       .eq("user_id", userId)
-      .gte("completed_date", `${formattedDate}T00:00:00.000Z`)
-      .lt("completed_date", `${formattedDate}T23:59:59.999Z`)
 
     if (error) {
       console.error("Error checking completed workout:", error)
       return false
     }
 
-    return data && data.length > 0
+    // Check if any of the completed dates match the requested date
+    const isCompleted =
+      data &&
+      data.some((record) => {
+        const recordDate = new Date(record.completed_date).toISOString().split("T")[0]
+        const matches = recordDate === formattedDate
+        console.log(`Comparing dates: ${recordDate} vs ${formattedDate} = ${matches}`)
+        return matches
+      })
+
+    return !!isCompleted
   } catch (error) {
     console.error("Error in isWorkoutCompletedOnDate:", error)
     return false
   }
 }
-
