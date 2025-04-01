@@ -12,7 +12,7 @@ import type { Workout } from "@/lib/workouts"
 import * as Haptics from "expo-haptics"
 
 export default function WorkoutCompleteScreen() {
-  const { id, duration } = useLocalSearchParams()
+  const { id, duration: durationParam } = useLocalSearchParams()
   const { session } = useAuth()
   const userId = session?.user?.id
   const { workouts } = useWorkouts(userId)
@@ -31,11 +31,14 @@ export default function WorkoutCompleteScreen() {
     if (foundWorkout) {
       setWorkout(foundWorkout)
 
-      const durationMinutes = Number.parseInt(duration as string) || foundWorkout.duration
-      const calories = calculateCaloriesBurned(foundWorkout.body_part, durationMinutes) // Calculate calories burned
+      // Parse duration in seconds
+      const durationSeconds = Number.parseInt(durationParam as string) || 0
+
+      // Calculate calories burned based on seconds
+      const calories = calculateCaloriesBurned(foundWorkout.body_part, durationSeconds / 60)
       setCaloriesBurned(calories)
     }
-  }, [id, workouts, duration])
+  }, [id, workouts, durationParam])
 
   if (!workout) {
     return (
@@ -45,10 +48,17 @@ export default function WorkoutCompleteScreen() {
     )
   }
 
-  const actualDuration = Number.parseInt(duration as string) || workout.duration
-  const minutes = Math.floor(actualDuration / 60)
-  const seconds = actualDuration % 60
-  const formattedDuration = `${minutes}:${seconds.toString().padStart(2, "0")}`; // Format as minutes:seconds
+  // Get duration in seconds from params
+  const durationSeconds = Number.parseInt(durationParam as string) || 0
+
+  // Format duration as minutes:seconds
+  const minutes = Math.floor(durationSeconds / 60)
+  const seconds = durationSeconds % 60
+  const formattedDuration = `${minutes}:${seconds.toString().padStart(2, "0")}`
+
+  // Get actual exercise count
+  const exerciseCount = workout.exercises?.length || 0
+
   const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric" })
 
   return (
@@ -79,8 +89,8 @@ export default function WorkoutCompleteScreen() {
         </View>
         <View className="items-center bg-neutral-900 p-5 rounded-3xl w-full">
           <Dumbbell size={28} color="white" />
-          <Text className="text-white text-2xl font-poppins-bold mt-2">{caloriesBurned}</Text>
-          <Text className="text-neutral-400 text-base font-poppins-medium">Exercises</Text>
+          <Text className="text-white text-2xl font-poppins-bold mt-2">{exerciseCount}</Text>
+          <Text className="text-neutral-400 text-base font-poppins-medium">{exerciseCount === 1 ? "Exercise" : "Exercises"}</Text>
         </View>
       </ScrollView>
 

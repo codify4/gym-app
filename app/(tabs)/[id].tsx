@@ -261,9 +261,9 @@ const WorkoutDetailScreen = () => {
       )}
 
       {isCompleted && (
-        <View style={styles.floatingButton} className="bg-green-500">
+        <View style={styles.floatingButton} className="bg-white">
           <View className="flex-row justify-center items-center">
-            <Text className="text-white text-center text-xl font-poppins-semibold mr-2">Workout completed</Text>
+            <Text className="text-black text-center text-xl font-poppins-semibold mr-2">Workout completed</Text>
           </View>
         </View>
       )}

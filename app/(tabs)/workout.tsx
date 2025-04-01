@@ -272,8 +272,8 @@ export default function ActiveWorkoutScreen() {
     }
 
     const handleCompleteWorkout = async () => {
-        // Calculate workout duration in minutes
-        const durationMinutes = Math.floor(timer / 60)
+        // Calculate workout duration in seconds
+        const durationSeconds = timer
 
         // Complete the workout
         if (userId && workout) {
@@ -285,7 +285,7 @@ export default function ActiveWorkoutScreen() {
                     pathname: "/(tabs)/workout-complete",
                     params: {
                         id: workout.workout_id,
-                        duration: durationMinutes.toString(),
+                        duration: durationSeconds.toString(),
                     },
                 })
             } catch (error) {
