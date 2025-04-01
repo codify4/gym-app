@@ -7,7 +7,7 @@ import Input from "@/components/input"
 import { useState } from "react"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { useAuth } from "@/context/auth"
-import { getExerciseImage, type Exercise } from "@/lib/exercises"
+import { Exercise, getExerciseImage } from "@/lib/exercises"
 
 type AddWorkoutProps = {
   onSuccess?: () => void
@@ -89,6 +89,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
     value: any,
   ) => {
     const newExercises = [...exercises]
+
     if (field === "sets" || field === "reps" || field === "weight") {
       newExercises[index][field] = value === "" ? 0 : Number.parseInt(value) || 0
     } else {
@@ -103,6 +104,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
     setExercises(newExercises)
   }
 
+  // Update the handleSubmit function to fix date formatting
   const handleSubmit = async () => {
     if (!userId) {
       Alert.alert("Error", "You must be logged in to create a workout")
@@ -127,13 +129,17 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       // Convert duration to number if it's a string
       const durationNumber = Number.parseInt(workoutData.duration) || 0
 
+      // Use ISO format for the date without timezone info
+      const currentDate = new Date()
+      const formattedDate = currentDate.toISOString().split("T")[0] + "T00:00:00Z"
+
       console.log("Adding workout with data:", {
         workoutData: {
           title: workoutData.title,
           duration: durationNumber,
           body_part: workoutData.body_part,
           image: workoutData.image,
-          last_performed: new Date().toString(),
+          last_performed: formattedDate,
           user_id: userId,
         },
         exercises,
@@ -145,7 +151,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
           duration: durationNumber,
           body_part: workoutData.body_part,
           image: workoutData.image,
-          last_performed: new Date().toString(),
+          last_performed: formattedDate,
           user_id: userId,
         },
         exercises as Omit<Exercise, "exercise_id" | "workout_id">[],
@@ -241,20 +247,20 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
         {/* Exercises */}
         <View className="mb-6">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-white text-xl font-poppins-medium">Exercises</Text>
+            <Text className="text-white text-lg font-poppins-medium">Exercises</Text>
             <TouchableOpacity
               onPress={() => handleAddExercise()}
               activeOpacity={0.7}
-              className="bg-white p-2 rounded-full"
+              className="bg-neutral-800 p-2 rounded-full"
             >
-              <Plus size={20} color="black" />
+              <Plus size={20} color="white" />
             </TouchableOpacity>
           </View>
 
           {exercises.map((exercise, index) => (
             <View key={index} className="bg-neutral-800 p-5 rounded-3xl mb-4">
               <View className="flex-row justify-between items-center mb-3">
-                <Text className="text-white text-lg font-poppins-medium">Exercise {index + 1}</Text>
+                <Text className="text-white text-xl font-poppins-medium">Exercise {index + 1}</Text>
                 <TouchableOpacity
                   onPress={() => handleRemoveExercise(index)}
                   className="bg-neutral-700 p-2 rounded-full"
@@ -272,7 +278,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
                 focus={false}
               />
 
-              <View className="flex-row gap-4 mt-3">
+              <View className="flex-row gap-3 mt-3">
                 <Input
                   value={exercise.sets?.toString() || ""}
                   onChangeText={(text) => handleExerciseChange(index, "sets", text)}
@@ -324,4 +330,3 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
 }
 
 export default AddWorkout
-

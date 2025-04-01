@@ -75,13 +75,23 @@ export const addWorkout = async (
   if (!userId) return null
 
   try {
+    // Format the date properly to avoid timezone issues
+    const formattedWorkoutData = { ...workoutData }
+
+    // If last_performed is provided, ensure it's in ISO format without timezone info
+    if (formattedWorkoutData.last_performed) {
+      // Parse the date and convert to ISO string, then remove timezone part
+      const date = new Date(formattedWorkoutData.last_performed)
+      formattedWorkoutData.last_performed = date.toISOString().split("T")[0] + "T00:00:00Z"
+    }
+
     // Insert the workout without explicitly providing a workout_id
     // Supabase will handle the UUID generation
     const { data: workout, error: workoutError } = await supabase
       .from("workout")
       .insert([
         {
-          ...workoutData,
+          ...formattedWorkoutData,
           user_id: userId,
         },
       ])
@@ -104,7 +114,7 @@ export const addWorkout = async (
         ...exercise,
         workout_id: workout.workout_id,
         user_id: userId, // Add user_id to satisfy RLS policy
-        body_part: workoutData.body_part, // Add the body part from the workout
+        body_part: formattedWorkoutData.body_part, // Add the body part from the workout
       }))
 
       const { data: exercises, error: exercisesError } = await supabase
@@ -191,7 +201,9 @@ export const completeWorkout = async (
   if (!userId) return null
 
   try {
-    const completedDate = new Date().toISOString()
+    // Format date in ISO format without timezone info
+    const now = new Date()
+    const completedDate = now.toISOString().split("T")[0] + "T" + now.toISOString().split("T")[1].split(".")[0] + "Z"
 
     const { data, error } = await supabase
       .from("completed_workout")
@@ -211,7 +223,14 @@ export const completeWorkout = async (
     }
 
     // Update the last_performed date on the workout
-    await supabase.from("workout").update({ last_performed: completedDate }).eq("workout_id", workoutId)
+    const { error: updateError } = await supabase
+      .from("workout")
+      .update({ last_performed: completedDate })
+      .eq("workout_id", workoutId)
+
+    if (updateError) {
+      console.error("Error updating last_performed date:", updateError)
+    }
 
     return data
   } catch (error) {
@@ -251,3 +270,4 @@ export const isWorkoutCompletedOnDate = async (
     return false
   }
 }
+
