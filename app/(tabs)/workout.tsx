@@ -2,16 +2,17 @@
 
 import React from "react"
 import { useState, useEffect, useCallback } from "react"
-import { View, Text, TouchableOpacity, Alert, Platform, StatusBar, Dimensions } from "react-native"
+import { View, Text, TouchableOpacity, Alert, Platform, StatusBar } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { router, useLocalSearchParams } from "expo-router"
-import { Play, Pause, ChevronLeft, ChevronRight, X } from "lucide-react-native"
+import { Play, Pause, X } from "lucide-react-native"
 import { useAuth } from "@/context/auth"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { supabase } from "@/lib/supabase"
 import type { Workout } from "@/lib/workouts"
 import * as Haptics from "expo-haptics"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import CurrentExercise from "@/components/routine/active-workout/current-exercise"
+import Resting from "@/components/routine/active-workout/resting"
 
 interface ExerciseProgress {
     exerciseId: number
@@ -27,8 +28,6 @@ export default function ActiveWorkoutScreen() {
     const { session } = useAuth()
     const userId = session?.user?.id
     const { workouts, completeWorkout } = useWorkouts(userId)
-    const insets = useSafeAreaInsets()
-    const screenHeight = Dimensions.get("window").height
 
     // Extract the ID and handle potential type issues
     const workoutId = params.id ? String(params.id) : null
@@ -60,7 +59,6 @@ export default function ActiveWorkoutScreen() {
                 })
 
                 if (foundWorkout) {
-                    console.log("Found workout in state:", foundWorkout)
                     setWorkout(foundWorkout)
                     // Initialize exercise progress data
                     if (foundWorkout.exercises && foundWorkout.exercises.length > 0) {
@@ -181,7 +179,7 @@ export default function ActiveWorkoutScreen() {
                         We couldn't find this workout (ID: {workoutId}). It may have been deleted or there was an error loading it.
                     </Text>
                     <TouchableOpacity
-                        className="bg-white rounded-full py-4 px-8 items-center"
+                        className="bg-white rounded-full py-5 px-8 items-center"
                         onPress={() => router.replace("/(tabs)/routine")}
                     >
                         <Text className="text-black text-lg font-poppins">Back to Workouts</Text>
@@ -308,11 +306,6 @@ export default function ActiveWorkoutScreen() {
         triggerHaptic()
     }
 
-    // Calculate bottom padding to ensure button is visible above tab bar
-    const bottomPadding = insets.bottom + 70 // Add extra padding to account for tab bar
-
-    const isLastSet = currentExerciseIndex === totalExercises - 1 && currentSetIndex === totalSets - 1
-
     return (
         <SafeAreaView className="flex-1 bg-black" edges={["top"]}>
             <StatusBar barStyle="light-content" />
@@ -349,80 +342,21 @@ export default function ActiveWorkoutScreen() {
             {/* Main Content - Exercise info much less prominent */}
             <View className="flex-1 px-5 justify-center">
                 {isResting ? (
-                    <View className="bg-neutral-800 rounded-3xl p-6 items-center">
-                        <View className="bg-neutral-700 px-4 py-2 rounded-full mb-4">
-                            <Text className="text-white font-poppins-medium">REST TIME</Text>
-                        </View>
-
-                        <Text className="text-white text-2xl mb-6 font-poppins-semibold">Take a short break</Text>
-
-                        {nextExercise && (
-                            <View className="bg-neutral-900 rounded-2xl p-4 w-full mb-6">
-                                <Text className="text-neutral-400 text-sm mb-1 font-poppins-medium">NEXT UP</Text>
-                                <Text className="text-white text-xl mb-1 font-poppins-semibold">{nextExercise.name}</Text>
-                                <View className="flex-row items-center">
-                                    <Text className="text-neutral-400 font-poppins-medium">
-                                        {currentSetIndex < totalSets - 1 ? `Set ${currentSetIndex + 2}` : "Set 1"} • {nextExercise.reps}{" "}
-                                        reps
-                                    </Text>
-                                    {nextExercise.weight && <Text className="text-neutral-400 font-poppins"> • {nextExercise.weight} kg</Text>}
-                                </View>
-                            </View>
-                        )}
-
-                        <TouchableOpacity className="bg-white px-8 py-5 rounded-full flex-row items-center justify-center w-full" onPress={handleEndRest}>
-                            <Text className="text-black text-lg mr-2 font-poppins-semibold">Continue</Text>
-                            <ChevronRight size={20} color="black" />
-                        </TouchableOpacity>
-                    </View>
+                    <Resting 
+                        nextExercise={nextExercise}
+                        currentSetIndex={currentSetIndex}
+                        totalSets={totalSets}
+                        handleEndRest={handleEndRest}
+                    />
                 ) : (
-                    <View>
-                        {/* Exercise Info (much more de-emphasized) */}
-                        <View className="bg-neutral-800 rounded-3xl p-5 mb-6">
-                            <View className="flex-row justify-between items-center mb-2">
-                                <Text className="text-white text-xl font-poppins-semibold">{currentExercise.name}</Text>
-                                <View className="bg-neutral-800 px-3 py-1 rounded-full">
-                                    <Text className="text-white text-lg font-poppins-medium">
-                                        Set {currentSetIndex + 1}/{totalSets}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <View className="flex-row items-center justify-between mt-2">
-                                <View className="flex-row items-center">
-                                    <Text className="text-neutral-400 text-base mr-1 font-poppins-medium">Reps:</Text>
-                                    <Text className="text-white text-lg font-poppins-medium">{currentExercise.reps}</Text>
-                                </View>
-
-                                {currentExercise.weight && (
-                                    <View className="flex-row items-center">
-                                        <Text className="text-neutral-400 text-base mr-1 font-poppins-medium">Weight:</Text>
-                                        <Text className="text-white text-lg font-poppins-medium">{currentExercise.weight} kg</Text>
-                                    </View>
-                                )}
-                            </View>
-                        </View>
-
-                        {/* Navigation Controls */}
-                        <View className="flex-row justify-between">
-                            <TouchableOpacity
-                                className="flex-row items-center justify-center bg-neutral-800 rounded-2xl px-5 py-4 flex-1 mr-2"
-                                onPress={handlePrevSet}
-                                disabled={currentExerciseIndex === 0 && currentSetIndex === 0}
-                                style={{ opacity: currentExerciseIndex === 0 && currentSetIndex === 0 ? 0.5 : 1 }}
-                            >
-                                <ChevronLeft size={24} color="white" />
-                                <Text className="text-white text-base ml-2 font-poppins-semibold">Previous</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                className="flex-row items-center justify-center bg-white rounded-2xl px-5 py-4 flex-1 ml-2"
-                                onPress={handleNextSet}
-                            >
-                                <Text className="text-black text-base mr-2 font-poppins-semibold">Next</Text>
-                                <ChevronRight size={24} color="black" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                    <CurrentExercise 
+                        currentExercise={currentExercise}
+                        currentExerciseIndex={currentExerciseIndex}
+                        currentSetIndex={currentSetIndex}
+                        totalSets={totalSets}
+                        handlePrevSet={handlePrevSet}
+                        handleNextSet={handleNextSet}
+                    />
                 )}
             </View>
 
