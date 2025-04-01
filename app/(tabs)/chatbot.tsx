@@ -1,10 +1,12 @@
+import { router } from 'expo-router'
 import { BicepsFlexed, ChevronLeft, Dumbbell, GalleryVerticalEnd, Info, Send } from 'lucide-react-native'
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native'
+
 const Chatbot = () => {
     return (
-        <SafeAreaView className="flex-1 bg-black">
-            <View className='flex-row items-center justify-between px-5 py-6'>
-                <TouchableOpacity>
+        <SafeAreaView className="flex-1 bg-black justify-between items-center">
+            <View className='flex-row items-center justify-between px-5 py-6 w-full'>
+                <TouchableOpacity onPress={() => router.push('/(tabs)/home')}>
                     <ChevronLeft size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity>
@@ -30,7 +32,7 @@ const Chatbot = () => {
                 </View>
             </ScrollView>
 
-            <View className='p-5 mb-8 w-full' style={{ paddingBottom: 40 }}>
+            <View className='p-5 w-full'>
                 <View className='bg-neutral-900 rounded-3xl p-6 w-full flex-row justify-between'> 
                     <View>
                         <Text className='text-neutral-400 text-xl font-poppins mb-4'>Ask a question...</Text>
@@ -43,4 +45,5 @@ const Chatbot = () => {
         </SafeAreaView>
     )
 }
+
 export default Chatbot

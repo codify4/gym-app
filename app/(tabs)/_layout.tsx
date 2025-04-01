@@ -73,6 +73,7 @@ const TabsLayout = () => {
             name='chatbot'
             options={{
                 href: null,
+                tabBarStyle: {display: 'none'}
             }}
         />
 
