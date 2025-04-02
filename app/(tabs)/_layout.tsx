@@ -1,4 +1,4 @@
-import { Home, Dumbbell, Lightbulb, ChevronLeft, ChartNoAxesColumnIncreasing } from 'lucide-react-native'
+import { Home, Dumbbell, Lightbulb, ChevronLeft, ChartNoAxesColumnIncreasing, Brain } from 'lucide-react-native'
 import { router, Tabs } from 'expo-router'
 import { Platform, TouchableOpacity } from 'react-native'
 import React from 'react'
@@ -24,18 +24,14 @@ const TabsLayout = () => {
             }
         }}
     >
-        <Tabs.Screen 
+        <Tabs.Screen
             name='home' 
             options={{
+                href: null,
                 title: 'Home',
                 tabBarIcon: ({ color, size }) => (
                     <Home color={color} size={size} />
                 ),
-                tabBarItemStyle: {
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }
             }}
         />
 
@@ -70,12 +66,22 @@ const TabsLayout = () => {
         />
 
         <Tabs.Screen 
+            name='chatbot' 
+            options={{
+                title: 'Mate',
+                tabBarIcon: ({ color, size }) => (
+                    <Brain color={color} size={size} />
+                ),
+            }}
+        />
+
+        {/* <Tabs.Screen 
             name='chatbot'
             options={{
                 href: null,
                 tabBarStyle: {display: 'none'}
             }}
-        />
+        /> */}
 
         <Tabs.Screen 
             name='[id]' 
