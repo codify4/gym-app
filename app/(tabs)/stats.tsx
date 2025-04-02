@@ -162,7 +162,7 @@ const Stats = () => {
           </View>
 
           <View className="flex items-center justify-center gap-2 bg-neutral-900 rounded-3xl p-4 w-full overflow-hidden mb-4">
-            <Text className="text-white text-2xl font-poppins-semibold mb-2">Activity Progress</Text>
+            <Text className="text-white text-2xl font-poppins-semibold mb-2">Weight Progress</Text>
             <View className="px-2 ml-2 -mx-4">
               <LineChart
                 data={weightData}

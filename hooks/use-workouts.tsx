@@ -369,6 +369,7 @@ export const useWorkouts = (userId: string | undefined) => {
   }, [completedWorkoutsData])
 
   // Add these new trend calculation functions at the appropriate location in the hook
+
   // Get weekly trends
   const getWorkoutTrend = useCallback(() => {
     if (!completedWorkoutsData || completedWorkoutsData.length === 0) return 0
@@ -494,6 +495,268 @@ export const useWorkouts = (userId: string | undefined) => {
     return percentageChange
   }, [completedWorkoutsData])
 
+  // Get a random workout for "Today's Workout" section
+  const getRandomWorkout = useCallback(() => {
+    if (!workouts || workouts.length === 0) return null
+
+    // Filter out workouts that have been completed today
+    const availableWorkouts = workouts.filter((workout) => !completedWorkouts[workout.workout_id])
+
+    // If all workouts are completed today, just return a random one from all workouts
+    if (availableWorkouts.length === 0) {
+      const randomIndex = Math.floor(Math.random() * workouts.length)
+      return workouts[randomIndex]
+    }
+
+    // Return a random workout from available workouts
+    const randomIndex = Math.floor(Math.random() * availableWorkouts.length)
+    return availableWorkouts[randomIndex]
+  }, [workouts, completedWorkouts])
+
+  // Get body part workout stats
+  const getBodyPartStats = useCallback(() => {
+    if (!completedWorkoutsData || completedWorkoutsData.length === 0) return []
+
+    // Create a map to store body part counts
+    const bodyPartCounts: Record<string, number> = {}
+
+    // Count completed workouts by body part
+    completedWorkoutsData.forEach((completedWorkout) => {
+      // Find the workout details
+      const workout = workouts.find((w) => w.workout_id === completedWorkout.workout_id)
+      if (workout && workout.body_part) {
+        const bodyPart = workout.body_part
+        bodyPartCounts[bodyPart] = (bodyPartCounts[bodyPart] || 0) + 1
+      }
+    })
+
+    // Convert to array of stats
+    const stats = Object.entries(bodyPartCounts).map(([bodyPart, count]) => ({
+      category: bodyPart,
+      count: count.toString(),
+      // We'll calculate trend later
+      trend: 0,
+    }))
+
+    // Sort by count (highest first)
+    stats.sort((a, b) => Number.parseInt(b.count) - Number.parseInt(a.count))
+
+    // Return top 3 or all if less than 3
+    return stats.slice(0, 3)
+  }, [completedWorkoutsData, workouts])
+
+  // Calculate trends for body part stats
+  const getBodyPartTrends = useCallback(() => {
+    if (!completedWorkoutsData || completedWorkoutsData.length === 0) return []
+
+    // Get today's date and date from a week ago
+    const today = new Date()
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(today.getDate() - 7)
+
+    // Get two weeks ago date for comparison
+    const twoWeeksAgo = new Date()
+    twoWeeksAgo.setDate(today.getDate() - 14)
+
+    // Get stats with trends
+    const stats = getBodyPartStats()
+
+    // Calculate trend for each body part
+    return stats.map((stat) => {
+      const bodyPart = stat.category
+
+      // Count workouts for this body part in the last week
+      const lastWeekCount = completedWorkoutsData.filter((workout) => {
+        const workoutDate = new Date(workout.completed_date)
+        const matchingWorkout = workouts.find((w) => w.workout_id === workout.workout_id)
+        return (
+          workoutDate >= oneWeekAgo && workoutDate <= today && matchingWorkout && matchingWorkout.body_part === bodyPart
+        )
+      }).length
+
+      // Count workouts for this body part in the previous week
+      const previousWeekCount = completedWorkoutsData.filter((workout) => {
+        const workoutDate = new Date(workout.completed_date)
+        const matchingWorkout = workouts.find((w) => w.workout_id === workout.workout_id)
+        return (
+          workoutDate >= twoWeeksAgo &&
+          workoutDate < oneWeekAgo &&
+          matchingWorkout &&
+          matchingWorkout.body_part === bodyPart
+        )
+      }).length
+
+      // Calculate trend
+      let trend = 0
+      if (previousWeekCount === 0) {
+        trend = lastWeekCount > 0 ? 100 : 0
+      } else {
+        trend = Math.round(((lastWeekCount - previousWeekCount) / previousWeekCount) * 100)
+      }
+
+      return {
+        ...stat,
+        trend,
+      }
+    })
+  }, [completedWorkoutsData, workouts, getBodyPartStats])
+
+  // Add this new function to the useWorkouts hook, before the return statement
+
+  // Get stats for specific body parts (chest, legs, arms)
+  const getSpecificBodyPartStats = useCallback(() => {
+    if (!completedWorkoutsData || completedWorkoutsData.length === 0) return []
+
+    // Define the specific body parts we want to track
+    const specificBodyParts = ["Chest", "Legs", "Arms"]
+
+    // Create a map to store body part counts
+    const bodyPartCounts: Record<string, number> = {}
+
+    // Initialize counts for our specific body parts
+    specificBodyParts.forEach((part) => {
+      bodyPartCounts[part] = 0
+    })
+
+    // Count completed workouts by body part
+    completedWorkoutsData.forEach((completedWorkout) => {
+      // Find the workout details
+      const workout = workouts.find((w) => w.workout_id === completedWorkout.workout_id)
+      if (workout && workout.body_part) {
+        const bodyPart = workout.body_part
+
+        // Check if this is one of our specific body parts or can be mapped to one
+        if (specificBodyParts.includes(bodyPart)) {
+          bodyPartCounts[bodyPart] = (bodyPartCounts[bodyPart] || 0) + 1
+        } else if (bodyPart.toLowerCase().includes("chest")) {
+          bodyPartCounts["Chest"] = (bodyPartCounts["Chest"] || 0) + 1
+        } else if (
+          bodyPart.toLowerCase().includes("leg") ||
+          bodyPart.toLowerCase().includes("quad") ||
+          bodyPart.toLowerCase().includes("hamstring")
+        ) {
+          bodyPartCounts["Legs"] = (bodyPartCounts["Legs"] || 0) + 1
+        } else if (
+          bodyPart.toLowerCase().includes("arm") ||
+          bodyPart.toLowerCase().includes("bicep") ||
+          bodyPart.toLowerCase().includes("tricep")
+        ) {
+          bodyPartCounts["Arms"] = (bodyPartCounts["Arms"] || 0) + 1
+        }
+      }
+    })
+
+    // Convert to array of stats
+    const stats = specificBodyParts.map((bodyPart) => ({
+      category: bodyPart,
+      count: bodyPartCounts[bodyPart].toString(),
+      // We'll calculate trend later
+      trend: 0,
+    }))
+
+    return stats
+  }, [completedWorkoutsData, workouts])
+
+  // Calculate trends for specific body parts
+  const getSpecificBodyPartTrends = useCallback(() => {
+    if (!completedWorkoutsData || completedWorkoutsData.length === 0) return []
+
+    // Get today's date and date from a week ago
+    const today = new Date()
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(today.getDate() - 7)
+
+    // Get two weeks ago date for comparison
+    const twoWeeksAgo = new Date()
+    twoWeeksAgo.setDate(today.getDate() - 14)
+
+    // Get stats without trends
+    const stats = getSpecificBodyPartStats()
+
+    // Calculate trend for each body part
+    return stats.map((stat) => {
+      const bodyPart = stat.category
+
+      // Count workouts for this body part in the last week
+      const lastWeekCount = completedWorkoutsData.filter((workout) => {
+        const workoutDate = new Date(workout.completed_date)
+        const matchingWorkout = workouts.find((w) => w.workout_id === workout.workout_id)
+
+        if (!matchingWorkout) return false
+
+        // Check if this workout matches our body part
+        let matches = false
+        if (matchingWorkout.body_part === bodyPart) {
+          matches = true
+        } else if (bodyPart === "Chest" && matchingWorkout.body_part.toLowerCase().includes("chest")) {
+          matches = true
+        } else if (
+          bodyPart === "Legs" &&
+          (matchingWorkout.body_part.toLowerCase().includes("leg") ||
+            matchingWorkout.body_part.toLowerCase().includes("quad") ||
+            matchingWorkout.body_part.toLowerCase().includes("hamstring"))
+        ) {
+          matches = true
+        } else if (
+          bodyPart === "Arms" &&
+          (matchingWorkout.body_part.toLowerCase().includes("arm") ||
+            matchingWorkout.body_part.toLowerCase().includes("bicep") ||
+            matchingWorkout.body_part.toLowerCase().includes("tricep"))
+        ) {
+          matches = true
+        }
+
+        return workoutDate >= oneWeekAgo && workoutDate <= today && matches
+      }).length
+
+      // Count workouts for this body part in the previous week
+      const previousWeekCount = completedWorkoutsData.filter((workout) => {
+        const workoutDate = new Date(workout.completed_date)
+        const matchingWorkout = workouts.find((w) => w.workout_id === workout.workout_id)
+
+        if (!matchingWorkout) return false
+
+        // Check if this workout matches our body part
+        let matches = false
+        if (matchingWorkout.body_part === bodyPart) {
+          matches = true
+        } else if (bodyPart === "Chest" && matchingWorkout.body_part.toLowerCase().includes("chest")) {
+          matches = true
+        } else if (
+          bodyPart === "Legs" &&
+          (matchingWorkout.body_part.toLowerCase().includes("leg") ||
+            matchingWorkout.body_part.toLowerCase().includes("quad") ||
+            matchingWorkout.body_part.toLowerCase().includes("hamstring"))
+        ) {
+          matches = true
+        } else if (
+          bodyPart === "Arms" &&
+          (matchingWorkout.body_part.toLowerCase().includes("arm") ||
+            matchingWorkout.body_part.toLowerCase().includes("bicep") ||
+            matchingWorkout.body_part.toLowerCase().includes("tricep"))
+        ) {
+          matches = true
+        }
+
+        return workoutDate >= twoWeeksAgo && workoutDate < oneWeekAgo && matches
+      }).length
+
+      // Calculate trend
+      let trend = 0
+      if (previousWeekCount === 0) {
+        trend = lastWeekCount > 0 ? 100 : 0
+      } else {
+        trend = Math.round(((lastWeekCount - previousWeekCount) / previousWeekCount) * 100)
+      }
+
+      return {
+        ...stat,
+        trend,
+      }
+    })
+  }, [completedWorkoutsData, workouts, getSpecificBodyPartStats])
+
+  // Add these functions to the return statement
   return {
     workouts,
     loading,
@@ -515,5 +778,10 @@ export const useWorkouts = (userId: string | undefined) => {
     getWorkoutTrend,
     getCalorieTrend,
     getDurationTrend,
+    getRandomWorkout,
+    getBodyPartStats,
+    getBodyPartTrends,
+    getSpecificBodyPartStats,
+    getSpecificBodyPartTrends,
   }
 }
