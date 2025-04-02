@@ -368,6 +368,132 @@ export const useWorkouts = (userId: string | undefined) => {
     return totalSeconds / 60 // Convert to minutes
   }, [completedWorkoutsData])
 
+  // Add these new trend calculation functions at the appropriate location in the hook
+  // Get weekly trends
+  const getWorkoutTrend = useCallback(() => {
+    if (!completedWorkoutsData || completedWorkoutsData.length === 0) return 0
+
+    // Get today's date and date from a week ago
+    const today = new Date()
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(today.getDate() - 7)
+
+    // Get two weeks ago date for comparison
+    const twoWeeksAgo = new Date()
+    twoWeeksAgo.setDate(today.getDate() - 14)
+
+    // Count workouts in the last week
+    const workoutsLastWeek = completedWorkoutsData.filter((workout) => {
+      const workoutDate = new Date(workout.completed_date)
+      return workoutDate >= oneWeekAgo && workoutDate <= today
+    }).length
+
+    // Count workouts in the previous week
+    const workoutsPreviousWeek = completedWorkoutsData.filter((workout) => {
+      const workoutDate = new Date(workout.completed_date)
+      return workoutDate >= twoWeeksAgo && workoutDate < oneWeekAgo
+    }).length
+
+    // Calculate trend - if no previous workouts, just return 0 or positive value
+    if (workoutsPreviousWeek === 0) {
+      return workoutsLastWeek > 0 ? 100 : 0 // 100% increase if there are workouts this week but none last week
+    }
+
+    // Calculate percentage change
+    const percentageChange = Math.round(((workoutsLastWeek - workoutsPreviousWeek) / workoutsPreviousWeek) * 100)
+    return percentageChange
+  }, [completedWorkoutsData])
+
+  // Get calorie trend
+  const getCalorieTrend = useCallback(() => {
+    if (!completedWorkoutsData || completedWorkoutsData.length === 0) return 0
+
+    // Get today's date and date from a week ago
+    const today = new Date()
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(today.getDate() - 7)
+
+    // Get two weeks ago date for comparison
+    const twoWeeksAgo = new Date()
+    twoWeeksAgo.setDate(today.getDate() - 14)
+
+    // Sum calories in the last week
+    const caloriesLastWeek = completedWorkoutsData
+      .filter((workout) => {
+        const workoutDate = new Date(workout.completed_date)
+        return workoutDate >= oneWeekAgo && workoutDate <= today
+      })
+      .reduce((sum, workout) => sum + (workout.calories || 0), 0)
+
+    // Sum calories in the previous week
+    const caloriesPreviousWeek = completedWorkoutsData
+      .filter((workout) => {
+        const workoutDate = new Date(workout.completed_date)
+        return workoutDate >= twoWeeksAgo && workoutDate < oneWeekAgo
+      })
+      .reduce((sum, workout) => sum + (workout.calories || 0), 0)
+
+    // Calculate trend - if no previous calories, just return 0 or positive value
+    if (caloriesPreviousWeek === 0) {
+      return caloriesLastWeek > 0 ? 100 : 0
+    }
+
+    // Calculate percentage change
+    const percentageChange = Math.round(((caloriesLastWeek - caloriesPreviousWeek) / caloriesPreviousWeek) * 100)
+    return percentageChange
+  }, [completedWorkoutsData])
+
+  // Get duration trend
+  const getDurationTrend = useCallback(() => {
+    if (!completedWorkoutsData || completedWorkoutsData.length === 0) return 0
+
+    // Get today's date and date from a week ago
+    const today = new Date()
+    const oneWeekAgo = new Date()
+    oneWeekAgo.setDate(today.getDate() - 7)
+
+    // Get two weeks ago date for comparison
+    const twoWeeksAgo = new Date()
+    twoWeeksAgo.setDate(today.getDate() - 14)
+
+    // Get workouts in the last week
+    const workoutsLastWeek = completedWorkoutsData.filter((workout) => {
+      const workoutDate = new Date(workout.completed_date)
+      return workoutDate >= oneWeekAgo && workoutDate <= today
+    })
+
+    // Get workouts in the previous week
+    const workoutsPreviousWeek = completedWorkoutsData.filter((workout) => {
+      const workoutDate = new Date(workout.completed_date)
+      return workoutDate >= twoWeeksAgo && workoutDate < oneWeekAgo
+    })
+
+    // Calculate average duration for last week
+    let avgDurationLastWeek = 0
+    if (workoutsLastWeek.length > 0) {
+      const totalDurationLastWeek = workoutsLastWeek.reduce((sum, workout) => sum + (workout.duration || 0), 0)
+      avgDurationLastWeek = totalDurationLastWeek / workoutsLastWeek.length / 60 // Convert to minutes
+    }
+
+    // Calculate average duration for previous week
+    let avgDurationPreviousWeek = 0
+    if (workoutsPreviousWeek.length > 0) {
+      const totalDurationPreviousWeek = workoutsPreviousWeek.reduce((sum, workout) => sum + (workout.duration || 0), 0)
+      avgDurationPreviousWeek = totalDurationPreviousWeek / workoutsPreviousWeek.length / 60 // Convert to minutes
+    }
+
+    // Calculate trend - if no previous workouts, just return 0 or positive value
+    if (avgDurationPreviousWeek === 0) {
+      return avgDurationLastWeek > 0 ? 100 : 0
+    }
+
+    // Calculate percentage change
+    const percentageChange = Math.round(
+      ((avgDurationLastWeek - avgDurationPreviousWeek) / avgDurationPreviousWeek) * 100,
+    )
+    return percentageChange
+  }, [completedWorkoutsData])
+
   return {
     workouts,
     loading,
@@ -386,5 +512,8 @@ export const useWorkouts = (userId: string | undefined) => {
     completedWorkoutsData,
     getTotalCaloriesBurned,
     getTotalWorkoutDuration,
+    getWorkoutTrend,
+    getCalorieTrend,
+    getDurationTrend,
   }
 }

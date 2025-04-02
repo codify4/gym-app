@@ -18,28 +18,39 @@ const Stats = () => {
   const [selected, setSelected] = useState("")
   const { session } = useAuth()
   const user = session?.user
-  const userId = user?.id
-  const { workouts, completedWorkoutsData, getTotalCaloriesBurned, getTotalWorkoutDuration } = useWorkouts(userId)
+  const userId = session?.user?.id
+  const {
+    workouts,
+    completedWorkoutsData,
+    getTotalCaloriesBurned,
+    getTotalWorkoutDuration,
+    getWorkoutTrend,
+    getCalorieTrend,
+    getDurationTrend,
+  } = useWorkouts(userId)
 
-  // Stats calculations
   const [totalWorkouts, setTotalWorkouts] = useState(0)
   const [totalCalories, setTotalCalories] = useState(0)
   const [avgDuration, setAvgDuration] = useState(0)
   const [workoutDates, setWorkoutDates] = useState<Record<string, { selected: boolean; selectedColor: string }>>({})
 
-  // Calculate stats from workouts data
+  const [workoutTrend, setWorkoutTrend] = useState(0)
+  const [calorieTrend, setCalorieTrend] = useState(0)
+  const [durationTrend, setDurationTrend] = useState(0)
+
   useEffect(() => {
-    // Calculate total workouts (completed workouts count)
     setTotalWorkouts(completedWorkoutsData.length)
 
-    // Calculate total calories burned from completed workouts
     const calories = getTotalCaloriesBurned()
     setTotalCalories(calories)
 
-    // Calculate average workout duration
     const totalDuration = getTotalWorkoutDuration()
     const average = completedWorkoutsData.length > 0 ? Math.round(totalDuration / completedWorkoutsData.length) : 0
     setAvgDuration(average)
+
+    setWorkoutTrend(getWorkoutTrend())
+    setCalorieTrend(getCalorieTrend())
+    setDurationTrend(getDurationTrend())
 
     // Create marked dates for calendar
     const dates: Record<string, { selected: boolean; selectedColor: string }> = {}
@@ -52,7 +63,15 @@ const Stats = () => {
     })
 
     setWorkoutDates(dates)
-  }, [workouts, completedWorkoutsData, getTotalCaloriesBurned, getTotalWorkoutDuration])
+  }, [
+    workouts,
+    completedWorkoutsData,
+    getTotalCaloriesBurned,
+    getTotalWorkoutDuration,
+    getWorkoutTrend,
+    getCalorieTrend,
+    getDurationTrend,
+  ])
 
   const weightData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -119,15 +138,26 @@ const Stats = () => {
           </View>
 
           <View className="flex-row justify-between items-center mb-4 gap-2">
-            <StatCard title="Workouts" value={totalWorkouts.toString()} Icon={Dumbbell} trend={5} iconColor="#FF3737" percentage={false} />
-            <StatCard title="Calories" value={formattedCalories} Icon={Flame} trend={8} iconColor="#FF3737" />
+            <StatCard
+              title="Workouts"
+              value={totalWorkouts.toString()}
+              Icon={Dumbbell}
+              trend={workoutTrend}
+              iconColor="#FF3737"
+            />
+            <StatCard
+              title="Calories"
+              value={formattedCalories}
+              Icon={Flame}
+              trend={calorieTrend}
+              iconColor="#FF3737"
+            />
             <StatCard
               title="Duration"
               value={formattedDuration}
               Icon={Clock}
-              trend={3}
+              trend={durationTrend}
               iconColor="#FF3737"
-              percentage={false}
             />
           </View>
 
