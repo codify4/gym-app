@@ -1,15 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { LineChart } from "react-native-chart-kit"
 import { Calendar } from "react-native-calendars"
-import { Dumbbell, Flame, TrendingUp } from "lucide-react-native"
+import { Dumbbell, Flame, Clock } from "lucide-react-native"
 import StatCard from "@/components/stat-card"
 import { router } from "expo-router"
 import { Avatar } from "react-native-paper"
 import { useAuth } from "@/context/auth"
+import { useWorkouts } from "@/hooks/use-workouts"
 
 const { width: screenWidth } = Dimensions.get("window")
 
@@ -17,14 +18,41 @@ const Stats = () => {
   const [selected, setSelected] = useState("")
   const { session } = useAuth()
   const user = session?.user
+  const userId = user?.id
+  const { workouts, completedWorkoutsData, getTotalCaloriesBurned, getTotalWorkoutDuration } = useWorkouts(userId)
 
-  const workoutDates = {
-    "2025-02-01": { selected: true, selectedColor: "#FF3737" },
-    "2025-02-03": { selected: true, selectedColor: "#FF3737" },
-    "2025-02-05": { selected: true, selectedColor: "#FF3737" },
-    "2025-02-07": { selected: true, selectedColor: "#FF3737" },
-    "2025-02-09": { selected: true, selectedColor: "#FF3737" },
-  }
+  // Stats calculations
+  const [totalWorkouts, setTotalWorkouts] = useState(0)
+  const [totalCalories, setTotalCalories] = useState(0)
+  const [avgDuration, setAvgDuration] = useState(0)
+  const [workoutDates, setWorkoutDates] = useState<Record<string, { selected: boolean; selectedColor: string }>>({})
+
+  // Calculate stats from workouts data
+  useEffect(() => {
+    // Calculate total workouts (completed workouts count)
+    setTotalWorkouts(completedWorkoutsData.length)
+
+    // Calculate total calories burned from completed workouts
+    const calories = getTotalCaloriesBurned()
+    setTotalCalories(calories)
+
+    // Calculate average workout duration
+    const totalDuration = getTotalWorkoutDuration()
+    const average = completedWorkoutsData.length > 0 ? Math.round(totalDuration / completedWorkoutsData.length) : 0
+    setAvgDuration(average)
+
+    // Create marked dates for calendar
+    const dates: Record<string, { selected: boolean; selectedColor: string }> = {}
+
+    completedWorkoutsData.forEach((workout) => {
+      if (workout.completed_date) {
+        const date = new Date(workout.completed_date).toISOString().split("T")[0]
+        dates[date] = { selected: true, selectedColor: "#FF3737" }
+      }
+    })
+
+    setWorkoutDates(dates)
+  }, [workouts, completedWorkoutsData, getTotalCaloriesBurned, getTotalWorkoutDuration])
 
   const weightData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -38,9 +66,9 @@ const Stats = () => {
   }
 
   const chartConfig = {
-    backgroundColor: '#171717',
-    backgroundGradientFrom: '#171717',
-    backgroundGradientTo: '#171717',
+    backgroundColor: "#171717",
+    backgroundGradientFrom: "#171717",
+    backgroundGradientTo: "#171717",
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -48,25 +76,32 @@ const Stats = () => {
       borderRadius: 16,
     },
     propsForDots: {
-      r: '4',
-      strokeWidth: '1',
-      stroke: '#FF3737',
-      fill: '#FF3737',
+      r: "4",
+      strokeWidth: "1",
+      stroke: "#FF3737",
+      fill: "#FF3737",
     },
     propsForBackgroundLines: {
-      strokeDasharray: '6',
-      stroke: 'rgba(255, 255, 255)',
+      strokeDasharray: "6",
+      stroke: "rgba(255, 255, 255)",
       strokeWidth: 1,
     },
-    fillShadowGradientFrom: 'rgba(255, 55, 55, 0.2)',
-    fillShadowGradientTo: 'rgba(255, 55, 55, 0)',
+    fillShadowGradientFrom: "rgba(255, 55, 55, 0.2)",
+    fillShadowGradientTo: "rgba(255, 55, 55, 0)",
     paddingRight: 20,
-  };
+  }
+
+  const formattedCalories = totalCalories.toLocaleString()
+  const formattedDuration = `${avgDuration} min`
 
   return (
     <SafeAreaView className={`flex-1 bg-black ${Platform.OS === "ios" ? "" : "pt-5"}`}>
       <StatusBar style="light" />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 5, paddingBottom: Platform.OS === "ios" ? 0 : 60 }}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 5, paddingBottom: Platform.OS === "ios" ? 0 : 60 }}
+      >
         <View className="px-4 py-6">
           {/* Header Section - Matching Home Screen */}
           <View className="flex-row justify-between items-center mb-8">
@@ -78,23 +113,26 @@ const Stats = () => {
               />
               <View className="ml-4">
                 <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
-                <Text className="text-neutral-400 text-base font-poppins-semibold">
-                  Your Stats
-                </Text>
+                <Text className="text-neutral-400 text-base font-poppins-semibold">Your Stats</Text>
               </View>
             </TouchableOpacity>
           </View>
 
           <View className="flex-row justify-between items-center mb-4 gap-2">
-            <StatCard title="Workouts" value="23" Icon={Dumbbell} trend={5} />
-            <StatCard title="Calories" value="12,400" Icon={Flame} trend={-2} />
-            <StatCard title="Weight" value="71 kg" Icon={TrendingUp} trend={1.5} />
+            <StatCard title="Workouts" value={totalWorkouts.toString()} Icon={Dumbbell} trend={5} iconColor="#FF3737" percentage={false} />
+            <StatCard title="Calories" value={formattedCalories} Icon={Flame} trend={8} iconColor="#FF3737" />
+            <StatCard
+              title="Duration"
+              value={formattedDuration}
+              Icon={Clock}
+              trend={3}
+              iconColor="#FF3737"
+              percentage={false}
+            />
           </View>
 
           <View className="flex items-center justify-center gap-2 bg-neutral-900 rounded-3xl p-4 w-full overflow-hidden mb-4">
-            <Text className="text-white text-2xl font-poppins-semibold mb-2">
-              Weight Progress
-            </Text>
+            <Text className="text-white text-2xl font-poppins-semibold mb-2">Activity Progress</Text>
             <View className="px-2 ml-2 -mx-4">
               <LineChart
                 data={weightData}
@@ -156,4 +194,3 @@ const Stats = () => {
 }
 
 export default Stats
-

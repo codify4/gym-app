@@ -90,15 +90,23 @@ export default function WorkoutCompleteScreen() {
         <View className="items-center bg-neutral-900 p-5 rounded-3xl w-full">
           <Dumbbell size={28} color="white" />
           <Text className="text-white text-2xl font-poppins-bold mt-2">{exerciseCount}</Text>
-          <Text className="text-neutral-400 text-base font-poppins-medium">{exerciseCount === 1 ? "Exercise" : "Exercises"}</Text>
+          <Text className="text-neutral-400 text-base font-poppins-medium">
+            {exerciseCount === 1 ? "Exercise" : "Exercises"}
+          </Text>
         </View>
       </ScrollView>
 
       <View className="px-5 py-4 bg-black" style={{ paddingBottom: 30 }}>
-        <TouchableOpacity className="bg-white rounded-full py-5 items-center" onPress={() => router.replace("/(tabs)/routine")}>
+        <TouchableOpacity
+          className="bg-white rounded-full py-5 items-center"
+          onPress={() => router.replace("/(tabs)/routine")}
+        >
           <Text className="text-black text-lg font-poppins-semibold">Back to Workouts</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="bg-transparent border border-white rounded-full py-5 items-center mt-4" onPress={() => router.replace("/(tabs)/stats")}>
+        <TouchableOpacity
+          className="bg-transparent border border-white rounded-full py-5 items-center mt-4"
+          onPress={() => router.replace("/(tabs)/stats")}
+        >
           <Text className="text-white text-lg font-poppins-semibold">Check out your Stats</Text>
         </TouchableOpacity>
       </View>

@@ -1,5 +1,6 @@
-import { Exercise } from "./exercises"
+import type { Exercise } from "./exercises"
 import { supabase } from "./supabase"
+import { calculateCaloriesBurned } from "@/utils/calories"
 
 export interface Workout {
   workout_id: string
@@ -18,6 +19,8 @@ export interface CompletedWorkout {
   workout_id: string
   user_id: string
   completed_date: string
+  duration?: number // Added duration field
+  calories?: number // Added calories field
 }
 
 // Fetch all workouts for a user with their exercises
@@ -193,10 +196,12 @@ export const deleteWorkout = async (workoutId: string | number): Promise<boolean
   }
 }
 
-// Mark a workout as completed
+// Mark a workout as completed with duration and calories
 export const completeWorkout = async (
   userId: string | undefined,
   workoutId: string | number,
+  durationSeconds?: number,
+  caloriesBurned?: number,
 ): Promise<CompletedWorkout | null> => {
   if (!userId) return null
 
@@ -207,6 +212,23 @@ export const completeWorkout = async (
 
     console.log(`Marking workout ${workoutId} as completed at ${completedDate}`)
 
+    // Get workout data if calories need to be calculated
+    let calculatedCalories = caloriesBurned
+    if (!calculatedCalories && durationSeconds) {
+      const { data: workoutData, error: workoutError } = await supabase
+        .from("workout")
+        .select("body_part")
+        .eq("workout_id", workoutId)
+        .single()
+
+      if (!workoutError && workoutData) {
+        // Calculate calories based on duration and body part
+        calculatedCalories = calculateCaloriesBurned(workoutData.body_part, durationSeconds / 60)
+        console.log(`Calculated calories: ${calculatedCalories}`)
+      }
+    }
+
+    // Insert completed workout record with duration and calories
     const { data, error } = await supabase
       .from("completed_workout")
       .insert([
@@ -214,6 +236,8 @@ export const completeWorkout = async (
           workout_id: workoutId,
           user_id: userId,
           completed_date: completedDate,
+          duration: durationSeconds,
+          calories: calculatedCalories,
         },
       ])
       .select()
@@ -223,8 +247,6 @@ export const completeWorkout = async (
       console.error("Error completing workout:", error)
       return null
     }
-
-    console.log("Completed workout data:", data)
 
     // Update the last_performed date on the workout
     const { error: updateError } = await supabase
@@ -284,5 +306,28 @@ export const isWorkoutCompletedOnDate = async (
   } catch (error) {
     console.error("Error in isWorkoutCompletedOnDate:", error)
     return false
+  }
+}
+
+// Get completed workouts with stats
+export const getCompletedWorkouts = async (userId: string | undefined): Promise<CompletedWorkout[]> => {
+  if (!userId) return []
+
+  try {
+    const { data, error } = await supabase
+      .from("completed_workout")
+      .select("*")
+      .eq("user_id", userId)
+      .order("completed_date", { ascending: false })
+
+    if (error) {
+      console.error("Error fetching completed workouts:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error in getCompletedWorkouts:", error)
+    return []
   }
 }

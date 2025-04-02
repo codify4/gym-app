@@ -8,14 +8,14 @@ import {
   deleteExercise as deleteExerciseApi,
   type Exercise,
 } from "@/lib/exercises"
-import { 
-  fetchWorkouts, 
-  addWorkout as addWorkoutApi, 
-  completeWorkout as completeWorkoutApi, 
-  isWorkoutCompletedOnDate as isWorkoutCompletedOnDateApi, 
-  deleteWorkout as deleteWorkoutApi, 
-  updateWorkout as updateWorkoutApi, 
-  type Workout 
+import {
+  fetchWorkouts,
+  addWorkout as addWorkoutApi,
+  completeWorkout as completeWorkoutApi,
+  deleteWorkout as deleteWorkoutApi,
+  updateWorkout as updateWorkoutApi,
+  type Workout,
+  type CompletedWorkout,
 } from "@/lib/workouts"
 import { calculateCaloriesBurned } from "@/utils/calories"
 import { supabase } from "@/lib/supabase"
@@ -25,6 +25,7 @@ export const useWorkouts = (userId: string | undefined) => {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [completedWorkouts, setCompletedWorkouts] = useState<Record<string, boolean>>({})
+  const [completedWorkoutsData, setCompletedWorkoutsData] = useState<CompletedWorkout[]>([])
 
   // Calculate calories for a workout
   const getWorkoutCalories = useCallback((workout: Workout): number => {
@@ -64,6 +65,9 @@ export const useWorkouts = (userId: string | undefined) => {
         console.error("Error fetching completed workouts:", completedError)
       } else if (completedWorkoutsData) {
         console.log("Fetched completed workouts:", completedWorkoutsData.length)
+
+        // Store completed workouts data
+        setCompletedWorkoutsData(completedWorkoutsData)
 
         // Get today's date in YYYY-MM-DD format for comparison
         const today = new Date().toISOString().split("T")[0]
@@ -282,15 +286,19 @@ export const useWorkouts = (userId: string | undefined) => {
     }
   }, [])
 
-  // Complete a workout
+  // Complete a workout with duration and calories
   const completeWorkout = useCallback(
-    async (workoutId: string | number) => {
+    async (workoutId: string | number, durationSeconds?: number, caloriesBurned?: number) => {
       if (!userId) return false
 
       try {
-        const completed = await completeWorkoutApi(userId, workoutId)
+        // Call the API with duration and calories
+        const completed = await completeWorkoutApi(userId, workoutId, durationSeconds, caloriesBurned)
+
         if (completed) {
-          console.log(`Workout ${workoutId} marked as completed today`)
+          console.log(
+            `Workout ${workoutId} marked as completed today with duration: ${durationSeconds}s, calories: ${caloriesBurned}`,
+          )
 
           // Update the completed workouts map
           setCompletedWorkouts((prev) => {
@@ -314,6 +322,11 @@ export const useWorkouts = (userId: string | undefined) => {
               return workout
             }),
           )
+
+          // Add to completed workouts data
+          if (completed) {
+            setCompletedWorkoutsData((prev) => [completed, ...prev])
+          }
 
           // Force a refresh to ensure we have the latest data
           setTimeout(() => {
@@ -339,6 +352,22 @@ export const useWorkouts = (userId: string | undefined) => {
     [completedWorkouts],
   )
 
+  // Get total calories burned from completed workouts
+  const getTotalCaloriesBurned = useCallback(() => {
+    return completedWorkoutsData.reduce((total, workout) => {
+      return total + (workout.calories || 0)
+    }, 0)
+  }, [completedWorkoutsData])
+
+  // Get total workout duration in minutes
+  const getTotalWorkoutDuration = useCallback(() => {
+    const totalSeconds = completedWorkoutsData.reduce((total, workout) => {
+      return total + (workout.duration || 0)
+    }, 0)
+
+    return totalSeconds / 60 // Convert to minutes
+  }, [completedWorkoutsData])
+
   return {
     workouts,
     loading,
@@ -354,5 +383,8 @@ export const useWorkouts = (userId: string | undefined) => {
     isWorkoutCompletedOnDate,
     getWorkoutCalories,
     completedWorkouts,
+    completedWorkoutsData,
+    getTotalCaloriesBurned,
+    getTotalWorkoutDuration,
   }
 }
