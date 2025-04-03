@@ -1,23 +1,35 @@
 import { View, Image, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { ChevronRight } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/auth';
+import { useOnboarding } from '@/context/onboarding-context';
 
 const { width, height } = Dimensions.get('window');
 
 const Welcome = () => {
-  const router = useRouter();
-  const { signOut } = useAuth();
+  const { session, isLoading, signOut } = useAuth()
+  const { isOnboardingDone } = useOnboarding()
 
   useEffect(() => {
-    const signout = async () => {
-      await signOut();
-  }
+    if (isLoading) return
 
-  signout();
-  }, []);
+    const checkAuthAndOnboarding = async () => {
+      if (session) {
+        // User is logged in
+        if (isOnboardingDone) {
+          // Onboarding is completed, go to main app
+          router.replace("/(tabs)/routine")
+        } else {
+          // Onboarding not completed, go to onboarding
+          router.replace("/onboarding")
+        }
+      }
+    }
+
+    checkAuthAndOnboarding()
+  }, [session, isLoading, isOnboardingDone])
 
   return (
     <View className='flex-1'>

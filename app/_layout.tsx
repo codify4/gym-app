@@ -10,23 +10,25 @@ import { AuthProvider, useAuth } from '@/context/auth';
 import "../global.css";
 import { setBackgroundColorAsync } from "expo-navigation-bar";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { OnboardingProvider, useOnboarding } from '@/context/onboarding-context';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const { session, loading, onboardingDone } = useAuth();
+  const { session, isLoading } = useAuth();
+  const { isOnboardingDone } = useOnboarding();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
+    if (isLoading) return;
 
     console.log("Auth state:", { 
       session: !!session, 
-      onboardingDone, 
+      isOnboardingDone, 
       currentRoute: segments[0] || 'root',
-      loading
+      isLoading
     });
     
     // Get current route
@@ -40,7 +42,7 @@ function RootLayoutNav() {
       return;
     } else {
       // User is authenticated
-      if (onboardingDone) {
+      if (isOnboardingDone) {
         // User has completed onboarding - send to home
         const inAuthGroup = segments[0] === '(tabs)';
         const isLoadingScreen = segments[0] === 'loading-screen';
@@ -57,7 +59,7 @@ function RootLayoutNav() {
         }
       }
     }
-  }, [session, loading, onboardingDone, segments]);
+  }, [session, isLoading, isOnboardingDone, segments]);
 
 
   return (
@@ -104,10 +106,12 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView>
       <AuthProvider>
-        <PaperProvider>
-          <StatusBar style='light'/>
-          <RootLayoutNav />
-        </PaperProvider>
+        <OnboardingProvider>
+          <PaperProvider>
+            <StatusBar style='light'/>
+            <RootLayoutNav />
+          </PaperProvider>
+        </OnboardingProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );

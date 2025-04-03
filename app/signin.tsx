@@ -4,21 +4,16 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronRight, Dumbbell } from 'lucide-react-native';
 import * as Linking from "expo-linking";
-import { useAuth } from '@/context/auth';
 import { createSessionFromUrl, performOAuth } from '@/lib/auth-lib';
 import { router } from 'expo-router';
 const Signin = () => {
-    const url = Linking.useURL();
-    const { session, signOut } = useAuth();
-    
+    const url = Linking.useURL()
+  
     React.useEffect(() => {
-        if (url) {
-            createSessionFromUrl(url).catch(console.error);
-        }
-    }, [url]);
-
-    // If we already have a session, we'll be redirected by _layout.tsx
-    if (session) return null;
+      if (url) {
+        createSessionFromUrl(url).catch(console.error)
+      }
+    }, [url])
 
     return (
         <View className='flex-1 bg-neutral-900'>

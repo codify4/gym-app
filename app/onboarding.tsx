@@ -1,13 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { View, Text, Platform, KeyboardAvoidingView, TouchableOpacity } from "react-native"
 import Animated, { SlideInRight, SlideOutLeft, SlideInLeft, SlideOutRight } from "react-native-reanimated"
-import { useRouter } from "expo-router"
+import { router } from "expo-router"
 import { OnboardingInput } from "../components/onboarding/onboarding-flow"
-import { OnboardingData, slides } from "@/constants/slides"
+import { type OnboardingData, slides } from "@/constants/slides"
+import { useOnboarding } from "@/context/onboarding-context"
 
 const Onboarding = () => {
+  const { saveOnboardingData } = useOnboarding()
   const [step, setStep] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [slideDirection, setSlideDirection] = useState<"forward" | "backward">("forward")
@@ -21,9 +23,8 @@ const Onboarding = () => {
     min: (0).toString(),
     max: (999).toString(),
     gender: "",
-    loading: '',
+    loading: "",
   })
-  const router = useRouter()
   const keyboardVerticalOffset = Platform.OS === "ios" ? 50 : 0
 
   const currentSlide = slides[step]
@@ -37,7 +38,7 @@ const Onboarding = () => {
     }))
   }
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (!isValidInput || isAnimating) return
 
     if (step < slides.length - 1) {
@@ -48,8 +49,16 @@ const Onboarding = () => {
         setIsAnimating(false)
       }, 300)
     } else {
-      // Navigate to loading screen on last step
-      router.push("/loading-screen");
+      // Save onboarding data before navigating
+      try {
+        await saveOnboardingData(formData)
+        // Navigate to loading screen on last step
+        router.push("/loading-screen")
+      } catch (error) {
+        console.error("Error saving onboarding data:", error)
+        // Still navigate to loading screen even if there's an error
+        router.push("/loading-screen")
+      }
     }
   }
 
@@ -84,14 +93,16 @@ const Onboarding = () => {
           className="flex-1"
         >
           <View className="flex-1 space-y-8">
-            <Text className="text-white text-4xl tracking-wider mb-3 font-poppins-semibold">{currentSlide.field !== "loading" && currentSlide.title}</Text>
+            <Text className="text-white text-4xl tracking-wider mb-3 font-poppins-semibold">
+              {currentSlide.field !== "loading" && currentSlide.title}
+            </Text>
 
             <OnboardingInput slide={currentSlide} value={currentValue} onChangeText={handleInputChange} />
           </View>
         </Animated.View>
 
         {/* Buttons */}
-        {currentSlide.type !== 'loading' && (
+        {currentSlide.type !== "loading" && (
           <View className="mb-12 gap-4">
             <TouchableOpacity
               onPress={nextStep}

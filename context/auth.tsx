@@ -1,53 +1,65 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+"use client"
 
-type AuthContextType = {
-  session: Session | null;
-  loading: boolean;
-  onboardingDone: boolean;
-  signOut: () => Promise<void>;
-  setOnboardingDone: (completed: boolean) => void;
-};
+import type React from "react"
+import { createContext, useContext, useEffect, useState } from "react"
+import type { Session } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
 
-const AuthContext = createContext<AuthContextType>({ session: null, loading: true, onboardingDone: false, signOut: async () => {}, setOnboardingDone: () => {} });
+interface AuthContextType {
+  session: Session | null
+  isLoading: boolean
+  signOut: () => Promise<void>
+  isOnboardingDone: boolean
+  setOnboardingDone: (done: boolean) => void
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [onboardingDone, setOnboardingDone] = useState(false);
+const AuthContext = createContext<AuthContextType>({
+  session: null,
+  isLoading: true,
+  signOut: async () => {},
+  isOnboardingDone: false,
+  setOnboardingDone: () => {},
+})
 
+export const useAuth = () => useContext(AuthContext)
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [session, setSession] = useState<Session | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isOnboardingDone, setIsOnboardingDone] = useState(false)
 
   useEffect(() => {
-
-    // Check for existing session
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        checkOnboardingStatus(session.user.id);
-      } else {
-        setLoading(false);
+      setSession(session)
+
+      if (session?.user?.id) {
+        // Check if onboarding is done for this user
+        checkOnboardingStatus(session.user.id)
       }
-    });
+
+      setIsLoading(false)
+    })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      setSession(session)
+
       if (session) {
-        checkOnboardingStatus(session.user.id);
-      } else {
-        setOnboardingDone(false);
-        setLoading(false);
+        checkOnboardingStatus(session.user.id)
       }
-    });
+      else {
+        setIsOnboardingDone(false)
+        setIsLoading(false)
+      }
+    })
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => subscription.unsubscribe()
+  }, [])
 
-  async function checkOnboardingStatus(userId: string) {
+  // Check if onboarding is done for a user
+  const checkOnboardingStatus = async (userId: string) => {
     try {
-      console.log("Checking onboarding status for user:", userId);
-      
       const { data, error } = await supabase
         .from('user_info')
         .select('onboarding_done')
@@ -62,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error.code === 'PGRST116' || error.message.includes('no rows')) {
           // No profile found, user hasn't completed onboarding
           console.log("No profile found, setting onboardingDone to false");
-          setOnboardingDone(false);
+          setIsOnboardingDone(false);
         } else {
           // Some other error occurred
           console.error('Error checking onboarding status:', error);
@@ -70,39 +82,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Profile found, check if onboarding is completed
         console.log("Profile found, onboarding_done:", data?.onboarding_done);
-        setOnboardingDone(data?.onboarding_done === true);
+        setIsOnboardingDone(data?.onboarding_done === true);
       }
     } catch (error) {
       console.error('Unexpected error checking onboarding:', error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }
 
-  
-  async function signOut() {
-    await supabase.auth.signOut();
+  // Sign out function
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    setSession(null)
+    setIsOnboardingDone(false)
   }
-
-  const value = {
-    session,
-    loading,
-    onboardingDone,
-    signOut,
-    setOnboardingDone,
-  };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        session,
+        isLoading,
+        signOut,
+        isOnboardingDone,
+        setOnboardingDone: setIsOnboardingDone,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
