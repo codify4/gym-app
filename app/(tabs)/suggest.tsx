@@ -153,15 +153,6 @@ const SuggestionsScreen = () => {
               {groupedVideos.length} Modules • {suggestionVideos.length} Videos
             </Text>
           </View>
-          <View>      
-            <YoutubePlayer        
-              height={300}
-              play={playing}
-              videoId={"iee2TATGMyI"}
-              onChangeState={onStateChange}
-            />      
-            <TouchableOpacity onPress={togglePlaying}>{playing ? "pause" : "play"}</TouchableOpacity>  
-          </View>
           {groupedVideos.map((group) => renderModuleSection(group))}
         </View>
       </ScrollView>

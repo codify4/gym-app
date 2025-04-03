@@ -32,7 +32,7 @@ const Chatbot = () => {
                 </View>
             </ScrollView>
 
-            <View className='p-5 w-full'>
+            <View className='p-5 w-full' style={{ paddingBottom: 60 }}>
                 <View className='bg-neutral-900 rounded-3xl p-6 w-full flex-row justify-between'> 
                     <View>
                         <Text className='text-neutral-400 text-xl font-poppins mb-4'>Ask a question...</Text>
