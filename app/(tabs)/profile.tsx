@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, Switch, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { useAuth } from '@/context/auth';
@@ -6,11 +6,13 @@ import { Settings, Lock, Bell, ChevronRight, LogOut } from 'lucide-react-native'
 import { router } from 'expo-router';
 import { signOut } from '@/lib/auth-lib';
 import Animated, { SlideInRight } from 'react-native-reanimated';
+import * as Haptics from "expo-haptics"
 
 const Profile = () => {
   const { session } = useAuth();
   const user = session?.user;
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [hapticFeedback, setHapticFeedback] = useState(true)
   const platform = Platform.OS;
 
   const stats = [
@@ -40,6 +42,19 @@ const Profile = () => {
       ],
     },
   ];
+
+  const handleLogout = async () => {
+    try {
+      if (hapticFeedback && Platform.OS !== "web") {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+      }
+      await signOut();
+      router.replace('/');
+    }
+    catch (error) {
+      console.error("Error logging out:", error);
+    }
+  }
 
   return (
     <SafeAreaView className={`flex-1 bg-black ${platform === 'ios' ? '' : 'pt-5'}`}>
@@ -113,7 +128,7 @@ const Profile = () => {
 
         {/* Logout */}      
         <View className="mt-4 bg-neutral-900 rounded-2xl overflow-hidden">
-          <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={signOut}>
+          <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={handleLogout}>
               <View className="flex-row items-center">
                   <LogOut size={24} color="red" />
                   <Text style={{color: 'red'}} className="text-lg ml-3 font-poppins">Logout</Text>

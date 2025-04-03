@@ -12,7 +12,6 @@ export interface OnboardingData {
   experience: string;
   gender: string;
   loading: string;
-  age: string;
 }
 
 export interface Slide {
@@ -35,12 +34,6 @@ export const slides: Slide[] = [
       "Male",
       "Female"
     ],
-    validation: (value: string) => value.length > 0
-  },
-  {
-    type: 'age',
-    title: "How old are you?",
-    field: 'age',
     validation: (value: string) => value.length > 0
   },
   {
@@ -98,11 +91,5 @@ export const slides: Slide[] = [
       "6+ times per week"
     ],
     validation: (value: string) => value.length > 0
-  },
-  {
-    type: 'loading',
-    title: "Creating Your Plan",
-    field: 'loading',
-    validation: () => true
   }
 ];

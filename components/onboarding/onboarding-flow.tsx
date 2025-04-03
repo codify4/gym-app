@@ -3,7 +3,6 @@ import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from '
 import Input from '../input';
 import MeasurementPicker from './picker';
 import RNDateTimePicker  from "@react-native-community/datetimepicker"
-import CircularProgress from './loading-circle';
 import { Picker } from '@react-native-picker/picker';
 import * as Haptics from 'expo-haptics';
 
@@ -28,30 +27,6 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
   value,
   onChangeText,
 }) => {
-    const [loadingProgress, setLoadingProgress] = useState(0);
-
-
-    // Loading animation effect
-    React.useEffect(() => {
-      if (slide.type === 'loading') {
-        const interval = setInterval(() => {
-          setLoadingProgress(prev => {
-            if (prev >= 100) {
-              clearInterval(interval);
-              return 100;
-            }
-            return prev + 1;
-          });
-        }, 30);
-
-        return () => clearInterval(interval);
-      }
-    }, [slide.type]);
-
-    if (slide.type === 'loading') {
-      return <CircularProgress />;
-    }
-
     if (slide.type === 'text') {
         return (
             <Input mode='outlined' value={value} onChangeText={onChangeText} placeholder={slide.placeholder} />
@@ -153,7 +128,7 @@ export const OnboardingInput: React.FC<OnboardingInputProps> = ({
                     <TouchableOpacity
                         key={index}
                         onPress={() => onSelect(choice)}
-                        className={`px-4 py-5 mt-4 rounded-xl border ${
+                        className={`px-4 py-5 mt-4 rounded-2xl border ${
                             value === choice 
                                 ? 'bg-white border-white' 
                                 : 'border-neutral-700 bg-neutral-800/50'

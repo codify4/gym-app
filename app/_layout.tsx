@@ -15,25 +15,50 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const { session, loading } = useAuth();
+  const { session, loading, onboardingDone } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
 
-    const inAuthGroup = segments[0] === '(tabs)';
-    const isOnboarding = segments[0] === 'onboarding';
-    const isSignin = segments[0] === 'signin';
-
-    if (session && !inAuthGroup) {
-      // Signed in, redirect to home
-      router.replace('/(tabs)/home');
-    } else if (!session && !isOnboarding && !isSignin) {
-      // Not signed in and not on welcome/onboarding/signin, redirect to welcome
-      router.replace('/');
+    console.log("Auth state:", { 
+      session: !!session, 
+      onboardingDone, 
+      currentRoute: segments[0] || 'root',
+      loading
+    });
+    
+    // Get current route
+    const currentRoute = segments[0] || '';
+    
+    if (!session) {
+      // Not authenticated
+      // Allow access to landing page and sign-in
+      // No automatic redirects for unauthenticated users
+      // They can freely navigate between / and /sign-in
+      return;
+    } else {
+      // User is authenticated
+      if (onboardingDone) {
+        // User has completed onboarding - send to home
+        const inAuthGroup = segments[0] === '(tabs)';
+        const isLoadingScreen = segments[0] === 'loading-screen';
+        
+        if (!inAuthGroup && !isLoadingScreen) {
+          router.replace('/(tabs)/routine');
+        }
+      } else {
+        const isOnboarding = segments[0] === 'onboarding';
+        const isLoadingScreen = segments[0] === 'loading-screen';
+        
+        if (!isOnboarding && !isLoadingScreen) {
+          router.replace('/onboarding');
+        }
+      }
     }
-  }, [session, loading, segments]);
+  }, [session, loading, onboardingDone, segments]);
+
 
   return (
     <Stack
@@ -43,9 +68,10 @@ function RootLayoutNav() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name='signin' />
-      <Stack.Screen name="onboarding" />
-      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name='signin' options={{ headerShown: false, animation: 'slide_from_right' }} />
+      <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'slide_from_right' }} />
+      <Stack.Screen name="loading-screen" options={{ headerShown: false, animation: 'slide_from_right' }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'slide_from_right' }}/>
     </Stack>
   );
 }

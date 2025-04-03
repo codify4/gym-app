@@ -2,11 +2,22 @@ import { View, Image, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { ChevronRight } from 'lucide-react-native';
+import { useEffect } from 'react';
+import { useAuth } from '@/context/auth';
 
 const { width, height } = Dimensions.get('window');
 
 const Welcome = () => {
   const router = useRouter();
+  const { signOut } = useAuth();
+
+  useEffect(() => {
+    const signout = async () => {
+      await signOut();
+  }
+
+  signout();
+  }, []);
 
   return (
     <View className='flex-1'>
@@ -50,17 +61,11 @@ const Welcome = () => {
           </View>
 
           <TouchableOpacity
-            onPress={() => router.push('/onboarding')}
-            className='flex flex-row justify-center bg-white py-4 rounded-full w-full items-center mt-5'
+            onPress={() => router.push('/signin')}
+            className='flex flex-row justify-center bg-white py-5 rounded-full w-full items-center mt-5'
           >
             <Text className='text-black text-xl font-poppins-semibold mr-2'>Get Started</Text>
             <ChevronRight size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/signin')}
-            className='bg-black py-4 rounded-full w-full items-center mt-5'
-          >
-            <Text className='text-white underline text-xl font-poppins-semibold'>Already have an account</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>

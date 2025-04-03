@@ -2,14 +2,14 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image} from 'react-native'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Dumbbell } from 'lucide-react-native';
+import { ChevronRight, Dumbbell } from 'lucide-react-native';
 import * as Linking from "expo-linking";
 import { useAuth } from '@/context/auth';
 import { createSessionFromUrl, performOAuth } from '@/lib/auth-lib';
-
+import { router } from 'expo-router';
 const Signin = () => {
     const url = Linking.useURL();
-    const { session } = useAuth();
+    const { session, signOut } = useAuth();
     
     React.useEffect(() => {
         if (url) {
@@ -50,13 +50,23 @@ const Signin = () => {
                 
                 <View className='w-full space-y-4 mb-10'>
                     <TouchableOpacity 
-                        className='bg-white flex flex-row items-center justify-center py-4 rounded-full mb-2'
+                        className='bg-white flex flex-row items-center justify-center py-5 rounded-full mb-2'
                         onPress={performOAuth}
                     >
                         <FontAwesome name="google" size={24} color="#171717" />
-                        <Text className='text-[#171717] text-lg font-poppins-semibold ml-3'>
+                        <Text className='text-black text-lg font-poppins-semibold ml-3'>
                             Continue with Google
                         </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        className='bg-transparent border border-white flex flex-row items-center justify-between py-5 px-5 rounded-full mb-2'
+                        onPress={() => router.push('/onboarding')}
+                    >
+                        <View></View>
+                        <Text className='text-white text-lg font-poppins-semibold ml-3'>
+                            Skip for now
+                        </Text>
+                        <ChevronRight size={24} color="white" />
                     </TouchableOpacity>
                 </View>
             </View>

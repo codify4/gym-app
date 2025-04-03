@@ -6,7 +6,6 @@ import Animated, { SlideInRight, SlideOutLeft, SlideInLeft, SlideOutRight } from
 import { useRouter } from "expo-router"
 import { OnboardingInput } from "../components/onboarding/onboarding-flow"
 import { OnboardingData, slides } from "@/constants/slides"
-import { useAuth } from "@/context/auth"
 
 const Onboarding = () => {
   const [step, setStep] = useState(0)
@@ -23,18 +22,9 @@ const Onboarding = () => {
     max: (999).toString(),
     gender: "",
     loading: '',
-    age: (0).toString()
   })
   const router = useRouter()
-  const { session } = useAuth()
   const keyboardVerticalOffset = Platform.OS === "ios" ? 50 : 0
-
-  // If we already have a session, redirect to home
-  useEffect(() => {
-    if (session) {
-      router.replace("/(tabs)/home")
-    }
-  }, [session, router])
 
   const currentSlide = slides[step]
   const currentValue = formData[currentSlide.field]
@@ -57,6 +47,9 @@ const Onboarding = () => {
         setStep(step + 1)
         setIsAnimating(false)
       }, 300)
+    } else {
+      // Navigate to loading screen on last step
+      router.push("/loading-screen");
     }
   }
 
@@ -102,7 +95,7 @@ const Onboarding = () => {
           <View className="mb-12 gap-4">
             <TouchableOpacity
               onPress={nextStep}
-              className={`py-4 rounded-full w-full items-center ${
+              className={`py-5 rounded-full w-full items-center ${
                 isValidInput && !isAnimating ? "bg-white" : "bg-neutral-700"
               }`}
               disabled={!isValidInput || isAnimating}
@@ -112,15 +105,15 @@ const Onboarding = () => {
                   isValidInput && !isAnimating ? "text-black" : "text-neutral-400"
                 }`}
               >
-                {step === slides.length - 2 ? "Create My Plan" : "Next"}
+                {step === slides.length - 1 ? "Create My Plan" : "Next"}
               </Text>
             </TouchableOpacity>
 
             {step > 0 && (
               <TouchableOpacity
                 onPress={prevStep}
-                className={`py-4 rounded-full w-full items-center 
-                  border border-neutral-600 bg-neutral-800/50`}
+                className={`py-5 rounded-full w-full items-center 
+                  border border-white bg-transparent`}
                 disabled={isAnimating}
               >
                 <Text className="text-lg text-white font-poppins-semibold">Back</Text>
