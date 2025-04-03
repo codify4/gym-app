@@ -27,10 +27,10 @@ const Welcome = () => {
           className='items-center'
         >
           <Text className='text-white text-2xl mb-2 font-poppins-medium'>Welcome to</Text>
-          <Text className='text-white text-8xl tracking-wider font-poppins-bold'>
+          <Text className='text-white text-7xl tracking-wider font-poppins-bold'>
             Workout
           </Text>
-          <Text className='text-white text-8xl tracking-wider mb-4 font-poppins-bold'>
+          <Text className='text-white text-7xl tracking-wider mb-4 font-poppins-bold'>
             Mate
           </Text>
         </Animated.View>
