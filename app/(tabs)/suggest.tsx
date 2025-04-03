@@ -1,7 +1,7 @@
 "use client"
 
-import { useMemo } from "react"
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, FlatList, Platform } from "react-native"
+import { useCallback, useMemo, useState } from "react"
+import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, FlatList, Platform, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Avatar } from "react-native-paper"
 import { Dumbbell, Play, ChevronRight, Zap } from "lucide-react-native"
@@ -9,6 +9,7 @@ import { MotiView } from "moti"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
 import { suggestionVideos, Video } from "@/constants/data"
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const { width } = Dimensions.get("window")
 const VIDEO_WIDTH = width * 0.7
@@ -22,6 +23,17 @@ interface GroupedVideos {
 const SuggestionsScreen = () => {
   const { session } = useAuth()
   const user = session?.user
+
+  const [playing, setPlaying] = useState(false);
+  const onStateChange = useCallback((state: any) => {    
+    if (state === "ended") {      
+      setPlaying(false);      
+      Alert.alert("video has finished playing!");    
+    }  
+  }, []);
+  const togglePlaying = useCallback(() => {    
+    setPlaying((prev) => !prev);  
+  }, []);
 
   // Group videos by module
   const groupedVideos = useMemo(() => {
@@ -141,7 +153,15 @@ const SuggestionsScreen = () => {
               {groupedVideos.length} Modules • {suggestionVideos.length} Videos
             </Text>
           </View>
-
+          <View>      
+            <YoutubePlayer        
+              height={300}
+              play={playing}
+              videoId={"iee2TATGMyI"}
+              onChangeState={onStateChange}
+            />      
+            <TouchableOpacity onPress={togglePlaying}>{playing ? "pause" : "play"}</TouchableOpacity>  
+          </View>
           {groupedVideos.map((group) => renderModuleSection(group))}
         </View>
       </ScrollView>
