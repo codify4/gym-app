@@ -22,11 +22,46 @@ const LoadingScreen = () => {
 
         if (session?.user?.id) {
           // For logged in users, update the database
-          await supabase.from("user_info").upsert({
-            user_id: session.user.id,
-            onboarding_done: true,
-            updated_at: new Date().toISOString(),
-          })
+          console.log("Updating user_info for user:", session.user.id)
+
+          // First check if the user_info record exists
+          const { data: existingUserInfo, error: checkError } = await supabase
+            .from("user_info")
+            .select("user_info_id")
+            .eq("user_id", session.user.id)
+
+          if (checkError) {
+            console.error("Error checking user_info:", checkError)
+          }
+
+          if (existingUserInfo && existingUserInfo.length > 0) {
+            // Update existing record
+            console.log("Updating existing user_info record")
+            const { error: updateError } = await supabase
+              .from("user_info")
+              .update({
+                onboarding_done: true,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("user_id", session.user.id)
+
+            if (updateError) {
+              console.error("Error updating user_info:", updateError)
+            }
+          } else {
+            // Insert new record
+            console.log("Creating new user_info record")
+            const { error: insertError } = await supabase.from("user_info").insert({
+              user_id: session.user.id,
+              onboarding_done: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+
+            if (insertError) {
+              console.error("Error inserting user_info:", insertError)
+            }
+          }
         } else {
           // For anonymous users, mark as completed locally
           await markOnboardingDoneLocally()

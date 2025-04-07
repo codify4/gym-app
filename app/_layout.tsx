@@ -1,5 +1,5 @@
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { router, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -19,7 +19,6 @@ function RootLayoutNav() {
   const { session, isLoading } = useAuth();
   const { isOnboardingDone } = useOnboarding();
   const segments = useSegments();
-  const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
