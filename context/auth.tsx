@@ -36,19 +36,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user?.id) {
         // Check if onboarding is done for this user
         checkOnboardingStatus(session.user.id)
+      } else {
+        setIsLoading(false)
       }
-
-      setIsLoading(false)
     })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
 
       if (session) {
         checkOnboardingStatus(session.user.id)
-      }
-      else {
+      } else {
         setIsOnboardingDone(false)
         setIsLoading(false)
       }
@@ -57,33 +58,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe()
   }, [])
 
-  // Check if onboarding is done for a user
+  // Check if onboarding is done for a user - SIMPLIFIED VERSION
   const checkOnboardingStatus = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_info')
-        .select('onboarding_done')
-        .eq('id', userId)
-        .single();
-      
-      console.log("Profile data:", data);
-      console.log("Error:", error);
-      
-      if (error) {
-        if (error.code === 'PGRST116' || error.message.includes('no rows')) {
-          console.log("No profile found, setting onboardingDone to false");
-          setIsOnboardingDone(false);
-        } else {
-          console.error('Error checking onboarding status:', error);
-        }
-      } else {
-        console.log("Profile found, onboarding_done:", data?.onboarding_done);
-        setIsOnboardingDone(data?.onboarding_done === true);
-      }
+      // Super simple direct query
+      const { data } = await supabase.rpc("get_onboarding_status", { user_id_param: userId })
+
+      // Set the state based on the result
+      setIsOnboardingDone(data === true)
     } catch (error) {
-      console.error('Unexpected error checking onboarding:', error);
+      // If there's an error, default to false
+      setIsOnboardingDone(false)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 

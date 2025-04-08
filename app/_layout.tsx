@@ -16,8 +16,7 @@ import { OnboardingProvider, useOnboarding } from '@/context/onboarding-context'
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const { session, isLoading } = useAuth();
-  const { isOnboardingDone } = useOnboarding();
+  const { session, isLoading, isOnboardingDone } = useAuth();
   const segments = useSegments();
 
   useEffect(() => {

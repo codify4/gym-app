@@ -4,13 +4,11 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { ChevronRight } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/auth';
-import { useOnboarding } from '@/context/onboarding-context';
 
 const { width, height } = Dimensions.get('window');
 
 const Welcome = () => {
-  const { session, isLoading, signOut } = useAuth()
-  const { isOnboardingDone } = useOnboarding()
+  const { session, isLoading, isOnboardingDone } = useAuth()
 
   useEffect(() => {
     if (isLoading) return
@@ -27,7 +25,6 @@ const Welcome = () => {
         }
       }
     }
-
     checkAuthAndOnboarding()
   }, [session, isLoading, isOnboardingDone])
 

@@ -153,10 +153,7 @@ export const saveOnboardingDataToDb = async (userId: string, formData: Onboardin
     const onboardingDataId = onboardingData[0].onboarding_data_id
 
     // Check if user_info exists without using .single()
-    const { data: userInfoData, error: userInfoError } = await supabase
-      .from("user_info")
-      .select("id")
-      .eq("id", userId)
+    const { data: userInfoData, error: userInfoError } = await supabase.from("user_info").select("id").eq("id", userId)
 
     // Handle potential error
     if (userInfoError) {
@@ -264,67 +261,20 @@ export const getOnboardingDataFromDb = async (userId: string): Promise<Onboardin
 }
 
 /**
- * Update onboarding data in the database
- */
-export const updateOnboardingDataInDb = async (userId: string, formData: OnboardingData): Promise<boolean> => {
-  try {
-    // First get the user_info to find the onboarding_data_id
-    // Don't use .single() to avoid errors when no rows exist
-    const { data: userInfoData, error: userInfoError } = await supabase
-      .from("user_info")
-      .select("onboarding_data_id")
-      .eq("id", userId)
-
-    if (userInfoError) {
-      console.error("Error getting user info:", userInfoError)
-      return false
-    }
-
-    // Check if we have data and it contains onboarding_data_id
-    if (!userInfoData || userInfoData.length === 0 || !userInfoData[0].onboarding_data_id) {
-      console.log("No onboarding data ID found for user, creating new record")
-      // If no existing record, create a new one
-      const result = await saveOnboardingDataToDb(userId, formData)
-      return result !== null
-    }
-
-    const onboardingDataId = userInfoData[0].onboarding_data_id
-
-    // Update the existing onboarding data
-    const dbData = convertFormDataToDbFormat(formData)
-
-    const { error: updateError } = await supabase
-      .from("onboarding_data")
-      .update(dbData)
-      .eq("onboarding_data_id", onboardingDataId)
-
-    if (updateError) {
-      console.error("Error updating onboarding data:", updateError)
-      return false
-    }
-
-    return true
-  } catch (error) {
-    console.error("Error in updateOnboardingDataInDb:", error)
-    return false
-  }
-}
-
-/**
  * Check if onboarding is completed for a user
  */
 export const isOnboardingDoneForUser = async (userId: string): Promise<boolean> => {
   try {
-    // Don't use .single() to avoid errors when no rows exist
-    const { data, error } = await supabase.from("user_info").select("onboarding_done").eq("id", userId)
+    // Direct query with explicit column selection
+    const { data, error } = await supabase.from("user_info").select("onboarding_done").eq("id", userId).limit(1)
 
-    if (error) {
-      console.error("Error checking if onboarding is done:", error)
-      return false
+    // Check if we have data and explicitly cast the boolean value
+    if (data && data.length > 0) {
+      // Force boolean conversion with double negation
+      return !!data[0].onboarding_done
     }
 
-    // If we have data and the first row has onboarding_done set to true, return true
-    return data && data.length > 0 && data[0].onboarding_done === true
+    return false
   } catch (error) {
     console.error("Error in isOnboardingDoneForUser:", error)
     return false

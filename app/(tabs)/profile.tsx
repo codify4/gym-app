@@ -1,145 +1,213 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Switch, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
-import { Avatar } from 'react-native-paper';
-import { useAuth } from '@/context/auth';
-import { Settings, Lock, Bell, ChevronRight, LogOut } from 'lucide-react-native';
-import { router } from 'expo-router';
-import { signOut } from '@/lib/auth-lib';
-import Animated, { SlideInRight } from 'react-native-reanimated';
+"use client"
+
+import { useState, useEffect } from "react"
+import {
+  View,
+  Text,
+  ScrollView,
+  Switch,
+  TouchableOpacity,
+  SafeAreaView,
+  Platform,
+  ActivityIndicator,
+} from "react-native"
+import { Avatar } from "react-native-paper"
+import { useAuth } from "@/context/auth"
+import { Settings, Lock, Bell, ChevronRight, LogOut } from "lucide-react-native"
+import { router } from "expo-router"
+import { signOut } from "@/lib/auth-lib"
+import Animated, { SlideInRight } from "react-native-reanimated"
 import * as Haptics from "expo-haptics"
+import { supabase } from "@/lib/supabase"
 
 const Profile = () => {
-  const { session } = useAuth();
-  const user = session?.user;
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { session } = useAuth()
+  const user = session?.user
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [hapticFeedback, setHapticFeedback] = useState(true)
-  const platform = Platform.OS;
+  const platform = Platform.OS
+  const [loading, setLoading] = useState(true)
 
-  const stats = [
-    { label: 'Height', value: '180cm' },
-    { label: 'Weight', value: '80kg' },
-    { label: 'Age', value: '18yo' },
-  ];
+  // State for user stats
+  const [stats, setStats] = useState([
+    { label: "Height", value: "---" },
+    { label: "Weight", value: "---" },
+    { label: "Age", value: "---" },
+  ])
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    async function fetchUserData() {
+      if (!user?.id) return
+
+      try {
+        setLoading(true)
+
+        // First, get the user_info to find the onboarding_data_id
+        const { data: userInfoData, error: userInfoError } = await supabase
+          .from("user_info")
+          .select("onboarding_data_id")
+          .eq("user_id", user.id)
+
+        if (userInfoError) {
+          console.error("Error fetching user info:", userInfoError)
+          return
+        }
+
+        if (!userInfoData || userInfoData.length === 0 || !userInfoData[0].onboarding_data_id) {
+          console.log("No onboarding data ID found for user")
+          return
+        }
+
+        const onboardingDataId = userInfoData[0].onboarding_data_id
+
+        // Then get the onboarding data
+        const { data: onboardingData, error: onboardingError } = await supabase
+          .from("onboarding_data")
+          .select("*")
+          .eq("onboarding_data_id", onboardingDataId)
+          .single()
+
+        if (onboardingError) {
+          console.error("Error fetching onboarding data:", onboardingError)
+          return
+        }
+
+        if (onboardingData) {
+          // Update stats with actual user data
+          setStats([
+            { label: "Height", value: `${onboardingData.height}cm` },
+            { label: "Weight", value: `${onboardingData.weight}kg` },
+            { label: "Age", value: `${onboardingData.age}yo` },
+          ])
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUserData()
+  }, [user?.id])
 
   const menuItems = [
     {
-      title: 'Notifications',
+      title: "Notifications",
       icon: Bell,
       rightElement: (
         <Switch
           value={notificationsEnabled}
           onValueChange={setNotificationsEnabled}
-          trackColor={{ false: '#767577', true: '#4ade80' }}
+          trackColor={{ false: "#767577", true: "#4ade80" }}
         />
       ),
     },
     {
-      title: 'Other',
+      title: "Other",
       items: [
-        { title: 'Privacy Policy', icon: Lock, path: '/(tabs)/(settings)/privacy-policies' as const },
-        { title: 'Terms and Services', icon: Lock, path: '/(tabs)/(settings)/terms-and-services' as const },
-        { title: 'Settings', icon: Settings, path: '/(tabs)/(settings)/settings' as const },
+        { title: "Privacy Policy", icon: Lock, path: "/(tabs)/(settings)/privacy-policies" as const },
+        { title: "Terms and Services", icon: Lock, path: "/(tabs)/(settings)/terms-and-services" as const },
+        { title: "Settings", icon: Settings, path: "/(tabs)/(settings)/settings" as const },
       ],
     },
-  ];
+  ]
 
   const handleLogout = async () => {
     try {
       if (hapticFeedback && Platform.OS !== "web") {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
       }
-      await signOut();
-      router.replace('/');
-    }
-    catch (error) {
-      console.error("Error logging out:", error);
+      await signOut()
+      router.replace("/")
+    } catch (error) {
+      console.error("Error logging out:", error)
     }
   }
 
   return (
-    <SafeAreaView className={`flex-1 bg-black ${platform === 'ios' ? '' : 'pt-5'}`}>
-      <Animated.View
-        className={`flex-1 bg-black pt-7`}
-        entering={SlideInRight}
-      >
-      <ScrollView 
-        className="flex-1" 
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: platform === "ios" ? 60 : 80 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Profile Header */}
-        <View className="flex items-center justify-center gap-5 mt-8 mb-6">
-          <Avatar.Image 
-            size={150} 
-            source={{ uri: user?.user_metadata?.avatar_url }} 
-            className="bg-white rounded-full mb-4" 
-          />
-          <Text className="text-white text-4xl font-poppins-bold">
-            {user?.user_metadata?.full_name || 'User'}
-          </Text>
-        </View>
+    <SafeAreaView className={`flex-1 bg-black ${platform === "ios" ? "" : "pt-5"}`}>
+      <Animated.View className={`flex-1 bg-black pt-7`} entering={SlideInRight}>
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: platform === "ios" ? 60 : 80 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Profile Header */}
+          <View className="flex items-center justify-center gap-5 mt-8 mb-6">
+            <Avatar.Image
+              size={150}
+              source={{ uri: user?.user_metadata?.avatar_url }}
+              className="bg-white rounded-full mb-4"
+            />
+            <Text className="text-white text-4xl font-poppins-bold">{user?.user_metadata?.full_name || "User"}</Text>
+          </View>
 
-        {/* Stats */}
-        <View className="flex flex-row items-center justify-center gap-2 mb-8 w-full">
-          {stats.map((stat, index) => (
-            <View 
-              key={index} 
-              className="bg-neutral-900 rounded-2xl px-6 py-3 w-[33%] items-center"
-            >
-              <Text className="text-white text-xl font-poppins-semibold">{stat.value}</Text>
-              <Text className="text-neutral-400 text-base">{stat.label}</Text>
+          {/* Stats */}
+          <View className="flex flex-row items-center justify-center gap-2 mb-8 w-full">
+            {loading ? (
+              <View className="bg-neutral-900 rounded-2xl px-6 py-6 w-full items-center">
+                <ActivityIndicator size="small" color="#ffffff" />
+                <Text className="text-neutral-400 text-base mt-2">Loading stats...</Text>
+              </View>
+            ) : (
+              stats.map((stat, index) => (
+                <View key={index} className="bg-neutral-900 rounded-2xl px-6 py-3 w-[33%] items-center">
+                  <Text className="text-white text-xl font-poppins-semibold">{stat.value}</Text>
+                  <Text className="text-neutral-400 text-base">{stat.label}</Text>
+                </View>
+              ))
+            )}
+          </View>
+
+          {/* Menu Items */}
+          {menuItems.map((section, sectionIndex) => (
+            <View key={sectionIndex} className="mb-6">
+              <Text className="text-white text-2xl font-poppins-semibold mb-4">{section.title}</Text>
+              <View className="bg-neutral-900 rounded-2xl overflow-hidden">
+                {section.items ? (
+                  section.items.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      className="flex-row items-center justify-between p-4 border-b border-neutral-700 last:border-b-0"
+                      onPress={() => router.push(item.path)}
+                    >
+                      <View className="flex-row items-center">
+                        <item.icon size={24} color="white" />
+                        <Text className="text-white text-lg font-poppins ml-3">{item.title}</Text>
+                      </View>
+                      <ChevronRight size={24} color="white" />
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <View className="flex-row items-center justify-between p-4">
+                    <View className="flex-row items-center">
+                      <section.icon size={24} color="white" />
+                      <Text className="text-white text-lg font-poppins ml-3">{section.title}</Text>
+                    </View>
+                    {section.rightElement}
+                  </View>
+                )}
+              </View>
             </View>
           ))}
-        </View>
 
-        {/* Menu Items */}
-        {menuItems.map((section, sectionIndex) => (
-          <View key={sectionIndex} className="mb-6">
-            <Text className="text-white text-2xl font-poppins-semibold mb-4">
-              {section.title}
-            </Text>
-            <View className="bg-neutral-900 rounded-2xl overflow-hidden">
-              {section.items ? (
-                section.items.map((item, index) => (
-                  <TouchableOpacity 
-                    key={index}
-                    className="flex-row items-center justify-between p-4 border-b border-neutral-700 last:border-b-0"
-                    onPress={() => router.push(item.path)}
-                  >
-                    <View className="flex-row items-center">
-                      <item.icon size={24} color="white" />
-                      <Text className="text-white text-lg font-poppins ml-3">{item.title}</Text>
-                    </View>
-                    <ChevronRight size={24} color="white" />
-                  </TouchableOpacity>
-                ))
-              ) : (
-                <View className="flex-row items-center justify-between p-4">
-                  <View className="flex-row items-center">
-                    <section.icon size={24} color="white" />
-                    <Text className="text-white text-lg font-poppins ml-3">{section.title}</Text>
-                  </View>
-                  {section.rightElement}
-                </View>
-              )}
-            </View>
-          </View>
-        ))}
-
-        {/* Logout */}      
-        <View className="mt-4 bg-neutral-900 rounded-2xl overflow-hidden">
-          <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={handleLogout}>
+          {/* Logout */}
+          <View className="mt-4 bg-neutral-900 rounded-2xl overflow-hidden">
+            <TouchableOpacity className="flex-row items-center justify-between p-4" onPress={handleLogout}>
               <View className="flex-row items-center">
-                  <LogOut size={24} color="red" />
-                  <Text style={{color: 'red'}} className="text-lg ml-3 font-poppins">Logout</Text>
+                <LogOut size={24} color="red" />
+                <Text style={{ color: "red" }} className="text-lg ml-3 font-poppins">
+                  Logout
+                </Text>
               </View>
               <ChevronRight size={24} color="red" />
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </Animated.View>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile

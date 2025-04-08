@@ -7,16 +7,16 @@ import type { OnboardingData } from "@/constants/slides"
 import {
   getLocalOnboardingData,
   getOnboardingDataFromDb,
-  isOnboardingDoneForUser,
   isOnboardingDoneLocally,
   saveOnboardingDataLocally,
+  saveOnboardingDataToDb,
   transferLocalOnboardingDataToDb,
-  updateOnboardingDataInDb,
 } from "@/lib/onboarding"
+import { supabase } from "@/lib/supabase"
 
 interface OnboardingContextType {
   onboardingData: OnboardingData | null
-  isOnboardingDone: boolean
+  isOnboardingCompleted: boolean
   saveOnboardingData: (data: OnboardingData) => Promise<boolean>
   completeOnboarding: () => Promise<void>
   loadOnboardingData: () => Promise<void>
@@ -38,7 +38,7 @@ const defaultOnboardingData: OnboardingData = {
 
 const OnboardingContext = createContext<OnboardingContextType>({
   onboardingData: defaultOnboardingData,
-  isOnboardingDone: false,
+  isOnboardingCompleted: false,
   saveOnboardingData: async () => false,
   completeOnboarding: async () => {},
   loadOnboardingData: async () => {},
@@ -52,7 +52,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const userId = session?.user?.id
 
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null)
-  const [isOnboardingDone, setIsOnboardingDone] = useState(false)
+  const [isOnboardingCompleted, setIsOnboardingCompleted] = useState(false)
 
   // Load onboarding status and data on mount or when auth state changes
   useEffect(() => {
@@ -64,16 +64,23 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const loadOnboardingStatus = async () => {
     try {
       if (userId) {
-        // For logged in users, check the database
-        const completed = await isOnboardingDoneForUser(userId)
-        setIsOnboardingDone(completed)
+        // For logged in users, check the database directly
+        const { data, error } = await supabase.from("user_info").select("onboarding_done").eq("id", userId).limit(1)
+
+        if (data && data.length > 0) {
+          // Force boolean conversion with double negation
+          setIsOnboardingCompleted(data[0].onboarding_done === true)
+        } else {
+          setIsOnboardingCompleted(false)
+        }
       } else {
         // For anonymous users, check local storage
         const completed = await isOnboardingDoneLocally()
-        setIsOnboardingDone(completed)
+        setIsOnboardingCompleted(completed)
       }
     } catch (error) {
       console.error("Error loading onboarding status:", error)
+      setIsOnboardingCompleted(false)
     }
   }
 
@@ -103,11 +110,13 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       if (userId) {
         // For logged in users, save to the database
-        const success = await updateOnboardingDataInDb(userId, data)
-        if (success) {
+        // Use saveOnboardingDataToDb instead of updateOnboardingDataInDb
+        const onboardingDataId = await saveOnboardingDataToDb(userId, data)
+        if (onboardingDataId !== null) {
           setOnboardingData(data)
+          return true
         }
-        return success
+        return false
       } else {
         // For anonymous users, save to local storage
         await saveOnboardingDataLocally(data)
@@ -123,7 +132,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Mark onboarding as completed
   const completeOnboarding = async () => {
     try {
-      setIsOnboardingDone(true)
+      setIsOnboardingCompleted(true)
       // This will be handled by the loading screen component
       // which will update the database or local storage
     } catch (error) {
@@ -152,7 +161,7 @@ export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     <OnboardingContext.Provider
       value={{
         onboardingData,
-        isOnboardingDone,
+        isOnboardingCompleted,
         saveOnboardingData,
         completeOnboarding,
         loadOnboardingData,
