@@ -63,24 +63,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('user_info')
         .select('onboarding_done')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single();
       
       console.log("Profile data:", data);
       console.log("Error:", error);
       
       if (error) {
-        // Handle the case where no profile exists (PGRST116 error)
         if (error.code === 'PGRST116' || error.message.includes('no rows')) {
-          // No profile found, user hasn't completed onboarding
           console.log("No profile found, setting onboardingDone to false");
           setIsOnboardingDone(false);
         } else {
-          // Some other error occurred
           console.error('Error checking onboarding status:', error);
         }
       } else {
-        // Profile found, check if onboarding is completed
         console.log("Profile found, onboarding_done:", data?.onboarding_done);
         setIsOnboardingDone(data?.onboarding_done === true);
       }

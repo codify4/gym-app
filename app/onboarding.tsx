@@ -52,12 +52,16 @@ const Onboarding = () => {
       // Save onboarding data before navigating
       try {
         await saveOnboardingData(formData)
-        // Navigate to loading screen on last step
-        router.push("/loading-screen")
+
+        setTimeout(() => {
+          console.log("Navigating to loading screen")
+          router.replace("/loading-screen")
+        }, 300)
       } catch (error) {
         console.error("Error saving onboarding data:", error)
-        // Still navigate to loading screen even if there's an error
-        router.push("/loading-screen")
+        setTimeout(() => {
+          router.replace("/loading-screen")
+        }, 300)
       }
     }
   }

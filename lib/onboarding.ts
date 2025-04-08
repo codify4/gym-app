@@ -155,8 +155,8 @@ export const saveOnboardingDataToDb = async (userId: string, formData: Onboardin
     // Check if user_info exists without using .single()
     const { data: userInfoData, error: userInfoError } = await supabase
       .from("user_info")
-      .select("user_info_id")
-      .eq("user_id", userId)
+      .select("id")
+      .eq("id", userId)
 
     // Handle potential error
     if (userInfoError) {
@@ -174,7 +174,7 @@ export const saveOnboardingDataToDb = async (userId: string, formData: Onboardin
           onboarding_done: true,
           updated_at: new Date().toISOString(),
         })
-        .eq("user_id", userId)
+        .eq("id", userId)
 
       if (updateError) {
         console.error("Error updating user info:", updateError)
@@ -183,7 +183,7 @@ export const saveOnboardingDataToDb = async (userId: string, formData: Onboardin
       // Create new user_info
       console.log("Creating new user_info record")
       const { error: insertError } = await supabase.from("user_info").insert({
-        user_id: userId,
+        id: userId,
         onboarding_data_id: onboardingDataId,
         onboarding_done: true,
         created_at: new Date().toISOString(),
@@ -212,7 +212,7 @@ export const getOnboardingDataFromDb = async (userId: string): Promise<Onboardin
     const { data: userInfoData, error: userInfoError } = await supabase
       .from("user_info")
       .select("onboarding_data_id")
-      .eq("user_id", userId)
+      .eq("id", userId)
 
     if (userInfoError) {
       console.error("Error getting user info:", userInfoError)
@@ -273,7 +273,7 @@ export const updateOnboardingDataInDb = async (userId: string, formData: Onboard
     const { data: userInfoData, error: userInfoError } = await supabase
       .from("user_info")
       .select("onboarding_data_id")
-      .eq("user_id", userId)
+      .eq("id", userId)
 
     if (userInfoError) {
       console.error("Error getting user info:", userInfoError)
@@ -316,7 +316,7 @@ export const updateOnboardingDataInDb = async (userId: string, formData: Onboard
 export const isOnboardingDoneForUser = async (userId: string): Promise<boolean> => {
   try {
     // Don't use .single() to avoid errors when no rows exist
-    const { data, error } = await supabase.from("user_info").select("onboarding_done").eq("user_id", userId)
+    const { data, error } = await supabase.from("user_info").select("onboarding_done").eq("id", userId)
 
     if (error) {
       console.error("Error checking if onboarding is done:", error)
