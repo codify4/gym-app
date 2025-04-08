@@ -19,6 +19,7 @@ import { signOut } from "@/lib/auth-lib"
 import Animated, { SlideInRight } from "react-native-reanimated"
 import * as Haptics from "expo-haptics"
 import { supabase } from "@/lib/supabase"
+import { on } from "events"
 
 const Profile = () => {
   const { session } = useAuth()
@@ -36,58 +37,78 @@ const Profile = () => {
   ])
 
   // Fetch user data on component mount
-  useEffect(() => {
-    async function fetchUserData() {
-      if (!user?.id) return
-
-      try {
-        setLoading(true)
-
-        // First, get the user_info to find the onboarding_data_id
-        const { data: userInfoData, error: userInfoError } = await supabase
-          .from("user_info")
-          .select("onboarding_data_id")
-          .eq("user_id", user.id)
-
-        if (userInfoError) {
-          console.error("Error fetching user info:", userInfoError)
-          return
-        }
-
-        if (!userInfoData || userInfoData.length === 0 || !userInfoData[0].onboarding_data_id) {
-          console.log("No onboarding data ID found for user")
-          return
-        }
-
-        const onboardingDataId = userInfoData[0].onboarding_data_id
-
-        // Then get the onboarding data
-        const { data: onboardingData, error: onboardingError } = await supabase
-          .from("onboarding_data")
-          .select("*")
-          .eq("onboarding_data_id", onboardingDataId)
-          .single()
-
-        if (onboardingError) {
-          console.error("Error fetching onboarding data:", onboardingError)
-          return
-        }
-
-        if (onboardingData) {
-          // Update stats with actual user data
-          setStats([
-            { label: "Height", value: `${onboardingData.height}cm` },
-            { label: "Weight", value: `${onboardingData.weight}kg` },
-            { label: "Age", value: `${onboardingData.age}yo` },
-          ])
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error)
-      } finally {
-        setLoading(false)
-      }
+  async function fetchUserData() {
+    if (!user?.id) {
+      setLoading(false)
+      return
     }
+  
+    try {
+      setLoading(true)
+      console.log("Fetching user data for profile:", user.id)
+  
+      const { data: userInfoData, error: userInfoError } = await supabase
+        .from("user_info")
+        .select("onboarding_data_id")
+        .eq("id", user.id)
+        .maybeSingle()
+    
+      console.log("Auth user ID:", user?.id)
+      console.log("Fetched user_info row:", userInfoData)
+      
+      if (userInfoError) {
+        console.error("Error fetching user info:", userInfoError)
+        setLoading(false)
+        return
+      }
+      
+      if (!userInfoData) {
+        console.log("No user_info row found for user:", user.id)
+        setLoading(false)
+        return
+      }
+      
+      const onboardingDataId = userInfoData.onboarding_data_id
+  
+      if (!onboardingDataId) {
+        console.log("No onboarding_data_id associated with this user.")
+        setLoading(false)
+        return
+      }
+  
+      // 2. Fetch actual onboarding data
+      const { data: onboardingData, error: onboardingError } = await supabase
+        .from("onboarding_data")
+        .select("*")
+        .eq("onboarding_data_id", onboardingDataId)
+        .maybeSingle()
+  
+      if (onboardingError) {
+        console.error("Error fetching onboarding data:", onboardingError)
+        setLoading(false)
+        return
+      }
+  
+      if (!onboardingData || onboardingData.length === 0) {
+        console.log("No onboarding data found for ID:", onboardingDataId)
+        setLoading(false)
+        return
+      }
+  
+      // 3. Update UI
+      setStats([
+        { label: "Height", value: `${onboardingData.height}cm` },
+        { label: "Weight", value: `${onboardingData.weight}kg` },
+        { label: "Age", value: `${onboardingData.age}` },
+      ])
+    } catch (error) {
+      console.error("Unexpected error fetching user data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }  
 
+  useEffect(() => {
     fetchUserData()
   }, [user?.id])
 
@@ -144,7 +165,7 @@ const Profile = () => {
           </View>
 
           {/* Stats */}
-          <View className="flex flex-row items-center justify-center gap-2 mb-8 w-full">
+          <View className="flex flex-row items-center justify-between mb-8 w-full">
             {loading ? (
               <View className="bg-neutral-900 rounded-2xl px-6 py-6 w-full items-center">
                 <ActivityIndicator size="small" color="#ffffff" />
@@ -152,7 +173,7 @@ const Profile = () => {
               </View>
             ) : (
               stats.map((stat, index) => (
-                <View key={index} className="bg-neutral-900 rounded-2xl px-6 py-3 w-[33%] items-center">
+                <View key={index} className="bg-neutral-900 rounded-2xl px-4 py-3 flex-1 mx-1 items-center">
                   <Text className="text-white text-xl font-poppins-semibold">{stat.value}</Text>
                   <Text className="text-neutral-400 text-base">{stat.label}</Text>
                 </View>
@@ -169,7 +190,9 @@ const Profile = () => {
                   section.items.map((item, index) => (
                     <TouchableOpacity
                       key={index}
-                      className="flex-row items-center justify-between p-4 border-b border-neutral-700 last:border-b-0"
+                      className={`flex-row items-center justify-between p-4 ${
+                        index < section.items.length - 1 ? "border-b border-neutral-700" : ""
+                      }`}
                       onPress={() => router.push(item.path)}
                     >
                       <View className="flex-row items-center">

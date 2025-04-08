@@ -37,7 +37,7 @@ const TabsLayout = () => {
         <Tabs.Screen 
             name='suggest' 
             options={{
-                title: 'Suggestions',
+                title: 'Tips',
                 tabBarIcon: ({ color, size }) => (
                     <BookOpenText color={color} size={size} />
                 )
