@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   View,
   Text,
@@ -19,7 +19,11 @@ import { signOut } from "@/lib/auth-lib"
 import Animated, { SlideInRight } from "react-native-reanimated"
 import * as Haptics from "expo-haptics"
 import { supabase } from "@/lib/supabase"
-import { on } from "events"
+import UserInfo from "@/components/profile/user-info"
+import BotSheet from "@/components/bot-sheet"
+import type BottomSheet from "@gorhom/bottom-sheet"
+import HeightPicker from "@/components/profile/height-picker"
+import WeightPicker from "@/components/profile/weight-picker"
 
 const Profile = () => {
   const { session } = useAuth()
@@ -28,6 +32,27 @@ const Profile = () => {
   const [hapticFeedback, setHapticFeedback] = useState(true)
   const platform = Platform.OS
   const [loading, setLoading] = useState(true)
+  const [selectedStat, setSelectedStat] = useState<string | null>(null)
+  const [onboardingDataId, setOnboardingDataId] = useState<number | null>(null)
+  const [userData, setUserData] = useState({
+    height: 170,
+    weight: 70,
+    age: 25,
+  })
+
+  const bottomSheetRef = useRef<BottomSheet>(null)
+
+  const handleOpenBottomSheet = (statLabel: string) => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    }
+    setSelectedStat(statLabel)
+    bottomSheetRef.current?.expand()
+  }
+
+  const handleCloseBottomSheet = () => {
+    bottomSheetRef.current?.close()
+  }
 
   // State for user stats
   const [stats, setStats] = useState([
@@ -42,60 +67,67 @@ const Profile = () => {
       setLoading(false)
       return
     }
-  
+
     try {
       setLoading(true)
       console.log("Fetching user data for profile:", user.id)
-  
+
       const { data: userInfoData, error: userInfoError } = await supabase
         .from("user_info")
         .select("onboarding_data_id")
         .eq("id", user.id)
         .maybeSingle()
-    
+
       console.log("Auth user ID:", user?.id)
       console.log("Fetched user_info row:", userInfoData)
-      
+
       if (userInfoError) {
         console.error("Error fetching user info:", userInfoError)
         setLoading(false)
         return
       }
-      
+
       if (!userInfoData) {
         console.log("No user_info row found for user:", user.id)
         setLoading(false)
         return
       }
-      
+
       const onboardingDataId = userInfoData.onboarding_data_id
-  
+      setOnboardingDataId(onboardingDataId)
+
       if (!onboardingDataId) {
         console.log("No onboarding_data_id associated with this user.")
         setLoading(false)
         return
       }
-  
+
       // 2. Fetch actual onboarding data
       const { data: onboardingData, error: onboardingError } = await supabase
         .from("onboarding_data")
         .select("*")
         .eq("onboarding_data_id", onboardingDataId)
         .maybeSingle()
-  
+
       if (onboardingError) {
         console.error("Error fetching onboarding data:", onboardingError)
         setLoading(false)
         return
       }
-  
-      if (!onboardingData || onboardingData.length === 0) {
+
+      if (!onboardingData) {
         console.log("No onboarding data found for ID:", onboardingDataId)
         setLoading(false)
         return
       }
-  
-      // 3. Update UI
+
+      // 3. Update UI and store raw data
+      setUserData({
+        height: onboardingData.height,
+        weight: onboardingData.weight,
+        age: onboardingData.age,
+      })
+
       setStats([
         { label: "Height", value: `${onboardingData.height}cm` },
         { label: "Weight", value: `${onboardingData.weight}kg` },
@@ -106,7 +138,7 @@ const Profile = () => {
     } finally {
       setLoading(false)
     }
-  }  
+  }
 
   useEffect(() => {
     fetchUserData()
@@ -146,6 +178,53 @@ const Profile = () => {
     }
   }
 
+  // Render the appropriate picker based on the selected stat
+  const renderPicker = () => {
+    if (!user?.id || onboardingDataId === null) {
+      return (
+        <View className="p-6 items-center">
+          <Text className="text-white text-lg">User data not available</Text>
+        </View>
+      )
+    }
+
+    switch (selectedStat) {
+      case "Height":
+        return (
+          <HeightPicker
+            userId={user.id}
+            onboardingDataId={onboardingDataId}
+            initialHeight={userData.height}
+            onClose={handleCloseBottomSheet}
+            onUpdate={fetchUserData}
+          />
+        )
+      case "Weight":
+        return (
+          <WeightPicker
+            userId={user.id}
+            onboardingDataId={onboardingDataId}
+            initialWeight={userData.weight}
+            onClose={handleCloseBottomSheet}
+            onUpdate={fetchUserData}
+          />
+        )
+      case "Age":
+        return (
+          <View className="p-6 items-center">
+            <Text className="text-white text-xl font-poppins-semibold">Age</Text>
+            <Text className="text-neutral-400 text-base mt-2">Age cannot be modified</Text>
+          </View>
+        )
+      default:
+        return (
+          <View className="p-6 items-center">
+            <Text className="text-white text-lg">Select a stat to edit</Text>
+          </View>
+        )
+    }
+  }
+
   return (
     <SafeAreaView className={`flex-1 bg-black ${platform === "ios" ? "" : "pt-5"}`}>
       <Animated.View className={`flex-1 bg-black pt-7`} entering={SlideInRight}>
@@ -173,10 +252,13 @@ const Profile = () => {
               </View>
             ) : (
               stats.map((stat, index) => (
-                <View key={index} className="bg-neutral-900 rounded-2xl px-4 py-3 flex-1 mx-1 items-center">
-                  <Text className="text-white text-xl font-poppins-semibold">{stat.value}</Text>
-                  <Text className="text-neutral-400 text-base">{stat.label}</Text>
-                </View>
+                <UserInfo
+                  key={index}
+                  value={stat.value}
+                  label={stat.label}
+                  handleOpenBottomSheet={() => handleOpenBottomSheet(stat.label)}
+                  editable={stat.label !== "Age"} // Make Age non-editable
+                />
               ))
             )}
           </View>
@@ -229,6 +311,10 @@ const Profile = () => {
           </View>
         </ScrollView>
       </Animated.View>
+
+      <BotSheet snapPoints={["52%"]} ref={bottomSheetRef}>
+        {renderPicker()}
+      </BotSheet>
     </SafeAreaView>
   )
 }

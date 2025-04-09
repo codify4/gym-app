@@ -1,9 +1,19 @@
 import React from "react";
 import { forwardRef } from "react"
 import { StyleSheet } from "react-native"
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 
 const BotSheet = forwardRef(({ children, snapPoints }: { children: React.ReactNode, snapPoints: string[] }, ref: any) => {
+    const renderBackdrop = (props: any) => (
+        <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+            opacity={0.7}
+            pressBehavior="close"
+            style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0, 0, 0, 0.7)" }]}
+        />
+      )
     return (
         <>
             <BottomSheet 
@@ -11,6 +21,7 @@ const BotSheet = forwardRef(({ children, snapPoints }: { children: React.ReactNo
                 snapPoints={snapPoints}
                 index={-1} 
                 enablePanDownToClose
+                backdropComponent={renderBackdrop}
                 handleStyle={{ backgroundColor: "#1e1e1e", borderTopLeftRadius: 40, borderTopRightRadius: 50, }} 
                 handleIndicatorStyle={{ backgroundColor: "white" }} 
                 backgroundStyle={{
