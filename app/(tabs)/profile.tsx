@@ -13,7 +13,7 @@ import {
 } from "react-native"
 import { Avatar } from "react-native-paper"
 import { useAuth } from "@/context/auth"
-import { Settings, Lock, Bell, ChevronRight, LogOut } from "lucide-react-native"
+import { Settings, Lock, Bell, ChevronRight, LogOut, Ruler, Weight, User } from "lucide-react-native"
 import { router } from "expo-router"
 import { signOut } from "@/lib/auth-lib"
 import Animated, { SlideInRight } from "react-native-reanimated"
@@ -24,6 +24,7 @@ import BotSheet from "@/components/bot-sheet"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import HeightPicker from "@/components/profile/height-picker"
 import WeightPicker from "@/components/profile/weight-picker"
+import UnitDropdown from "@/components/dropdown"
 
 const Profile = () => {
   const { session } = useAuth()
@@ -40,8 +41,8 @@ const Profile = () => {
     age: 25,
   })
 
+  // Bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null)
-
   const handleOpenBottomSheet = (statLabel: string) => {
     if (Platform.OS !== "web") {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
@@ -60,6 +61,11 @@ const Profile = () => {
     { label: "Weight", value: "---" },
     { label: "Age", value: "---" },
   ])
+
+  // State for units
+  const [distanceUnit, setDistanceUnit] = useState("km")
+  const [weightUnit, setWeightUnit] = useState("kg")
+  const [bodyUnit, setBodyUnit] = useState("cm")
 
   // Fetch user data on component mount
   async function fetchUserData() {
@@ -166,6 +172,17 @@ const Profile = () => {
     },
   ]
 
+  const units = [
+    {
+      title: "Units",
+      items: [
+        { title: "Distance", icon: Ruler },
+        { title: "Weight", icon: Weight },
+        { title: "Body", icon: User },
+      ],
+    },
+  ]
+
   const handleLogout = async () => {
     try {
       if (hapticFeedback && Platform.OS !== "web") {
@@ -257,11 +274,53 @@ const Profile = () => {
                   value={stat.value}
                   label={stat.label}
                   handleOpenBottomSheet={() => handleOpenBottomSheet(stat.label)}
-                  editable={stat.label !== "Age"} // Make Age non-editable
+                  editable={stat.label !== "Age"}
                 />
               ))
             )}
           </View>
+
+          {/* Units */}
+          {units.map((section, sectionIndex) => (
+            <View key={sectionIndex} className="mb-6">
+              <Text className="text-white text-2xl font-poppins-semibold mb-4">{section.title}</Text>
+              <View className="flex-col justify-center gap-3">
+                <UnitDropdown
+                  title="Distance"
+                  icon={Ruler}
+                  options={[
+                    { label: "Kilometers", value: "km" },
+                    { label: "Miles", value: "mi" },
+                  ]}
+                  selectedValue={distanceUnit}
+                  onValueChange={setDistanceUnit}
+                />
+
+                <UnitDropdown
+                  title="Weight"
+                  icon={Weight}
+                  options={[
+                    { label: "Kilogram", value: "kg" },
+                    { label: "Pounds", value: "lb" },
+                    { label: "Libra", value: "libra" },
+                  ]}
+                  selectedValue={weightUnit}
+                  onValueChange={setWeightUnit}
+                />
+
+                <UnitDropdown
+                  title="Body"
+                  icon={User}
+                  options={[
+                    { label: "Centimeters", value: "cm" },
+                    { label: "Inches", value: "in" },
+                  ]}
+                  selectedValue={bodyUnit}
+                  onValueChange={setBodyUnit}
+                />
+              </View>
+            </View>
+          ))}
 
           {/* Menu Items */}
           {menuItems.map((section, sectionIndex) => (
