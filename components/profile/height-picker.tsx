@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { View, ActivityIndicator } from "react-native"
 import { supabase } from "@/lib/supabase"
-import AppleStylePickerV2 from "./value-picker"
+import AppleStylePicker from "./value-picker"
 
 interface HeightPickerProps {
   userId: string
@@ -63,7 +63,7 @@ const HeightPicker = ({ userId, onboardingDataId, initialHeight, onClose, onUpda
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : (
-        <AppleStylePickerV2
+        <AppleStylePicker
           title="Height"
           unit="cm"
           minValue={140}

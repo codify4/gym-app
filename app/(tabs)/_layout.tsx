@@ -92,7 +92,23 @@ const TabsLayout = () => {
         <Tabs.Screen 
             name='profile' 
             options={{
-                href: null
+                href: null,
+                title: 'Profile',
+                headerShown: true,
+                headerStyle: {
+                    backgroundColor: 'black',
+                },
+                headerTitleStyle: {
+                    color: '#fff',
+                    fontSize: 18,
+                    fontWeight: '600',
+                },
+                headerShadowVisible: false,
+                headerLeft: () => (
+                    <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
+                        <ChevronLeft size={30} color={'#fff'} />
+                    </TouchableOpacity>
+                )
             }}
         />
         <Tabs.Screen 

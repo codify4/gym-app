@@ -22,10 +22,10 @@ const BotSheet = forwardRef(({ children, snapPoints }: { children: React.ReactNo
                 index={-1} 
                 enablePanDownToClose
                 backdropComponent={renderBackdrop}
-                handleStyle={{ backgroundColor: "#1e1e1e", borderTopLeftRadius: 40, borderTopRightRadius: 50, }} 
+                handleStyle={{ backgroundColor: "#171717", borderTopLeftRadius: 40, borderTopRightRadius: 50, }} 
                 handleIndicatorStyle={{ backgroundColor: "white" }} 
                 backgroundStyle={{
-                    backgroundColor: "#1e1e1e", 
+                    backgroundColor: "#171717", 
                     borderTopLeftRadius: 40, 
                     borderTopRightRadius: 40,
                 }}
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
       flex: 1,
       padding: 20,
       alignItems: "center",
-      backgroundColor: "#1e1e1e",
+      backgroundColor: "#171717",
     },
 });
 

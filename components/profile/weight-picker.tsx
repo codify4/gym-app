@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { View, ActivityIndicator } from "react-native"
 import { supabase } from "@/lib/supabase"
-import AppleStylePickerV2 from "./value-picker"
+import AppleStylePicker from "./value-picker"
 
 interface WeightPickerProps {
   userId: string
@@ -63,7 +63,7 @@ const WeightPicker = ({ userId, onboardingDataId, initialWeight, onClose, onUpda
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : (
-        <AppleStylePickerV2
+        <AppleStylePicker
           title="Weight"
           unit="kg"
           minValue={40}

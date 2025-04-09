@@ -21,7 +21,7 @@ const ITEM_WIDTH = 50
 const ITEM_SPACING = 10
 const CONTAINER_PADDING = 20
 
-const AppleStylePickerV2 = ({
+const AppleStylePicker = ({
   title,
   unit,
   minValue,
@@ -216,4 +216,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default AppleStylePickerV2
+export default AppleStylePicker
