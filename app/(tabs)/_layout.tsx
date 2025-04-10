@@ -105,7 +105,7 @@ const TabsLayout = () => {
                 },
                 headerShadowVisible: false,
                 headerLeft: () => (
-                    <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
+                    <TouchableOpacity onPress={() => router.back()}>
                         <ChevronLeft size={30} color={'#fff'} />
                     </TouchableOpacity>
                 )

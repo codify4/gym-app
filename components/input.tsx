@@ -19,7 +19,7 @@ const Input = ({ mode, value, onChangeText, placeholder, focus, keyboardType, mo
             placeholder={placeholder}
             placeholderTextColor="#9ca3af"
             placeholderClassName='font-poppins'
-            style={{ height: 60, ...moreStyles }}
+            style={{ height: 60, borderColor: "#121212", ...moreStyles }}
             theme={{
                 colors: {
                     primary: 'white',
