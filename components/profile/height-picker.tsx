@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { View, ActivityIndicator } from "react-native"
 import { supabase } from "@/lib/supabase"
-import AppleStylePickerV2 from "./value-picker"
+import AppleStylePicker from "./value-picker"
 import { useUnits } from "@/context/units-context"
 
 interface HeightPickerProps {
@@ -20,8 +20,8 @@ const HeightPicker = ({ userId, onboardingDataId, initialHeight, onClose, onUpda
   const [isUpdating, setIsUpdating] = useState(false)
   const [error, setError] = useState("")
 
-  const { bodyUnit, getBodyHeightUnit, convertHeight } = useUnits()
-  const heightUnit = getBodyHeightUnit() // Use the body height unit
+  const { bodyUnit, getBodyHeightUnit, convertHeight, formatHeight } = useUnits()
+  const heightUnit = getBodyHeightUnit()
 
   // Inside the component, add a formatter function for height
   const formatHeightValue = (value: number) => {
@@ -86,12 +86,12 @@ const HeightPicker = ({ userId, onboardingDataId, initialHeight, onClose, onUpda
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : (
-        <AppleStylePickerV2
+        <AppleStylePicker
           title="Height"
           unit={heightUnit}
           minValue={heightUnit === "cm" ? 140 : 4.5}
           maxValue={heightUnit === "cm" ? 220 : 7.2}
-          initialValue={heightUnit === "cm" ? initialHeight : convertHeight(initialHeight, "cm", "ft")}
+          initialValue={heightUnit === "cm" ? Math.round(initialHeight) : Math.round(convertHeight(initialHeight, "cm", "ft"))}
           step={heightUnit === "cm" ? 1 : 0.1}
           onValueChange={setHeight}
           onClose={onClose}

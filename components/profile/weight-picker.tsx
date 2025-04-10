@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { View, ActivityIndicator } from "react-native"
 import { supabase } from "@/lib/supabase"
-import AppleStylePickerV2 from "./value-picker"
+import AppleStylePicker from "./value-picker"
 import { useUnits } from "@/context/units-context"
 
 interface WeightPickerProps {
@@ -20,7 +20,7 @@ const WeightPicker = ({ userId, onboardingDataId, initialWeight, onClose, onUpda
   const [isUpdating, setIsUpdating] = useState(false)
   const [error, setError] = useState("")
 
-  const { bodyUnit, getBodyWeightUnit, convertWeight } = useUnits()
+  const { bodyUnit, getBodyWeightUnit, convertWeight, formatWeight } = useUnits()
   const weightUnit = getBodyWeightUnit() // Use the body weight unit
 
   // Convert weight to kg for storage if needed
@@ -73,14 +73,14 @@ const WeightPicker = ({ userId, onboardingDataId, initialWeight, onClose, onUpda
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : (
-        <AppleStylePickerV2
+        <AppleStylePicker
           title="Weight"
           unit={weightUnit}
           minValue={weightUnit === "kg" ? 40 : 88}
           maxValue={weightUnit === "kg" ? 150 : 330}
-          initialValue={weightUnit === "kg" ? initialWeight : convertWeight(initialWeight, "kg", "lb")}
+          initialValue={weightUnit === "kg" ? Math.round(initialWeight) : Math.round(convertWeight(initialWeight, "kg", "lb"))}
           step={weightUnit === "kg" ? 1 : 1}
-          onValueChange={setWeight}
+          onValueChange={(value) => setWeight(Number(value))}
           onClose={onClose}
           onSave={handleSave}
         />

@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView } from "react-native"
-import { X } from "lucide-react-native"
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Platform } from "react-native"
+import * as Haptics from "expo-haptics"
 
 interface AppleStylePickerProps {
   title: string
@@ -69,6 +69,10 @@ const AppleStylePicker = ({
       if (newValue !== value) {
         setValue(newValue)
         onValueChange(newValue)
+        // Add haptic feedback on value change
+        if (Platform.OS !== "web") {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }
       }
     }
   }
