@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { View, ActivityIndicator } from "react-native"
 import { supabase } from "@/lib/supabase"
-import AppleStylePicker from "./value-picker"
+import AppleStylePickerV2 from "./value-picker"
+import { useUnits } from "@/context/units-context"
 
 interface WeightPickerProps {
   userId: string
@@ -13,10 +14,19 @@ interface WeightPickerProps {
   onUpdate: () => void
 }
 
+// Update the WeightPicker to use the body weight unit
 const WeightPicker = ({ userId, onboardingDataId, initialWeight, onClose, onUpdate }: WeightPickerProps) => {
   const [weight, setWeight] = useState(initialWeight)
   const [isUpdating, setIsUpdating] = useState(false)
   const [error, setError] = useState("")
+
+  const { bodyUnit, getBodyWeightUnit, convertWeight } = useUnits()
+  const weightUnit = getBodyWeightUnit() // Use the body weight unit
+
+  // Convert weight to kg for storage if needed
+  const getWeightInKg = () => {
+    return weightUnit === "kg" ? weight : convertWeight(weight, "lb", "kg")
+  }
 
   const handleSave = async () => {
     if (!userId || !onboardingDataId) {
@@ -32,7 +42,7 @@ const WeightPicker = ({ userId, onboardingDataId, initialWeight, onClose, onUpda
       const { error: updateError } = await supabase
         .from("onboarding_data")
         .update({
-          weight,
+          weight: getWeightInKg(), // Always store in kg in the database
           updated_at: new Date().toISOString(),
         })
         .eq("onboarding_data_id", onboardingDataId)
@@ -63,13 +73,13 @@ const WeightPicker = ({ userId, onboardingDataId, initialWeight, onClose, onUpda
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : (
-        <AppleStylePicker
+        <AppleStylePickerV2
           title="Weight"
-          unit="kg"
-          minValue={40}
-          maxValue={150}
-          initialValue={initialWeight}
-          step={1}
+          unit={weightUnit}
+          minValue={weightUnit === "kg" ? 40 : 88}
+          maxValue={weightUnit === "kg" ? 150 : 330}
+          initialValue={weightUnit === "kg" ? initialWeight : convertWeight(initialWeight, "kg", "lb")}
+          step={weightUnit === "kg" ? 1 : 1}
           onValueChange={setWeight}
           onClose={onClose}
           onSave={handleSave}

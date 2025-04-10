@@ -1,14 +1,13 @@
-import Input from '@/components/input'
 import { router } from 'expo-router'
 import { BicepsFlexed, ChevronLeft, Dumbbell, GalleryVerticalEnd, Info, Send } from 'lucide-react-native'
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, KeyboardAvoidingView, TextInput } from 'react-native'
 
 const Chatbot = () => {
     return (
-        <KeyboardAvoidingView behavior="height" style={{ flex: 1, paddingHorizontal: 10, backgroundColor: '#000' }}>
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1, paddingHorizontal: 10, backgroundColor: '#000' }}>
             <SafeAreaView className="flex-1 bg-black justify-between items-center">
                 <View className='flex-row items-center justify-between px-5 py-6 w-full'>
-                    <TouchableOpacity onPress={() => router.push('/(tabs)/home')}>
+                    <TouchableOpacity onPress={() => router.back()}>
                         <ChevronLeft size={24} color="white" />
                     </TouchableOpacity>
                     <TouchableOpacity>

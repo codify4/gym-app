@@ -14,6 +14,7 @@ interface AppleStylePickerProps {
   onValueChange: (value: number) => void
   onClose: () => void
   onSave: () => void
+  formatValue?: (value: number) => string // Optional formatter for special cases like feet/inches
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window")
@@ -31,6 +32,7 @@ const AppleStylePicker = ({
   onValueChange,
   onClose,
   onSave,
+  formatValue,
 }: AppleStylePickerProps) => {
   const [value, setValue] = useState(initialValue)
   const scrollViewRef = useRef<ScrollView>(null)
@@ -81,8 +83,8 @@ const AppleStylePicker = ({
       {/* Current Value Display */}
       <View style={styles.valueContainer}>
         <Text style={styles.valueText}>
-          {value}
-          <Text style={styles.unitText}>{unit}</Text>
+          {formatValue ? formatValue(value) : value}
+          {!formatValue && <Text style={styles.unitText}>{unit}</Text>}
         </Text>
       </View>
 

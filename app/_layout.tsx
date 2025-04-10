@@ -11,6 +11,7 @@ import "../global.css";
 import { setBackgroundColorAsync } from "expo-navigation-bar";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { OnboardingProvider, useOnboarding } from '@/context/onboarding-context';
+import { UnitsProvider } from '@/context/units-context';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -106,8 +107,10 @@ export default function RootLayout() {
       <AuthProvider>
         <OnboardingProvider>
           <PaperProvider>
-            <StatusBar style='light'/>
-            <RootLayoutNav />
+            <UnitsProvider>
+              <StatusBar style='light'/>
+              <RootLayoutNav />
+            </UnitsProvider>
           </PaperProvider>
         </OnboardingProvider>
       </AuthProvider>

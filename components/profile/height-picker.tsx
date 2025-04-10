@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { View, ActivityIndicator } from "react-native"
 import { supabase } from "@/lib/supabase"
-import AppleStylePicker from "./value-picker"
+import AppleStylePickerV2 from "./value-picker"
+import { useUnits } from "@/context/units-context"
 
 interface HeightPickerProps {
   userId: string
@@ -13,10 +14,32 @@ interface HeightPickerProps {
   onUpdate: () => void
 }
 
+// Update the HeightPicker to use the body height unit
 const HeightPicker = ({ userId, onboardingDataId, initialHeight, onClose, onUpdate }: HeightPickerProps) => {
   const [height, setHeight] = useState(initialHeight)
   const [isUpdating, setIsUpdating] = useState(false)
   const [error, setError] = useState("")
+
+  const { bodyUnit, getBodyHeightUnit, convertHeight } = useUnits()
+  const heightUnit = getBodyHeightUnit() // Use the body height unit
+
+  // Inside the component, add a formatter function for height
+  const formatHeightValue = (value: number) => {
+    if (heightUnit === "cm") {
+      return `${value} cm`
+    } else {
+      // For feet, we want to display feet and inches
+      const totalInches = value * 12
+      const feet = Math.floor(totalInches / 12)
+      const inches = Math.round(totalInches % 12)
+      return `${feet}'${inches}"`
+    }
+  }
+
+  // Convert height to cm for storage if needed
+  const getHeightInCm = () => {
+    return heightUnit === "cm" ? height : convertHeight(height, "ft", "cm")
+  }
 
   const handleSave = async () => {
     if (!userId || !onboardingDataId) {
@@ -32,7 +55,7 @@ const HeightPicker = ({ userId, onboardingDataId, initialHeight, onClose, onUpda
       const { error: updateError } = await supabase
         .from("onboarding_data")
         .update({
-          height,
+          height: getHeightInCm(), // Always store in cm in the database
           updated_at: new Date().toISOString(),
         })
         .eq("onboarding_data_id", onboardingDataId)
@@ -63,16 +86,17 @@ const HeightPicker = ({ userId, onboardingDataId, initialHeight, onClose, onUpda
           <ActivityIndicator size="large" color="white" />
         </View>
       ) : (
-        <AppleStylePicker
+        <AppleStylePickerV2
           title="Height"
-          unit="cm"
-          minValue={140}
-          maxValue={220}
-          initialValue={initialHeight}
-          step={1}
+          unit={heightUnit}
+          minValue={heightUnit === "cm" ? 140 : 4.5}
+          maxValue={heightUnit === "cm" ? 220 : 7.2}
+          initialValue={heightUnit === "cm" ? initialHeight : convertHeight(initialHeight, "cm", "ft")}
+          step={heightUnit === "cm" ? 1 : 0.1}
           onValueChange={setHeight}
           onClose={onClose}
           onSave={handleSave}
+          formatValue={formatHeightValue}
         />
       )}
     </View>

@@ -24,7 +24,9 @@ import BotSheet from "@/components/bot-sheet"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import HeightPicker from "@/components/profile/height-picker"
 import WeightPicker from "@/components/profile/weight-picker"
-import UnitDropdown from "@/components/dropdown"
+import UnitPicker from "@/components/unit-picker"
+import { useUnits } from "@/context/units-context"
+import type { DistanceUnit, WeightUnit, BodyUnit } from "@/context/units-context"
 
 const Profile = () => {
   const { session } = useAuth()
@@ -40,6 +42,20 @@ const Profile = () => {
     weight: 70,
     age: 25,
   })
+
+  // Get units from context
+  const {
+    distanceUnit,
+    weightUnit,
+    heightUnit,
+    setDistanceUnit,
+    setWeightUnit,
+    setHeightUnit,
+    formatWeight,
+    formatHeight,
+    bodyUnit,
+    setBodyUnit,
+  } = useUnits()
 
   // Bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -61,11 +77,6 @@ const Profile = () => {
     { label: "Weight", value: "---" },
     { label: "Age", value: "---" },
   ])
-
-  // State for units
-  const [distanceUnit, setDistanceUnit] = useState("km")
-  const [weightUnit, setWeightUnit] = useState("kg")
-  const [bodyUnit, setBodyUnit] = useState("cm")
 
   // Fetch user data on component mount
   async function fetchUserData() {
@@ -134,9 +145,10 @@ const Profile = () => {
         age: onboardingData.age,
       })
 
+      // Format the values using the unit context
       setStats([
-        { label: "Height", value: `${onboardingData.height}cm` },
-        { label: "Weight", value: `${onboardingData.weight}kg` },
+        { label: "Height", value: formatHeight(onboardingData.height) },
+        { label: "Weight", value: formatWeight(onboardingData.weight) },
         { label: "Age", value: `${onboardingData.age}` },
       ])
     } catch (error) {
@@ -145,6 +157,17 @@ const Profile = () => {
       setLoading(false)
     }
   }
+
+  // Update stats when units change
+  useEffect(() => {
+    if (userData) {
+      setStats([
+        { label: "Height", value: formatHeight(userData.height) },
+        { label: "Weight", value: formatWeight(userData.weight) },
+        { label: "Age", value: `${userData.age}` },
+      ])
+    }
+  }, [weightUnit, heightUnit, userData])
 
   useEffect(() => {
     fetchUserData()
@@ -168,17 +191,6 @@ const Profile = () => {
         { title: "Privacy Policy", icon: Lock, path: "/(tabs)/(settings)/privacy-policies" as const },
         { title: "Terms and Services", icon: Lock, path: "/(tabs)/(settings)/terms-and-services" as const },
         { title: "Settings", icon: Settings, path: "/(tabs)/(settings)/settings" as const },
-      ],
-    },
-  ]
-
-  const units = [
-    {
-      title: "Units",
-      items: [
-        { title: "Distance", icon: Ruler },
-        { title: "Weight", icon: Weight },
-        { title: "Body", icon: User },
       ],
     },
   ]
@@ -281,46 +293,43 @@ const Profile = () => {
           </View>
 
           {/* Units */}
-          {units.map((section, sectionIndex) => (
-            <View key={sectionIndex} className="mb-6">
-              <Text className="text-white text-2xl font-poppins-semibold mb-4">{section.title}</Text>
-              <View className="flex-col justify-center gap-3">
-                <UnitDropdown
-                  title="Distance"
-                  icon={Ruler}
-                  options={[
-                    { label: "Kilometers", value: "km" },
-                    { label: "Miles", value: "mi" },
-                  ]}
-                  selectedValue={distanceUnit}
-                  onValueChange={setDistanceUnit}
-                />
+          <View className="mb-6">
+            <Text className="text-white text-2xl font-poppins-semibold mb-4">Units</Text>
+            <View className="flex-col justify-center">
+              <UnitPicker
+                title="Distance"
+                icon={Ruler}
+                options={[
+                  { label: "Kilometers", value: "km" },
+                  { label: "Miles", value: "mi" },
+                ]}
+                selectedValue={distanceUnit}
+                onValueChange={(value) => setDistanceUnit(value as DistanceUnit)}
+              />
 
-                <UnitDropdown
-                  title="Weight"
-                  icon={Weight}
-                  options={[
-                    { label: "Kilogram", value: "kg" },
-                    { label: "Pounds", value: "lb" },
-                    { label: "Libra", value: "libra" },
-                  ]}
-                  selectedValue={weightUnit}
-                  onValueChange={setWeightUnit}
-                />
+              <UnitPicker
+                title="Weights"
+                icon={Weight}
+                options={[
+                  { label: "Kilogram", value: "kg" },
+                  { label: "Pounds", value: "lb" },
+                ]}
+                selectedValue={weightUnit}
+                onValueChange={(value) => setWeightUnit(value as WeightUnit)}
+              />
 
-                <UnitDropdown
-                  title="Body"
-                  icon={User}
-                  options={[
-                    { label: "Centimeters", value: "cm" },
-                    { label: "Inches", value: "in" },
-                  ]}
-                  selectedValue={bodyUnit}
-                  onValueChange={setBodyUnit}
-                />
-              </View>
+              <UnitPicker
+                title="Body"
+                icon={User}
+                options={[
+                  { label: "Metric (cm & kg)", value: "metric" },
+                  { label: "Imperial (ft & lb)", value: "imperial" },
+                ]}
+                selectedValue={bodyUnit}
+                onValueChange={(value) => setBodyUnit(value as BodyUnit)}
+              />
             </View>
-          ))}
+          </View>
 
           {/* Menu Items */}
           {menuItems.map((section, sectionIndex) => (
