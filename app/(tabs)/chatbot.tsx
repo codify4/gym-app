@@ -88,18 +88,18 @@ const Chatbot = () => {
         </View>
 
         <ScrollView ref={scrollViewRef} className="flex-1 w-full" contentContainerStyle={{ paddingBottom: 20 }}>
-          <View className="px-5 w-full flex-col items-center justify-center mt-5">
+          <View className="px-5 w-full flex-col items-center justify-center">
             <Dumbbell size={100} color="white" style={{ transform: [{ rotate: "-45deg" }] }} />
             <Text className="text-white text-4xl font-poppins-bold mb-3">Mate</Text>
             <Text className="text-neutral-400 text-base font-poppins-semibold">Talk to Mate</Text>
           </View>
 
           <View className="w-full flex-row items-center justify-center gap-2 mt-5" style={{ paddingHorizontal: 20 }}>
-            <View className="bg-neutral-900 rounded-3xl p-5 flex-col">
+            <View className="bg-neutral-900 rounded-3xl p-5 flex-col border border-neutral-700">
               <Info size={24} color="white" />
               <Text className="text-white text-base font-poppins">Give me a chest workout</Text>
             </View>
-            <View className="bg-neutral-900 rounded-3xl p-5 flex-col">
+            <View className="bg-neutral-900 rounded-3xl p-5 flex-col border border-neutral-700">
               <BicepsFlexed size={24} color="white" />
               <Text className="text-white text-base font-poppins">Give me a bicep workout</Text>
             </View>
