@@ -10,6 +10,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, Layout } from "react-native-reanimated"
 import type { Exercise } from "@/lib/exercises"
 import { getImageSource } from "@/utils/exercise-muscle"
+import { useUnits } from "@/context/units-context"
 
 interface ExerciseCardProps {
   exercise: Exercise
@@ -26,6 +27,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
   const translateX = useSharedValue(0)
   const opacity = useSharedValue(1)
   const isDeleting = useRef(false)
+  const { weightUnit, formatWeight, convertWeight } = useUnits()
 
   // Only add gesture handling if onDelete is provided
   const panGesture = Gesture.Pan()
@@ -136,7 +138,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
                         style={{ borderRadius: 20 }}
                       >
                         <View className="bg-white/60 rounded-lg px-3 py-0.5 flex-row items-center">
-                          <Text className="text-black font-poppins-semibold">{exercise.weight} kg</Text>
+                          <Text className="text-black font-poppins-semibold">{weightUnit === "kg" ? formatWeight(exercise.weight) : formatWeight(convertWeight(exercise.weight, "kg", "lb"))}</Text>
                         </View>
                       </LinearGradient>
                     )}
@@ -245,7 +247,7 @@ const ExerciseCard = ({ exercise, index, onPress, onDelete }: ExerciseCardProps)
                             style={{ borderRadius: 20 }}
                           >
                             <View className="bg-white/60 rounded-lg px-3 py-0.5 flex-row items-center">
-                              <Text className="text-black font-poppins-semibold">{exercise.weight} kg</Text>
+                              <Text className="text-black font-poppins-semibold">{weightUnit === "kg" ? formatWeight(exercise.weight) : formatWeight(convertWeight(exercise.weight, "kg", "lb"))}</Text>
                             </View>
                           </LinearGradient>
                         )}

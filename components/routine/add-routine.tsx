@@ -8,6 +8,7 @@ import { useState } from "react"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { useAuth } from "@/context/auth"
 import { Exercise, getExerciseImage } from "@/lib/exercises"
+import { useUnits } from "@/context/units-context"
 
 type AddWorkoutProps = {
   onSuccess?: () => void
@@ -18,6 +19,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
   const { session } = useAuth()
   const userId = session?.user?.id
   const { addWorkout } = useWorkouts(userId)
+  const { weightUnit } = useUnits()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [workoutData, setWorkoutData] = useState<{
@@ -35,8 +37,8 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
   const [exercises, setExercises] = useState<
     Array<{
       name: string
-      sets: number
-      reps: number
+      sets: number | string
+      reps: number | string
       weight: number | null
       image: string | null
       tips: string | null
@@ -44,8 +46,8 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
   >([
     {
       name: "",
-      sets: 3,
-      reps: 10,
+      sets: "",
+      reps: "",
       weight: null,
       image: null,
       tips: null,
@@ -303,7 +305,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
                 <Input
                   value={exercise.weight?.toString() || ""}
                   onChangeText={(text) => handleExerciseChange(index, "weight", text)}
-                  placeholder="Enter weight (kg)"
+                  placeholder={`Enter weight (${weightUnit})`}
                   mode="outlined"
                   keyboardType="numeric"
                   focus={false}

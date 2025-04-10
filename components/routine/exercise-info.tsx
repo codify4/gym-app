@@ -4,8 +4,10 @@ import { Info, Weight } from "lucide-react-native"
 import type { Exercise } from "@/lib/exercises"
 import { getExerciseTips } from "@/utils/exercise-tips"
 import { getImageSource } from "@/utils/exercise-muscle"
+import { useUnits } from "@/context/units-context"
 
 const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
+  const { weightUnit, formatWeight, convertWeight } = useUnits()
   // Get tips based on exercise name and body part
   const tipsList =
     exercise.tips && Array.isArray(exercise.tips) ? exercise.tips : getExerciseTips(exercise.name, exercise.body_part)
@@ -48,7 +50,7 @@ const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
               {exercise.weight && (
                 <View className="bg-neutral-800 rounded-2xl p-4 flex-1 ml-2">
                   <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Weight</Text>
-                  <Text className="text-white text-2xl font-poppins-bold">{exercise.weight} kg</Text>
+                  <Text className="text-white text-2xl font-poppins-bold">{weightUnit === "kg" ? formatWeight(exercise.weight) : formatWeight(convertWeight(exercise.weight, "kg", "lb"))}</Text>
                 </View>
               )}
             </View>
