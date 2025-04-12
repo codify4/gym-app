@@ -2,22 +2,22 @@
 
 import { useRef, useState, useEffect } from "react"
 import { router } from "expo-router"
-import { BicepsFlexed, ChevronLeft, Dumbbell, GalleryVerticalEnd, Send } from "lucide-react-native"
+import { ChevronLeft, Dumbbell, GalleryVerticalEnd } from "lucide-react-native"
 import {
   View,
   Text,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Keyboard,
   Platform,
   Animated,
   KeyboardAvoidingView,
-  ActivityIndicator,
   type KeyboardEvent,
 } from "react-native"
 import { sendMessage, type ChatMessage } from "@/lib/gemini-service"
+import TypingIndicator from "@/components/chatbot/typing"
+import PromptInput from "@/components/chatbot/prompt-input"
 
 const Chatbot = () => {
   const [message, setMessage] = useState("")
@@ -68,6 +68,13 @@ const Chatbot = () => {
       scrollViewRef.current.scrollToEnd({ animated: true })
     }
   }, [messages])
+
+  useEffect(() => {
+    // Also scroll when the typing indicator appears or disappears
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true })
+    }
+  }, [isLoading])
 
   const handleSend = async () => {
     if (message.trim() === "" || isLoading) return
@@ -126,8 +133,8 @@ const Chatbot = () => {
     return messages.map((msg, index) => (
       <View
         key={index}
-        className={`px-4 py-3 rounded-2xl my-1 max-w-[85%] ${
-          msg.role === "user" ? "bg-white self-end mr-2" : "bg-neutral-800 self-start ml-2"
+        className={`px-4 py-3 my-1 max-w-[85%] ${
+          msg.role === "user" ? "bg-white self-end mr-2 rounded-2xl" : "bg-neutral-800 self-start ml-2 rounded-3xl"
         }`}
       >
         <Text className={`font-poppins ${msg.role === "user" ? "text-black" : "text-white"}`}>{msg.content}</Text>
@@ -161,58 +168,16 @@ const Chatbot = () => {
           }}
         >
           {renderMessages()}
+          {isLoading && <TypingIndicator />}
         </ScrollView>
 
-        {isLoading && (
-          <View className="items-center justify-center py-2">
-            <ActivityIndicator size="small" color="#ffffff" />
-          </View>
-        )}
-        
-        <Animated.View
-          style={{
-            marginBottom: bottomMargin,
-            borderRadius: 30,
-            width: "95%",
-            alignSelf: "center",
-          }}
-        >
-          <View 
-            className="py-4 flex-row items-center justify-between bg-neutral-900 border border-neutral-700"
-            style={{
-              paddingHorizontal: 16,
-              borderRadius: 20,
-              width: "100%",
-            }}  
-          >
-            <TextInput
-              placeholder="Ask about workouts, nutrition, etc..."
-              placeholderTextColor="#999"
-              value={message}
-              onChangeText={setMessage}
-              style={{
-                flex: 1,
-                color: "#fff",
-                fontSize: 16,
-                fontFamily: "Poppins-Regular",
-                marginRight: 10,
-              }}
-            />
-            <TouchableOpacity
-              className={`rounded-full items-center justify-center ${message.trim() ? "bg-white" : "bg-neutral-700"}`}
-              style={{ width: 40, height: 40 }}
-              onPress={handleSend}
-              disabled={message.trim() === "" || isLoading}
-            >
-              <Send size={20} color={message.trim() ? "black" : "white"} />
-            </TouchableOpacity>
-          </View>
-          <View className="px-3">
-              <Text className="text-neutral-500 text-xs font-poppins">
-                Responses are AI-generated. Always consult do your own reseach.
-              </Text>
-            </View>
-        </Animated.View>
+        <PromptInput 
+          bottomMargin={bottomMargin}
+          setMessage={setMessage}
+          message={message}
+          isLoading={isLoading}
+          handleSend={handleSend}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
