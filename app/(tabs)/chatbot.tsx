@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react"
 import { router } from "expo-router"
-import { ChevronLeft, Dumbbell, GalleryVerticalEnd } from "lucide-react-native"
+import { Brain, ChevronLeft, Dumbbell, GalleryVerticalEnd } from "lucide-react-native"
 import {
   View,
   Text,
@@ -14,12 +14,16 @@ import {
   Animated,
   KeyboardAvoidingView,
   type KeyboardEvent,
+  Image,
 } from "react-native"
 import { sendMessage, type ChatMessage } from "@/lib/gemini-service"
 import TypingIndicator from "@/components/chatbot/typing"
 import PromptInput from "@/components/chatbot/prompt-input"
+import { useAuth } from "@/context/auth"
 
 const Chatbot = () => {
+  const { session } = useAuth()
+  const user = session?.user
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -120,7 +124,7 @@ const Chatbot = () => {
     if (messages.length === 0) {
       return (
         <View className="px-5 w-full flex-col items-center justify-center">
-          <Dumbbell size={100} color="white" style={{ transform: [{ rotate: "-45deg" }] }} />
+          <Brain size={100} color="white" style={{ transform: [{ rotate: "-45deg" }] }} />
           <Text className="text-white text-4xl font-poppins-bold mb-3">Mate</Text>
           <Text className="text-neutral-400 text-base font-poppins-semibold">Talk to Mate</Text>
           <Text className="text-neutral-500 text-base font-poppins mt-4 text-center">
@@ -133,11 +137,34 @@ const Chatbot = () => {
     return messages.map((msg, index) => (
       <View
         key={index}
-        className={`px-4 py-3 my-1 max-w-[85%] ${
-          msg.role === "user" ? "bg-white self-end mr-2 rounded-2xl" : "bg-neutral-800 self-start ml-2 rounded-3xl"
-        }`}
+        className={`flex-row items-start my-1 ${msg.role === "user" ? "justify-end pr-2" : "justify-start pl-2"}`}
       >
-        <Text className={`font-poppins ${msg.role === "user" ? "text-black" : "text-white"}`}>{msg.content}</Text>
+        {msg.role !== "user" && (
+          <View className="size-8 bg-black rounded-full items-center justify-center mr-2">
+            <Brain size={24} color="white" />
+          </View>
+        )}
+
+        <View
+          className={`px-4 py-3 ${
+            msg.role === "user" ? "bg-white rounded-2xl mr-2 max-w-[70%]" : "bg-neutral-800 rounded-3xl max-w-[70%]"
+          }`}
+        >
+          <Text
+            className={msg.role === "user" ? "text-black text-base font-poppins" : "text-white text-base font-poppins"}
+          >
+            {msg.content}
+          </Text>
+        </View>
+
+        {msg.role === "user" && (
+          <View className="size-8 mt-1 rounded-full overflow-hidden">
+            <Image
+              source={{ uri: user?.user_metadata?.avatar_url || "https://ui-avatars.com/api/?name=User" }}
+              className="size-8"
+            />
+          </View>
+        )}
       </View>
     ))
   }
@@ -171,7 +198,7 @@ const Chatbot = () => {
           {isLoading && <TypingIndicator />}
         </ScrollView>
 
-        <PromptInput 
+        <PromptInput
           bottomMargin={bottomMargin}
           setMessage={setMessage}
           message={message}

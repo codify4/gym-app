@@ -57,7 +57,7 @@ const PromptInput = ({ bottomMargin, setMessage, message, isLoading, handleSend 
             </View>
 
             <View className="px-3">
-                <Text className="text-neutral-500 text-xs font-poppins">
+                <Text className="text-neutral-500 text-xs font-poppins text-center">
                     Responses are AI-generated. Always consult do your own reseach.
                 </Text>
             </View>
