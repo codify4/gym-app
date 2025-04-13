@@ -2,10 +2,9 @@
 
 import { useRef, useState, useEffect } from "react"
 import { router } from "expo-router"
-import { Brain, ChevronLeft, Dumbbell, GalleryVerticalEnd } from "lucide-react-native"
+import { ChevronLeft, GalleryVerticalEnd, Menu } from "lucide-react-native"
 import {
   View,
-  Text,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -13,13 +12,16 @@ import {
   Platform,
   Animated,
   KeyboardAvoidingView,
-  type KeyboardEvent
+  Dimensions,
+  type KeyboardEvent,
+  Text,
 } from "react-native"
 import { sendMessage, type ChatMessage } from "@/lib/gemini-service"
 import TypingIndicator from "@/components/chatbot/typing"
 import PromptInput from "@/components/chatbot/prompt-input"
-import { useAuth } from "@/context/auth"
 import MessageList from "@/components/chatbot/messages"
+import HistorySheet from "@/components/chatbot/history-sheet"
+import { useAuth } from "@/context/auth"
 
 const Chatbot = () => {
   const { session } = useAuth()
@@ -27,8 +29,23 @@ const Chatbot = () => {
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const bottomMargin = useRef(new Animated.Value(60)).current
   const scrollViewRef = useRef<ScrollView>(null)
+  const contentTranslateX = useRef(new Animated.Value(0)).current
+  const { width } = Dimensions.get("window")
+  const sheetWidth = width * 0.8
+
+  // Handle history sheet open/close animation for main content
+  useEffect(() => {
+    const translateTo = isHistoryOpen ? sheetWidth : 0
+
+    Animated.timing(contentTranslateX, {
+      toValue: translateTo,
+      duration: 300,
+      useNativeDriver: true,
+    }).start()
+  }, [isHistoryOpen, sheetWidth])
 
   useEffect(() => {
     // Function to animate the bottom margin
@@ -120,43 +137,64 @@ const Chatbot = () => {
     }
   }
 
+  const handleSelectConversation = (conversationId: string) => {
+    // This will be implemented later
+    console.log("Selected conversation:", conversationId)
+    setIsHistoryOpen(false)
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-black">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      {/* History Sheet */}
+      <HistorySheet
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onSelectConversation={handleSelectConversation}
+      />
+
+      {/* Main Content */}
+      <Animated.View
+        style={{
+          flex: 1,
+          transform: [{ translateX: contentTranslateX }],
+        }}
       >
-        <View className="flex-row items-center justify-between px-5 py-6 w-full">
-          <TouchableOpacity onPress={() => router.back()}>
-            <ChevronLeft size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <GalleryVerticalEnd size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView
-          ref={scrollViewRef}
-          className="flex-1 w-full"
-          contentContainerStyle={{
-            paddingBottom: 20,
-            flexGrow: messages.length === 0 ? 0 : undefined,
-            justifyContent: messages.length === 0 ? "center" : undefined,
-          }}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
-          <MessageList messages={messages} user={user} />
-          {isLoading && <TypingIndicator />}
-        </ScrollView>
+          <View className="flex-row items-center justify-between px-5 py-6 w-full">
+            <View>
+              <Text className="text-white font-poppins-semibold text-lg">Chest exercises</Text>
+            </View>
+            <TouchableOpacity onPress={() => setIsHistoryOpen(true)}>
+              <GalleryVerticalEnd size={24} color="white" />
+            </TouchableOpacity>
+          </View>
 
-        <PromptInput
-          bottomMargin={bottomMargin}
-          setMessage={setMessage}
-          message={message}
-          isLoading={isLoading}
-          handleSend={handleSend}
-        />
-      </KeyboardAvoidingView>
+          <ScrollView
+            ref={scrollViewRef}
+            className="flex-1 w-full"
+            contentContainerStyle={{
+              paddingBottom: 20,
+              flexGrow: messages.length === 0 ? 0 : undefined,
+              justifyContent: messages.length === 0 ? "center" : undefined,
+            }}
+          >
+            <MessageList messages={messages} user={user} />
+            {isLoading && <TypingIndicator />}
+          </ScrollView>
+
+          <PromptInput
+            bottomMargin={bottomMargin}
+            setMessage={setMessage}
+            message={message}
+            isLoading={isLoading}
+            handleSend={handleSend}
+          />
+        </KeyboardAvoidingView>
+      </Animated.View>
     </SafeAreaView>
   )
 }
