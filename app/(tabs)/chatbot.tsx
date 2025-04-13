@@ -13,13 +13,13 @@ import {
   Platform,
   Animated,
   KeyboardAvoidingView,
-  type KeyboardEvent,
-  Image,
+  type KeyboardEvent
 } from "react-native"
 import { sendMessage, type ChatMessage } from "@/lib/gemini-service"
 import TypingIndicator from "@/components/chatbot/typing"
 import PromptInput from "@/components/chatbot/prompt-input"
 import { useAuth } from "@/context/auth"
+import MessageList from "@/components/chatbot/messages"
 
 const Chatbot = () => {
   const { session } = useAuth()
@@ -120,55 +120,6 @@ const Chatbot = () => {
     }
   }
 
-  const renderMessages = () => {
-    if (messages.length === 0) {
-      return (
-        <View className="px-5 w-full flex-col items-center justify-center">
-          <Brain size={100} color="white" style={{ transform: [{ rotate: "-45deg" }] }} />
-          <Text className="text-white text-4xl font-poppins-bold mb-3">Mate</Text>
-          <Text className="text-neutral-400 text-base font-poppins-semibold">Talk to Mate</Text>
-          <Text className="text-neutral-500 text-base font-poppins mt-4 text-center">
-            Ask me anything about workouts, nutrition, or fitness goals. I'm here to help!
-          </Text>
-        </View>
-      )
-    }
-
-    return messages.map((msg, index) => (
-      <View
-        key={index}
-        className={`flex-row items-start my-1 ${msg.role === "user" ? "justify-end pr-2" : "justify-start pl-2"}`}
-      >
-        {msg.role !== "user" && (
-          <View className="size-8 bg-black rounded-full items-center justify-center mr-2">
-            <Brain size={24} color="white" />
-          </View>
-        )}
-
-        <View
-          className={`px-4 py-3 ${
-            msg.role === "user" ? "bg-white rounded-2xl mr-2 max-w-[70%]" : "bg-neutral-800 rounded-3xl max-w-[70%]"
-          }`}
-        >
-          <Text
-            className={msg.role === "user" ? "text-black text-base font-poppins" : "text-white text-base font-poppins"}
-          >
-            {msg.content}
-          </Text>
-        </View>
-
-        {msg.role === "user" && (
-          <View className="size-8 mt-1 rounded-full overflow-hidden">
-            <Image
-              source={{ uri: user?.user_metadata?.avatar_url || "https://ui-avatars.com/api/?name=User" }}
-              className="size-8"
-            />
-          </View>
-        )}
-      </View>
-    ))
-  }
-
   return (
     <SafeAreaView className="flex-1 bg-black">
       <KeyboardAvoidingView
@@ -194,7 +145,7 @@ const Chatbot = () => {
             justifyContent: messages.length === 0 ? "center" : undefined,
           }}
         >
-          {renderMessages()}
+          <MessageList messages={messages} user={user} />
           {isLoading && <TypingIndicator />}
         </ScrollView>
 
