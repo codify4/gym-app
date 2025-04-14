@@ -1,53 +1,45 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import { View, Text, TouchableOpacity, Animated, ScrollView, Dimensions } from "react-native"
-import { ChevronLeft, GalleryVerticalEnd, Plus, Search, Trash2, X } from "lucide-react-native"
-
-// Mock data for conversation history
-const MOCK_CONVERSATIONS = [
-  {
-    id: "1",
-    title: "Beginner Workout Plan",
-    preview: "Can you suggest a beginner workout plan?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-  },
-  {
-    id: "2",
-    title: "Protein Intake Calculation",
-    preview: "How much protein should I consume daily?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-  },
-  {
-    id: "3",
-    title: "Recovery After Leg Day",
-    preview: "What's the best way to recover after leg day?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-  },
-  {
-    id: "4",
-    title: "Cardio vs Weight Training",
-    preview: "Which is better for weight loss?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-  },
-  {
-    id: "5",
-    title: "Pre-Workout Nutrition",
-    preview: "What should I eat before working out?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
-  },
-]
+import { useEffect, useRef, useState } from "react"
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+} from "react-native"
+import { ChevronLeft, Plus, Search, Trash2 } from "lucide-react-native"
+import type { ChatConversation } from "@/lib/chat-history"
 
 type HistorySheetProps = {
   isOpen: boolean
   onClose: () => void
-  onSelectConversation?: (conversationId: string) => void
+  onSelectConversation: (conversationId: string) => void
+  onNewChat: () => void
+  onDeleteChat: (conversationId: string) => Promise<boolean>
+  onClearAllChats: () => Promise<boolean>
+  conversations: ChatConversation[]
+  loading: boolean
 }
 
-const HistorySheet = ({ isOpen, onClose, onSelectConversation }: HistorySheetProps) => {
+const HistorySheet = ({
+  isOpen,
+  onClose,
+  onSelectConversation,
+  onNewChat,
+  onDeleteChat,
+  onClearAllChats,
+  conversations,
+  loading,
+}: HistorySheetProps) => {
   const { width } = Dimensions.get("window")
   const sheetWidth = width * 0.8 // 80% of screen width
   const translateX = useRef(new Animated.Value(-sheetWidth)).current
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     Animated.timing(translateX, {
@@ -57,7 +49,8 @@ const HistorySheet = ({ isOpen, onClose, onSelectConversation }: HistorySheetPro
     }).start()
   }, [isOpen, sheetWidth])
 
-  const formatTimestamp = (date: Date) => {
+  const formatTimestamp = (dateString: string) => {
+    const date = new Date(dateString)
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
@@ -76,6 +69,57 @@ const HistorySheet = ({ isOpen, onClose, onSelectConversation }: HistorySheetPro
     }
   }
 
+  const handleDeleteChat = (conversationId: string) => {
+    Alert.alert("Delete Conversation", "Are you sure you want to delete this conversation?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          const success = await onDeleteChat(conversationId)
+          if (!success) {
+            Alert.alert("Error", "Failed to delete conversation")
+          }
+        },
+      },
+    ])
+  }
+
+  const handleClearAllChats = () => {
+    Alert.alert(
+      "Clear All Conversations",
+      "Are you sure you want to delete all conversations? This cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear All",
+          style: "destructive",
+          onPress: async () => {
+            const success = await onClearAllChats()
+            if (!success) {
+              Alert.alert("Error", "Failed to clear conversations")
+            }
+          },
+        },
+      ],
+    )
+  }
+
+  // Filter conversations based on search query
+  const filteredConversations = searchQuery
+    ? conversations.filter(
+        (conv) =>
+          conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          conv.messages?.some((msg) => msg.content.toLowerCase().includes(searchQuery.toLowerCase())),
+      )
+    : conversations
+
   return (
     <Animated.View
       style={{
@@ -91,58 +135,86 @@ const HistorySheet = ({ isOpen, onClose, onSelectConversation }: HistorySheetPro
         zIndex: 100,
       }}
     >
-      <View className="flex-1 pt-16">
+      <View className="flex-1 pt-12">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pb-4">
-          <Text className="text-white text-2xl font-poppins-semibold">Chat History</Text>
+        <View className="flex-row items-center justify-between px-4 pb-4 border-b border-neutral-800">
+          <Text className="text-white text-xl font-poppins-semibold">Workout History</Text>
           <TouchableOpacity onPress={onClose}>
-            <X size={24} color="white" />
+            <ChevronLeft size={24} color="white" />
           </TouchableOpacity>
         </View>
 
         {/* New Chat Button */}
         <TouchableOpacity
-          className="mx-4 my-3 py-4 px-4 bg-white rounded-full flex-row items-center"
-          onPress={() => {
-            onClose()
-            // Logic for new chat will be added later
-          }}
+          className="mx-4 my-3 py-3 px-4 bg-neutral-800 rounded-lg flex-row items-center"
+          onPress={onNewChat}
         >
-          <Plus size={18} color="black" />
-          <Text className="text-black font-poppins-semibold ml-2">New Chat</Text>
+          <Plus size={18} color="white" />
+          <Text className="text-white font-poppins ml-2">New Chat</Text>
         </TouchableOpacity>
 
+        {/* Search Bar */}
+        <View className="mx-4 mb-4 mt-2 py-2 px-3 bg-neutral-900 rounded-lg flex-row items-center">
+          <Search size={16} color="#666" />
+          <TextInput
+            className="text-white font-poppins ml-2 flex-1"
+            placeholder="Search conversations"
+            placeholderTextColor="#666"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
         {/* Conversation List */}
-        <ScrollView className="flex-1">
-          {MOCK_CONVERSATIONS.map((conversation) => (
-            <TouchableOpacity
-              key={conversation.id}
-              className="mb-2 mx-3 px-4 py-3 rounded-2xl bg-neutral-800 active:bg-neutral-700"
-              onPress={() => onSelectConversation?.(conversation.id)}
-            >
-              <View className="flex-row justify-between items-start">
-                <View className="flex-1 mr-2">
-                  <Text className="text-white font-poppins-medium" numberOfLines={1}>
-                    {conversation.title}
-                  </Text>
-                  <Text className="text-neutral-400 text-sm font-poppins mt-1" numberOfLines={1}>
-                    {conversation.preview}
-                  </Text>
+        {loading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
+        ) : filteredConversations.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-4">
+            <Text className="text-neutral-400 text-center font-poppins">
+              {searchQuery ? "No conversations match your search" : "No conversations yet. Start a new chat!"}
+            </Text>
+          </View>
+        ) : (
+          <ScrollView className="flex-1">
+            {filteredConversations.map((conversation) => (
+              <TouchableOpacity
+                key={conversation.conversation_id}
+                className="px-4 py-3 border-b border-neutral-800 active:bg-neutral-800"
+                onPress={() => onSelectConversation(conversation.conversation_id)}
+              >
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1 mr-2">
+                    <Text className="text-white font-poppins-medium" numberOfLines={1}>
+                      {conversation.title}
+                    </Text>
+                    <Text className="text-neutral-400 text-sm font-poppins mt-1" numberOfLines={1}>
+                      {conversation.messages?.[conversation.messages.length - 1]?.content || ""}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <Text className="text-neutral-500 text-xs font-poppins mr-2">
+                      {formatTimestamp(conversation.updated_at)}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={(e) => {
+                        e.stopPropagation()
+                        handleDeleteChat(conversation.conversation_id)
+                      }}
+                    >
+                      <Trash2 size={14} color="#666" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <Text className="text-neutral-500 text-xs font-poppins">{formatTimestamp(conversation.timestamp)}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
 
         {/* Footer */}
-        <View className="px-4 py-4 border-t border-neutral-800 mb-24">
-          <TouchableOpacity
-            className="flex-row items-center py-2"
-            onPress={() => {
-              // Clear history logic will be added later
-            }}
-          >
+        <View className="px-4 py-4 border-t border-neutral-800">
+          <TouchableOpacity className="flex-row items-center py-2" onPress={handleClearAllChats}>
             <Trash2 size={16} color="#ff4d4f" />
             <Text className="text-[#ff4d4f] font-poppins ml-2">Clear conversation history</Text>
           </TouchableOpacity>

@@ -1,7 +1,8 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { CirclePlus, GalleryVerticalEnd } from "lucide-react-native"
+import { router } from "expo-router"
+import { ChevronLeft, CirclePlus, GalleryVerticalEnd } from "lucide-react-native"
 import {
   View,
   SafeAreaView,
@@ -13,27 +14,60 @@ import {
   KeyboardAvoidingView,
   Dimensions,
   type KeyboardEvent,
+  Alert,
   Text,
 } from "react-native"
-import { sendMessage, type ChatMessage } from "@/lib/gemini-service"
+import { sendMessage as sendMessageToAI } from "@/lib/gemini-service"
 import TypingIndicator from "@/components/chatbot/typing"
 import PromptInput from "@/components/chatbot/prompt-input"
 import MessageList from "@/components/chatbot/messages"
 import HistorySheet from "@/components/chatbot/history-sheet"
 import { useAuth } from "@/context/auth"
+import { useChatHistory } from "@/hooks/use-chat"
+import { addMessage } from "@/lib/chat-history" // Import addMessage directly
 
 const Chatbot = () => {
   const { session } = useAuth()
   const user = session?.user
+  const userId = user?.id
+
   const [message, setMessage] = useState("")
-  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+
+  // Add local messages state for immediate display
+  const [localMessages, setLocalMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([])
+
   const bottomMargin = useRef(new Animated.Value(60)).current
   const scrollViewRef = useRef<ScrollView>(null)
   const contentTranslateX = useRef(new Animated.Value(0)).current
   const { width } = Dimensions.get("window")
-  const sheetWidth = width * 0.8
+  const sheetWidth = width * 0.8 // 80% of screen width
+
+  // Use the chat history hook
+  const {
+    conversations,
+    currentConversation,
+    loading: historyLoading,
+    startNewConversation,
+    loadConversation,
+    sendMessage: sendMessageToHistory,
+    deleteChat,
+    clearAllChats,
+    setCurrentConversation,
+  } = useChatHistory(userId)
+
+  // Get messages from current conversation or use local messages if no conversation exists
+  const messages = currentConversation?.messages || localMessages
+
+  // Update local messages when current conversation changes
+  useEffect(() => {
+    if (currentConversation?.messages) {
+      setLocalMessages(currentConversation.messages)
+    } else {
+      setLocalMessages([])
+    }
+  }, [currentConversation])
 
   // Handle history sheet open/close animation for main content
   useEffect(() => {
@@ -101,44 +135,87 @@ const Chatbot = () => {
 
     const userMessage = message.trim()
     setMessage("") // Clear input immediately
-
-    // Add user message to chat immediately
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }])
-
-    // Set loading state
     setIsLoading(true)
 
-    // Scroll to bottom to show the user's message
-    setTimeout(() => {
-      if (scrollViewRef.current) {
-        scrollViewRef.current.scrollToEnd({ animated: true })
-      }
-    }, 100)
+    // Immediately add user message to local state for display
+    setLocalMessages((prev) => [...prev, { role: "user", content: userMessage }])
 
     try {
-      // Send message and get response
-      const response = await sendMessage(userMessage)
+      let conversationId: string | undefined
 
-      // Add assistant response to chat
-      setMessages((prev) => [...prev, { role: "assistant", content: response }])
+      // If no current conversation, start a new one
+      if (!currentConversation) {
+        console.log("Creating new conversation with message:", userMessage)
+        const newConversation = await startNewConversation(userMessage)
+
+        if (!newConversation) {
+          console.error("Failed to create new conversation")
+          setIsLoading(false)
+          Alert.alert("Error", "Failed to create new conversation")
+          return
+        }
+
+        conversationId = newConversation.conversation_id
+        console.log("New conversation created with ID:", conversationId)
+      } else {
+        // Add user message to existing conversation
+        console.log("Adding message to existing conversation:", currentConversation.conversation_id)
+        await sendMessageToHistory(userMessage, "user")
+        conversationId = currentConversation.conversation_id
+      }
+
+      // Scroll to bottom to show the user's message
+      setTimeout(() => {
+        if (scrollViewRef.current) {
+          scrollViewRef.current.scrollToEnd({ animated: true })
+        }
+      }, 100)
+
+      // Send message to AI
+      console.log("Sending message to AI:", userMessage)
+      const aiResponse = await sendMessageToAI(userMessage)
+      console.log("Received AI response:", aiResponse)
+
+      // Add AI response to local messages for immediate display
+      setLocalMessages((prev) => [...prev, { role: "assistant", content: aiResponse }])
+
+      // Add AI response to conversation in database - use direct function call with conversationId
+      if (conversationId && userId) {
+        console.log("Saving AI response to conversation:", conversationId)
+        // Use the imported addMessage function directly instead of sendMessageToHistory
+        const result = await addMessage(userId, conversationId, "assistant", aiResponse)
+        console.log("Save result:", result ? "success" : "failed")
+
+        // If we just created a new conversation or need to refresh, reload the conversation
+        await loadConversation(conversationId)
+      }
     } catch (error) {
       console.error("Error in chat:", error)
-      // Add error message
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Sorry, I encountered an error. Please try again.",
-        },
-      ])
+
+      // Add error message to local messages
+      const errorMessage = "Sorry, I encountered an error. Please try again."
+      setLocalMessages((prev) => [...prev, { role: "assistant", content: errorMessage }])
+
+      // Add error message to conversation in database
+      if (currentConversation) {
+        await sendMessageToHistory("Sorry, I encountered an error. Please try again.", "assistant")
+      }
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleSelectConversation = (conversationId: string) => {
-    // This will be implemented later
-    console.log("Selected conversation:", conversationId)
+  const handleSelectConversation = async (conversationId: string) => {
+    console.log("Loading conversation:", conversationId)
+    const conversation = await loadConversation(conversationId)
+    console.log("Loaded conversation with messages:", conversation?.messages?.length || 0)
+    setIsHistoryOpen(false)
+  }
+
+  const handleNewChat = () => {
+    console.log("Starting new chat")
+    setCurrentConversation(null)
+    setLocalMessages([])
     setIsHistoryOpen(false)
   }
 
@@ -149,6 +226,11 @@ const Chatbot = () => {
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         onSelectConversation={handleSelectConversation}
+        onNewChat={handleNewChat}
+        onDeleteChat={deleteChat}
+        onClearAllChats={clearAllChats}
+        conversations={conversations}
+        loading={historyLoading}
       />
 
       {/* Main Content */}
@@ -161,7 +243,7 @@ const Chatbot = () => {
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 20}
         >
           <View className="flex-row items-center justify-between px-5 pt-6 pb-3 w-full border-b border-neutral-800">
             <TouchableOpacity onPress={() => setIsHistoryOpen(true)}>
@@ -170,7 +252,7 @@ const Chatbot = () => {
             <View>
               <Text className="text-white font-poppins-semibold text-lg">Mate</Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleNewChat}>
               <CirclePlus size={24} color="white" />
             </TouchableOpacity>
           </View>
