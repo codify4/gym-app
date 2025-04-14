@@ -12,7 +12,7 @@ import {
   Alert,
   TextInput,
 } from "react-native"
-import { ChevronLeft, Plus, Search, Trash2 } from "lucide-react-native"
+import { ChevronLeft, Plus, Search, Trash2, X } from "lucide-react-native"
 import type { ChatConversation } from "@/lib/chat-history"
 
 type HistorySheetProps = {
@@ -37,7 +37,7 @@ const HistorySheet = ({
   loading,
 }: HistorySheetProps) => {
   const { width } = Dimensions.get("window")
-  const sheetWidth = width * 0.8 // 80% of screen width
+  const sheetWidth = width * 0.8
   const translateX = useRef(new Animated.Value(-sheetWidth)).current
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -135,53 +135,35 @@ const HistorySheet = ({
         zIndex: 100,
       }}
     >
-      <View className="flex-1 pt-12">
+      <View className="flex-1 pt-16">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pb-4 border-b border-neutral-800">
-          <Text className="text-white text-xl font-poppins-semibold">Workout History</Text>
+        <View className="flex-row items-center justify-between px-4 pb-4">
+          <Text className="text-white text-2xl font-poppins-semibold">Chat History</Text>
           <TouchableOpacity onPress={onClose}>
-            <ChevronLeft size={24} color="white" />
+            <X size={24} color="white" />
           </TouchableOpacity>
         </View>
 
         {/* New Chat Button */}
         <TouchableOpacity
-          className="mx-4 my-3 py-3 px-4 bg-neutral-800 rounded-lg flex-row items-center"
+          className="mx-4 my-3 py-4 px-4 bg-white rounded-full flex-row items-center"
           onPress={onNewChat}
         >
-          <Plus size={18} color="white" />
-          <Text className="text-white font-poppins ml-2">New Chat</Text>
+          <Plus size={18} color="black" />
+          <Text className="text-black font-poppins-semibold ml-2">New Chat</Text>
         </TouchableOpacity>
-
-        {/* Search Bar */}
-        <View className="mx-4 mb-4 mt-2 py-2 px-3 bg-neutral-900 rounded-lg flex-row items-center">
-          <Search size={16} color="#666" />
-          <TextInput
-            className="text-white font-poppins ml-2 flex-1"
-            placeholder="Search conversations"
-            placeholderTextColor="#666"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
 
         {/* Conversation List */}
         {loading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#fff" />
           </View>
-        ) : filteredConversations.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-4">
-            <Text className="text-neutral-400 text-center font-poppins">
-              {searchQuery ? "No conversations match your search" : "No conversations yet. Start a new chat!"}
-            </Text>
-          </View>
         ) : (
           <ScrollView className="flex-1">
             {filteredConversations.map((conversation) => (
               <TouchableOpacity
                 key={conversation.conversation_id}
-                className="px-4 py-3 border-b border-neutral-800 active:bg-neutral-800"
+                className="mb-2 mx-3 px-4 py-3 rounded-2xl bg-neutral-800 active:bg-neutral-700"
                 onPress={() => onSelectConversation(conversation.conversation_id)}
               >
                 <View className="flex-row justify-between items-start">
@@ -213,7 +195,7 @@ const HistorySheet = ({
         )}
 
         {/* Footer */}
-        <View className="px-4 py-4 border-t border-neutral-800">
+        <View className="px-4 py-4 border-t border-neutral-800 mb-24">
           <TouchableOpacity className="flex-row items-center py-2" onPress={handleClearAllChats}>
             <Trash2 size={16} color="#ff4d4f" />
             <Text className="text-[#ff4d4f] font-poppins ml-2">Clear conversation history</Text>
