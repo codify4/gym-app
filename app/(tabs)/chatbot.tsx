@@ -236,7 +236,7 @@ const Chatbot = () => {
               <GalleryVerticalEnd size={24} color="white" />
             </TouchableOpacity>
             <View>
-              <Text className="text-white font-poppins-semibold text-lg">Mate</Text>
+              <Text className="text-white font-poppins-semibold text-lg">{currentConversation ? currentConversation.title.slice(0, 20) + "..." : "New Chat"}</Text>
             </View>
             <TouchableOpacity onPress={handleNewChat}>
               <CirclePlus size={24} color="white" />
