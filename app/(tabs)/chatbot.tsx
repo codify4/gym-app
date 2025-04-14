@@ -1,8 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { router } from "expo-router"
-import { ChevronLeft, GalleryVerticalEnd, Menu } from "lucide-react-native"
+import { CirclePlus, GalleryVerticalEnd } from "lucide-react-native"
 import {
   View,
   SafeAreaView,
@@ -164,12 +163,15 @@ const Chatbot = () => {
           style={{ flex: 1 }}
           keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
-          <View className="flex-row items-center justify-between px-5 py-6 w-full">
-            <View>
-              <Text className="text-white font-poppins-semibold text-lg">Chest exercises</Text>
-            </View>
+          <View className="flex-row items-center justify-between px-5 pt-6 pb-3 w-full border-b border-neutral-800">
             <TouchableOpacity onPress={() => setIsHistoryOpen(true)}>
               <GalleryVerticalEnd size={24} color="white" />
+            </TouchableOpacity>
+            <View>
+              <Text className="text-white font-poppins-semibold text-lg">Mate</Text>
+            </View>
+            <TouchableOpacity>
+              <CirclePlus size={24} color="white" />
             </TouchableOpacity>
           </View>
 
@@ -178,6 +180,7 @@ const Chatbot = () => {
             className="flex-1 w-full"
             contentContainerStyle={{
               paddingBottom: 20,
+              paddingTop: 20,
               flexGrow: messages.length === 0 ? 0 : undefined,
               justifyContent: messages.length === 0 ? "center" : undefined,
             }}
