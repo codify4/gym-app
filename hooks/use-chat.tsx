@@ -6,7 +6,6 @@ import {
   fetchConversation,
   createConversation,
   addMessage,
-  updateConversationTitle,
   deleteConversation,
   deleteAllConversations,
   type ChatConversation,
@@ -63,7 +62,6 @@ export const useChatHistory = (userId: string | undefined) => {
         setLoading(true)
         const conversation = await fetchConversation(userId, conversationId)
         if (conversation) {
-          console.log("Loaded conversation:", conversationId, "with messages:", conversation.messages?.length || 0)
           setCurrentConversation(conversation)
         } else {
           console.error("Failed to load conversation:", conversationId)
@@ -88,12 +86,9 @@ export const useChatHistory = (userId: string | undefined) => {
         console.log("Creating new conversation with first message:", firstMessage)
         const newConversation = await createConversation(userId, firstMessage)
         if (newConversation) {
-          console.log("New conversation created:", newConversation.conversation_id)
           setConversations((prev) => [newConversation, ...prev])
           setCurrentConversation(newConversation)
           return newConversation
-        } else {
-          console.error("Failed to create new conversation")
         }
         return null
       } catch (error) {
@@ -113,17 +108,13 @@ export const useChatHistory = (userId: string | undefined) => {
       }
 
       try {
-        console.log("Sending message to conversation:", currentConversation.conversation_id, "Role:", role)
         const message = await addMessage(userId, currentConversation.conversation_id, role, content)
 
         if (message) {
-          console.log("Message added successfully");
-
           // Update the current conversation with the new message
           setCurrentConversation((prev) => {
             if (!prev) return null
             const updatedMessages = [...(prev.messages || []), message]
-            console.log("Updated conversation now has", updatedMessages.length, "messages")
 
             return {
               ...prev,
@@ -146,8 +137,6 @@ export const useChatHistory = (userId: string | undefined) => {
           )
 
           return message
-        } else {
-          console.error("Failed to add message to conversation")
         }
         return null
       } catch (error) {
@@ -156,47 +145,6 @@ export const useChatHistory = (userId: string | undefined) => {
       }
     },
     [userId, currentConversation],
-  )
-
-  // Update conversation title
-  const updateTitle = useCallback(
-    async (title: string) => {
-      if (!currentConversation) return false
-
-      try {
-        const success = await updateConversationTitle(currentConversation.conversation_id, title)
-        if (success) {
-          // Update the current conversation
-          setCurrentConversation((prev) => {
-            if (!prev) return null
-            return {
-              ...prev,
-              title,
-            }
-          })
-
-          // Update the conversation in the list
-          setConversations((prev) =>
-            prev.map((conv) => {
-              if (conv.conversation_id === currentConversation.conversation_id) {
-                return {
-                  ...conv,
-                  title,
-                }
-              }
-              return conv
-            }),
-          )
-
-          return true
-        }
-        return false
-      } catch (error) {
-        console.error("Error updating title:", error)
-        return false
-      }
-    },
-    [currentConversation],
   )
 
   // Delete a conversation
@@ -251,7 +199,6 @@ export const useChatHistory = (userId: string | undefined) => {
     loadConversation,
     startNewConversation,
     sendMessage,
-    updateTitle,
     deleteChat,
     clearAllChats,
     setCurrentConversation,

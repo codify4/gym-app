@@ -9,11 +9,11 @@ import {
   ScrollView,
   Dimensions,
   ActivityIndicator,
-  Alert,
-  TextInput,
+  Alert
 } from "react-native"
-import { ChevronLeft, Plus, Search, Trash2, X } from "lucide-react-native"
+import { Plus, Trash2, X } from "lucide-react-native"
 import type { ChatConversation } from "@/lib/chat-history"
+import ChatInfo from "./chat-info"
 
 type HistorySheetProps = {
   isOpen: boolean
@@ -161,35 +161,13 @@ const HistorySheet = ({
         ) : (
           <ScrollView className="flex-1">
             {filteredConversations.map((conversation) => (
-              <TouchableOpacity
+              <ChatInfo 
                 key={conversation.conversation_id}
-                className="mb-2 mx-3 px-4 py-3 rounded-2xl bg-neutral-800 active:bg-neutral-700"
-                onPress={() => onSelectConversation(conversation.conversation_id)}
-              >
-                <View className="flex-row justify-between items-start">
-                  <View className="flex-1 mr-2">
-                    <Text className="text-white font-poppins-medium" numberOfLines={1}>
-                      {conversation.title}
-                    </Text>
-                    <Text className="text-neutral-400 text-sm font-poppins mt-1" numberOfLines={1}>
-                      {conversation.messages?.[conversation.messages.length - 1]?.content || ""}
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center">
-                    <Text className="text-neutral-500 text-xs font-poppins mr-2">
-                      {formatTimestamp(conversation.updated_at)}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={(e) => {
-                        e.stopPropagation()
-                        handleDeleteChat(conversation.conversation_id)
-                      }}
-                    >
-                      <Trash2 size={14} color="#666" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </TouchableOpacity>
+                conversation={conversation}
+                onSelectConversation={onSelectConversation}
+                handleDeleteChat={handleDeleteChat}
+                formatTimestamp={formatTimestamp}
+              />
             ))}
           </ScrollView>
         )}

@@ -1,7 +1,6 @@
 import { supabase } from "./supabase"
 import type { ChatMessage } from "./gemini-service"
 
-// Define types for our chat history
 export interface ChatConversation {
   conversation_id: string
   user_id: string
@@ -11,7 +10,6 @@ export interface ChatConversation {
   messages?: ChatMessage[]
 }
 
-// Define types for database message
 export interface DbChatMessage extends ChatMessage {
   message_id: string
   conversation_id: string
@@ -19,13 +17,10 @@ export interface DbChatMessage extends ChatMessage {
   created_at: string
 }
 
-// Fetch all conversations for a user
 export const fetchConversations = async (userId: string | undefined): Promise<ChatConversation[]> => {
   if (!userId) return []
 
   try {
-    console.log("Fetching conversations for user:", userId)
-
     // Get all conversations
     const { data: conversations, error: conversationsError } = await supabase
       .from("chat_conversation")
@@ -39,11 +34,8 @@ export const fetchConversations = async (userId: string | undefined): Promise<Ch
     }
 
     if (!conversations || conversations.length === 0) {
-      console.log("No conversations found for user")
       return []
     }
-
-    console.log("Found", conversations.length, "conversations")
 
     // Get all messages for these conversations
     const conversationIds = conversations.map((conversation) => conversation.conversation_id)
@@ -54,17 +46,13 @@ export const fetchConversations = async (userId: string | undefined): Promise<Ch
       .order("created_at", { ascending: true })
 
     if (messagesError) {
-      console.error("Error fetching messages:", messagesError)
       return conversations
     }
-
-    console.log("Found", messages?.length || 0, "total messages across all conversations")
 
     // Map messages to their respective conversations
     const conversationsWithMessages = conversations.map((conversation) => {
       const conversationMessages =
         messages?.filter((message) => message.conversation_id === conversation.conversation_id) || []
-      console.log("Conversation", conversation.conversation_id, "has", conversationMessages.length, "messages")
 
       return {
         ...conversation,
@@ -87,8 +75,6 @@ export const fetchConversation = async (
   if (!userId) return null
 
   try {
-    console.log("Fetching conversation:", conversationId, "for user:", userId)
-
     // Get the conversation
     const { data: conversation, error: conversationError } = await supabase
       .from("chat_conversation")
@@ -98,7 +84,6 @@ export const fetchConversation = async (
       .single()
 
     if (conversationError) {
-      console.error("Error fetching conversation:", conversationError)
       return null
     }
 
@@ -106,8 +91,6 @@ export const fetchConversation = async (
       console.log("Conversation not found")
       return null
     }
-
-    console.log("Found conversation:", conversation.title)
 
     // Get all messages for this conversation
     const { data: messages, error: messagesError } = await supabase
@@ -120,8 +103,6 @@ export const fetchConversation = async (
       console.error("Error fetching messages:", messagesError)
       return conversation
     }
-
-    console.log("Found", messages?.length || 0, "messages for conversation")
 
     // Return conversation with messages
     return {
@@ -142,11 +123,8 @@ export const createConversation = async (
   if (!userId) return null
 
   try {
-    console.log("Creating new conversation for user:", userId)
-
     // Generate a title from the first message
     const title = generateTitleFromMessage(firstMessage)
-    console.log("Generated title:", title)
 
     // Create a new conversation
     const { data: conversation, error: conversationError } = await supabase
@@ -171,8 +149,6 @@ export const createConversation = async (
       console.error("No conversation returned after insert")
       return null
     }
-
-    console.log("Created conversation with ID:", conversation.conversation_id)
 
     // Add the first message
     const { data: message, error: messageError } = await supabase
@@ -217,8 +193,6 @@ export const addMessage = async (
   if (!userId) return null
 
   try {
-    console.log("Adding message to conversation:", conversationId, "Role:", role)
-
     // Add the message
     const { data: message, error: messageError } = await supabase
       .from("chat_message")
@@ -239,8 +213,6 @@ export const addMessage = async (
       return null
     }
 
-    console.log("Added message with ID:", message?.message_id)
-
     // Update the conversation's updated_at timestamp
     const { error: updateError } = await supabase
       .from("chat_conversation")
@@ -249,8 +221,6 @@ export const addMessage = async (
 
     if (updateError) {
       console.error("Error updating conversation timestamp:", updateError)
-    } else {
-      console.log("Updated conversation timestamp")
     }
 
     return message
@@ -260,34 +230,9 @@ export const addMessage = async (
   }
 }
 
-// Update a conversation's title
-export const updateConversationTitle = async (conversationId: string, title: string): Promise<boolean> => {
-  try {
-    console.log("Updating conversation title:", conversationId, "New title:", title)
-
-    const { error } = await supabase
-      .from("chat_conversation")
-      .update({ title: title, updated_at: new Date().toISOString() })
-      .eq("conversation_id", conversationId)
-
-    if (error) {
-      console.error("Error updating conversation title:", error)
-      return false
-    }
-
-    console.log("Updated conversation title successfully")
-    return true
-  } catch (error) {
-    console.error("Error in updateConversationTitle:", error)
-    return false
-  }
-}
-
 // Delete a conversation and all its messages
 export const deleteConversation = async (conversationId: string): Promise<boolean> => {
   try {
-    console.log("Deleting conversation:", conversationId)
-
     // First delete all messages for this conversation
     const { error: messagesError } = await supabase.from("chat_message").delete().eq("conversation_id", conversationId)
 
@@ -295,8 +240,6 @@ export const deleteConversation = async (conversationId: string): Promise<boolea
       console.error("Error deleting messages:", messagesError)
       return false
     }
-
-    console.log("Deleted all messages for conversation")
 
     // Then delete the conversation
     const { error: conversationError } = await supabase
@@ -309,7 +252,6 @@ export const deleteConversation = async (conversationId: string): Promise<boolea
       return false
     }
 
-    console.log("Deleted conversation successfully")
     return true
   } catch (error) {
     console.error("Error in deleteConversation:", error)
@@ -322,8 +264,6 @@ export const deleteAllConversations = async (userId: string | undefined): Promis
   if (!userId) return false
 
   try {
-    console.log("Deleting all conversations for user:", userId)
-
     // Get all conversation IDs for this user
     const { data: conversations, error: fetchError } = await supabase
       .from("chat_conversation")
@@ -339,10 +279,7 @@ export const deleteAllConversations = async (userId: string | undefined): Promis
       console.log("No conversations to delete")
       return true // No conversations to delete
     }
-
-    console.log("Found", conversations.length, "conversations to delete")
     const conversationIds = conversations.map((c) => c.conversation_id)
-
     // Delete all messages for these conversations
     const { error: messagesError } = await supabase.from("chat_message").delete().in("conversation_id", conversationIds)
 
@@ -350,8 +287,6 @@ export const deleteAllConversations = async (userId: string | undefined): Promis
       console.error("Error deleting messages:", messagesError)
       return false
     }
-
-    console.log("Deleted all messages for all conversations")
 
     // Delete all conversations
     const { error: conversationsError } = await supabase.from("chat_conversation").delete().eq("user_id", userId)
@@ -361,7 +296,6 @@ export const deleteAllConversations = async (userId: string | undefined): Promis
       return false
     }
 
-    console.log("Deleted all conversations successfully")
     return true
   } catch (error) {
     console.error("Error in deleteAllConversations:", error)

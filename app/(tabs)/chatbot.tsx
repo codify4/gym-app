@@ -1,8 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { router } from "expo-router"
-import { ChevronLeft, CirclePlus, GalleryVerticalEnd } from "lucide-react-native"
+import { CirclePlus, GalleryVerticalEnd } from "lucide-react-native"
 import {
   View,
   SafeAreaView,
@@ -24,7 +23,7 @@ import MessageList from "@/components/chatbot/messages"
 import HistorySheet from "@/components/chatbot/history-sheet"
 import { useAuth } from "@/context/auth"
 import { useChatHistory } from "@/hooks/use-chat"
-import { addMessage } from "@/lib/chat-history" // Import addMessage directly
+import { addMessage } from "@/lib/chat-history"
 
 const Chatbot = () => {
   const { session } = useAuth()
@@ -145,7 +144,6 @@ const Chatbot = () => {
 
       // If no current conversation, start a new one
       if (!currentConversation) {
-        console.log("Creating new conversation with message:", userMessage)
         const newConversation = await startNewConversation(userMessage)
 
         if (!newConversation) {
@@ -156,10 +154,8 @@ const Chatbot = () => {
         }
 
         conversationId = newConversation.conversation_id
-        console.log("New conversation created with ID:", conversationId)
       } else {
         // Add user message to existing conversation
-        console.log("Adding message to existing conversation:", currentConversation.conversation_id)
         await sendMessageToHistory(userMessage, "user")
         conversationId = currentConversation.conversation_id
       }
@@ -172,16 +168,13 @@ const Chatbot = () => {
       }, 100)
 
       // Send message to AI
-      console.log("Sending message to AI:", userMessage)
       const aiResponse = await sendMessageToAI(userMessage)
-      console.log("Received AI response:", aiResponse)
 
       // Add AI response to local messages for immediate display
       setLocalMessages((prev) => [...prev, { role: "assistant", content: aiResponse }])
 
-      // Add AI response to conversation in database - use direct function call with conversationId
+      // Add AI response to conversation in database
       if (conversationId && userId) {
-        console.log("Saving AI response to conversation:", conversationId)
         // Use the imported addMessage function directly instead of sendMessageToHistory
         const result = await addMessage(userId, conversationId, "assistant", aiResponse)
         console.log("Save result:", result ? "success" : "failed")
@@ -192,21 +185,14 @@ const Chatbot = () => {
     } catch (error) {
       console.error("Error in chat:", error)
 
-      // Add error message to local messages
       const errorMessage = "Sorry, I encountered an error. Please try again."
       setLocalMessages((prev) => [...prev, { role: "assistant", content: errorMessage }])
-
-      // Add error message to conversation in database
-      if (currentConversation) {
-        await sendMessageToHistory("Sorry, I encountered an error. Please try again.", "assistant")
-      }
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleSelectConversation = async (conversationId: string) => {
-    console.log("Loading conversation:", conversationId)
     const conversation = await loadConversation(conversationId)
     console.log("Loaded conversation with messages:", conversation?.messages?.length || 0)
     setIsHistoryOpen(false)
