@@ -34,7 +34,7 @@ const Exercises = () => {
     const addSheetRef = useRef<BottomSheet>();
     const infoSheetRef = useRef<BottomSheet>();
 
-    const [selectedWorkout, setSelectedWorkout] = useState(false);
+    const [selectedWorkoutIds, setSelectedWorkoutIds] = useState<string[]>([]);
     
     const handleOpenAddSheet = (exercise: ExerciseType) => {
         if (Platform.OS !== "web") {
@@ -44,7 +44,14 @@ const Exercises = () => {
     }
 
     const handleSelectedWorkout = (workout: Workout) => {
-        setSelectedWorkout(true);
+        if (selectedWorkoutIds.includes(workout.workout_id)) {
+            setSelectedWorkoutIds(selectedWorkoutIds.filter(id => id !== workout.workout_id));
+        } else {
+            setSelectedWorkoutIds([...selectedWorkoutIds, workout.workout_id]);
+        }
+        if (Platform.OS !== "web") {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }
     }
 
     const handleOpenInfoSheet = (exercise: ExerciseType) => {
@@ -77,21 +84,23 @@ const Exercises = () => {
 
             <BotSheet ref={addSheetRef} snapPoints={["60%"]}>
                 <View className='flex-col items-center justify-between w-full h-full pb-5'>
-                    <View className='flex-col items-center justify-center'>
-                        <Text className='font-poppins-semibold text-white text-xl'>Add Exercise</Text>
-                        <Text className='font-poppins text-white'>Select one or more workouts to add this exercise to.</Text>
-                    </View>
-                    <View className='w-full mt-5'>
-                        {workouts.map((workout, index) => (
-                            <TouchableOpacity 
-                                key={index} 
-                                className={`rounded-3xl`} 
-                                onPress={() => handleSelectedWorkout(workout)}
-                                style={selectedWorkout ? { borderColor: '#ef4444'}: { borderColor: '#f4f4f4'}}
-                            >
-                                <WorkoutCard workout={workout} pressable={false} />
-                            </TouchableOpacity>
-                        ))}
+                    <View className='flex-col items-center justify-center w-full'>
+                        <View className='flex-col items-center justify-center'>
+                            <Text className='font-poppins-semibold text-white text-xl'>Add Exercise</Text>
+                            <Text className='font-poppins text-white'>Select one or more workouts to add this exercise to.</Text>
+                        </View>
+                        <View className='w-full mt-5'>
+                            {workouts.map((workout, index) => (
+                                <TouchableOpacity 
+                                    key={index} 
+                                    className={`rounded-3xl ${selectedWorkoutIds.includes(workout.workout_id) ? 'border border-red-500' : 'border border-neutral-700'}`}
+                                    style={{ borderColor: selectedWorkoutIds.includes(workout.workout_id) ? '#ef4444' : '#f4f4f4'}}
+                                    onPress={() => handleSelectedWorkout(workout)}
+                                >
+                                    <WorkoutCard workout={workout} pressable={false} />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     </View>
 
                     <TouchableOpacity className='bg-white py-5 rounded-full mt-5 w-full'>
