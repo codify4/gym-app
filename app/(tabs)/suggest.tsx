@@ -132,7 +132,7 @@ const SuggestionsScreen = () => {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity className="flex-1">
+            <TouchableOpacity className="flex-1" onPress={() => router.push('/(tabs)/exercises')}>
               <View className="bg-neutral-900 rounded-3xl p-4">
                 <View className="self-start bg-[#FF3737]/20 p-2 rounded-xl mb-3">
                   <Dumbbell size={24} color="#FF3737" />
