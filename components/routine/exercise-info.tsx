@@ -55,7 +55,7 @@ const ExerciseInfo = ({ exercise }: { exercise: Exercise | Omit<Exercise, "exerc
               )}
             </View>
 
-            <View className="mb-6">
+            <View>
               <View className="flex-row items-center mb-4">
                 <Info size={24} color="#FF3737" />
                 <Text className="text-white text-xl font-poppins-semibold ml-2">How to perform</Text>

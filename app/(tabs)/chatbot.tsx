@@ -206,7 +206,7 @@ const Chatbot = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-black">
+    <SafeAreaView className={`flex-1 bg-black ${Platform.OS === "ios" ? "" : "pt-5"}`}>
       {/* History Sheet */}
       <HistorySheet
         isOpen={isHistoryOpen}

@@ -97,7 +97,7 @@ const UnitPicker = ({ title, icon: Icon, options, selectedValue, onValueChange }
                       key={option.value}
                       label={option.label}
                       value={option.value}
-                      color={Platform.OS === "android" ? "white" : undefined}
+                      color={Platform.OS === "android" ? "black" : undefined}
                     />
                   ))}
                 </Picker>

@@ -380,7 +380,7 @@ const Profile = () => {
         </ScrollView>
       </Animated.View>
 
-      <BotSheet snapPoints={["56%"]} ref={bottomSheetRef}>
+      <BotSheet snapPoints={["60%"]} ref={bottomSheetRef}>
         {renderPicker()}
       </BotSheet>
     </SafeAreaView>

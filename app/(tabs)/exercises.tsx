@@ -111,7 +111,7 @@ const Exercises = () => {
     };
 
     return (
-        <SafeAreaView className='flex-1 bg-black'>
+        <SafeAreaView className={`flex-1 bg-black ${Platform.OS === "ios" ? "" : "pt-5"}`}>
             <View className='flex-row items-center justify-between p-5'>
                 <ChevronLeft size={24} color={"white"} onPress={() => router.push('/(tabs)/suggest')} />
                 <Text className='text-white text-xl font-poppins-semibold'>Exercise Library</Text>
@@ -143,7 +143,7 @@ const Exercises = () => {
                 )}
             </ScrollView>
 
-            <BotSheet ref={addSheetRef} snapPoints={["60%"]}>
+            <BotSheet ref={addSheetRef} snapPoints={Platform.OS === "ios" ? ["63%"] : ["68%"]}>
                 <AddToWorkout 
                     workouts={workouts}
                     selectedWorkoutIds={selectedWorkoutIds}
@@ -153,7 +153,7 @@ const Exercises = () => {
                     addSheetRef={addSheetRef}
                 />
             </BotSheet>
-            <BotSheet ref={infoSheetRef} snapPoints={["88%"]}>
+            <BotSheet ref={infoSheetRef} snapPoints={["80%"]}>
                 <ExerciseInfo exercise={selectedExercise} />
             </BotSheet>
         </SafeAreaView>

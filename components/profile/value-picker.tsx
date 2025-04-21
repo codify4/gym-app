@@ -122,9 +122,6 @@ const AppleStylePicker = ({
       <TouchableOpacity style={styles.saveButton} onPress={onSave}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-
-      {/* Bottom Indicator */}
-      <View style={styles.bottomIndicator} />
     </View>
   )
 }
@@ -133,6 +130,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "space-between",
+    paddingBottom: 50
   },
   header: {
     width: "100%",
@@ -206,7 +205,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 50,
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: Platform.OS === "ios" ? 20 : 0,
   },
   saveButtonText: {
     color: "black",
