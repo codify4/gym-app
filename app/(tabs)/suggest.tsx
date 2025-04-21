@@ -9,9 +9,8 @@ import { MotiView } from "moti"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
 import { suggestionVideos, Video } from "@/constants/data"
-import YoutubePlayer from "react-native-youtube-iframe";
-import React from "react";
-import BotSheet from "@/components/bot-sheet";
+import YoutubePlayer from "react-native-youtube-iframe"
+import BotSheet from "@/components/bot-sheet"
 import BottomSheet from "@gorhom/bottom-sheet"
 
 const { width } = Dimensions.get("window")
@@ -27,24 +26,19 @@ const SuggestionsScreen = () => {
   const { session } = useAuth()
   const user = session?.user
 
-  const [playing, setPlaying] = useState(false);
-  const onStateChange = useCallback((state: any) => {    
-    if (state === "ended") {      
-      setPlaying(false);      
-      Alert.alert("video has finished playing!");    
-    }  
-  }, []);
-  const togglePlaying = useCallback(() => {    
-    setPlaying((prev) => !prev);  
-  }, []);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null)
+  const bottomSheetRef = useRef<BottomSheet>(null)
 
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const onStateChange = useCallback((state: any) => {    
+    if (state === "ended") {
+      Alert.alert("Video has finished playing!")    
+    }  
+  }, [])
 
   const openVideoSheet = (video: Video) => {
-    setSelectedVideo(video);
-    bottomSheetRef.current?.expand();
-  };
+    setSelectedVideo(video)
+    bottomSheetRef.current?.expand()
+  }
 
   // Group videos by module
   const groupedVideos = useMemo(() => {
@@ -78,17 +72,18 @@ const SuggestionsScreen = () => {
             style={{ width: VIDEO_WIDTH, height: VIDEO_HEIGHT, borderRadius: 16 }}
             className="bg-neutral-800"
           />
-          <View className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded-md flex-row items-center">
-            <Play size={12} color="#fff" />
-            <Text className="text-white text-xs font-poppins-medium ml-1">{video.duration}</Text>
-          </View>
           {video.difficulty && (
-            <View className="absolute top-2 left-2 bg-red-500/90 px-2 py-1 rounded-md">
+            <View className={`absolute bottom-2 right-2 ${
+              video.difficulty === "Easy" ? "bg-green-500/90" : 
+              video.difficulty === "Medium" ? "bg-blue-500/90" : 
+              "bg-red-500/90"
+            } px-2 py-1 rounded-md`}>
               <Text className="text-white text-xs font-poppins-medium">{video.difficulty}</Text>
             </View>
           )}
         </View>
         <Text className="text-white text-base font-poppins-medium mb-1">{video.title}</Text>
+        <Text className="text-neutral-400 text-xs font-poppins">{video.module}</Text>
       </TouchableOpacity>
     </MotiView>
   )
@@ -178,16 +173,14 @@ const SuggestionsScreen = () => {
 
       <BotSheet ref={bottomSheetRef} snapPoints={['70%']}>
         {selectedVideo && (
-          <View className="w-full flex-1 items-center justify-start">
+          <View className="w-full">
             <YoutubePlayer
               height={220}
-              width={width}
-              play={playing}
               videoId={selectedVideo.videoId}
               onChangeState={onStateChange}
             />
-            <View>
-              <Text className="text-white text-2xl font-poppins-semibold mt-4 mb-2">
+            <View className="px-2">
+              <Text className="text-white text-xl font-poppins-semibold mt-4 mb-2">
                 {selectedVideo.title}
               </Text>
               <View className="flex-row mb-4">
@@ -195,14 +188,24 @@ const SuggestionsScreen = () => {
                   <Text className="text-blue-500 font-poppins-medium">{selectedVideo.module}</Text>
                 </View>
                 {selectedVideo.difficulty && (
-                  <View className="bg-purple-500/20 px-3 py-1 rounded-full">
-                    <Text className="text-purple-500 font-poppins-medium">{selectedVideo.difficulty}</Text>
+                  <View className={`px-3 py-1 rounded-full ${
+                    selectedVideo.difficulty === "Easy" ? "bg-green-500/20" : 
+                    selectedVideo.difficulty === "Medium" ? "bg-blue-500/20" : 
+                    "bg-red-500/20"
+                  }`}>
+                    <Text className={`font-poppins-medium ${
+                      selectedVideo.difficulty === "Easy" ? "text-green-500" : 
+                      selectedVideo.difficulty === "Medium" ? "text-blue-500" : 
+                      "text-red-500"
+                    }`}>
+                      {selectedVideo.difficulty}
+                    </Text>
                   </View>
                 )}
               </View>
               {selectedVideo.tips && (
                 <View className="bg-neutral-800 rounded-xl p-4 mt-2">
-                  <Text className="text-white font-poppins-semibold text-lg mb-2">Tips</Text>
+                  <Text className="text-white font-poppins-semibold text-lg mb-2">Pro Tips</Text>
                   <Text className="text-gray-300 font-poppins">{selectedVideo.tips}</Text>
                 </View>
               )}
