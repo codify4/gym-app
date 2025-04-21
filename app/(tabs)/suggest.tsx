@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useState, useRef } from "react"
 import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions, FlatList, Platform, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Avatar } from "react-native-paper"
@@ -10,6 +10,9 @@ import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
 import { suggestionVideos, Video } from "@/constants/data"
 import YoutubePlayer from "react-native-youtube-iframe";
+import React from "react";
+import BotSheet from "@/components/bot-sheet";
+import BottomSheet from "@gorhom/bottom-sheet"
 
 const { width } = Dimensions.get("window")
 const VIDEO_WIDTH = width * 0.7
@@ -35,6 +38,14 @@ const SuggestionsScreen = () => {
     setPlaying((prev) => !prev);  
   }, []);
 
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+
+  const openVideoSheet = (video: Video) => {
+    setSelectedVideo(video);
+    bottomSheetRef.current?.expand();
+  };
+
   // Group videos by module
   const groupedVideos = useMemo(() => {
     const groups: { [key: string]: Video[] } = {}
@@ -57,7 +68,10 @@ const SuggestionsScreen = () => {
       transition={{ delay: index * 100 }}
       className="mr-4"
     >
-      <TouchableOpacity style={{ width: VIDEO_WIDTH }}>
+      <TouchableOpacity 
+        style={{ width: VIDEO_WIDTH }}
+        onPress={() => openVideoSheet(video)}
+      >
         <View className="mb-3">
           <Image
             source={{ uri: video.thumbnail }}
@@ -68,6 +82,11 @@ const SuggestionsScreen = () => {
             <Play size={12} color="#fff" />
             <Text className="text-white text-xs font-poppins-medium ml-1">{video.duration}</Text>
           </View>
+          {video.difficulty && (
+            <View className="absolute top-2 left-2 bg-red-500/90 px-2 py-1 rounded-md">
+              <Text className="text-white text-xs font-poppins-medium">{video.difficulty}</Text>
+            </View>
+          )}
         </View>
         <Text className="text-white text-base font-poppins-medium mb-1">{video.title}</Text>
       </TouchableOpacity>
@@ -156,6 +175,41 @@ const SuggestionsScreen = () => {
           {groupedVideos.map((group) => renderModuleSection(group))}
         </View>
       </ScrollView>
+
+      <BotSheet ref={bottomSheetRef} snapPoints={['70%']}>
+        {selectedVideo && (
+          <View className="w-full flex-1 items-center justify-start">
+            <YoutubePlayer
+              height={220}
+              width={width}
+              play={playing}
+              videoId={selectedVideo.videoId}
+              onChangeState={onStateChange}
+            />
+            <View>
+              <Text className="text-white text-2xl font-poppins-semibold mt-4 mb-2">
+                {selectedVideo.title}
+              </Text>
+              <View className="flex-row mb-4">
+                <View className="bg-blue-500/20 px-3 py-1 rounded-full mr-2">
+                  <Text className="text-blue-500 font-poppins-medium">{selectedVideo.module}</Text>
+                </View>
+                {selectedVideo.difficulty && (
+                  <View className="bg-purple-500/20 px-3 py-1 rounded-full">
+                    <Text className="text-purple-500 font-poppins-medium">{selectedVideo.difficulty}</Text>
+                  </View>
+                )}
+              </View>
+              {selectedVideo.tips && (
+                <View className="bg-neutral-800 rounded-xl p-4 mt-2">
+                  <Text className="text-white font-poppins-semibold text-lg mb-2">Tips</Text>
+                  <Text className="text-gray-300 font-poppins">{selectedVideo.tips}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+      </BotSheet>
     </SafeAreaView>
   )
 }

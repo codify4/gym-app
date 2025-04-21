@@ -38,10 +38,14 @@ export interface Stats {
 export interface Video {
   id: string
   title: string
-  duration: string
-  thumbnail: string
   module: string
+  thumbnail: string
+  duration: string
+  videoId: string // YouTube video ID
+  difficulty?: string // easy, medium, hard
+  tips?: string // Exercise tips to show in the bottom sheet
 }
+
 
   
 export const dummyWorkouts: Workout[] = [
@@ -254,6 +258,9 @@ export const suggestionVideos: Video[] = [
     duration: "3:22",
     thumbnail: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     module: "Module 1: Exercises",
+    videoId: "dQw4w9WgXcQ",
+    difficulty: "Hard",
+    tips: "Keep your back against the seat pad and avoid using momentum. Focus on squeezing the quads at the top of the movement."
   },
   {
     id: "2",
@@ -261,6 +268,9 @@ export const suggestionVideos: Video[] = [
     duration: "2:34",
     thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     module: "Module 1: Exercises",
+    videoId: "eozdVDA78K0",
+    difficulty: "Easy",
+    tips: "Maintain a slight bend in your elbows throughout the movement. Lower the weights in a wide arc until you feel a stretch in your chest."
   },
   {
     id: "3",
@@ -268,6 +278,9 @@ export const suggestionVideos: Video[] = [
     duration: "1:45",
     thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     module: "Module 1: Exercises",
+    videoId: "qEwKCR5JCog",
+    difficulty: "Medium",
+    tips: "Keep your core tight and avoid arching your back. Press the weights directly overhead, not forward or backward."
   },
   {
     id: "4",
@@ -275,6 +288,9 @@ export const suggestionVideos: Video[] = [
     duration: "0:16",
     thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     module: "Module 2: Mobility",
+    videoId: "4YRGzoCkAiE",
+    difficulty: "Easy",
+    tips: "Keep your back straight and rotate from your core. Breathe steadily throughout the exercise."
   },
   {
     id: "5",
@@ -282,6 +298,9 @@ export const suggestionVideos: Video[] = [
     duration: "0:24",
     thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     module: "Module 2: Mobility",
+    videoId: "5rnJTBkJ6lI",
+    difficulty: "Easy",
+    tips: "Focus on feeling the stretch across your chest. Hold for 20-30 seconds per side."
   },
   {
     id: "6",
@@ -289,5 +308,8 @@ export const suggestionVideos: Video[] = [
     duration: "1:12",
     thumbnail: "https://images.unsplash.com/photo-1646495001290-39103b31873a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     module: "Module 2: Mobility",
+    videoId: "JA7LCPn3mJw",
+    difficulty: "Easy",
+    tips: "Gently pull your head to the side until you feel a stretch in your trap. Don't force the stretch, and breathe deeply."
   },
 ]
