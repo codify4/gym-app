@@ -77,29 +77,22 @@ const SuggestionsScreen = () => {
 
         {/* Common Topics Section */}
         <View className="mb-8">
-          <View className="flex-row gap-4">
-            <TouchableOpacity className="flex-1">
-              <View className="bg-neutral-900 rounded-3xl p-4">
-                <View className="bg-[#3b82f6]/20 self-start p-2 rounded-xl mb-3">
-                  <Zap size={24} color="#3b82f6" />
+          <TouchableOpacity onPress={() => router.push('/(tabs)/exercises')}>
+            <View className="bg-neutral-900 rounded-3xl p-5">
+              <View className="flex-row items-center justify-between px-2">
+                <View>
+                  <View className="self-start bg-[#FF3737]/20 p-3 rounded-xl mb-3">
+                    <Dumbbell size={24} color="#FF3737" />
+                  </View>
+                  <Text className="text-white text-xl font-poppins-semibold mb-1">Exercise Library</Text>
+                  <Text className="text-neutral-400 text-base font-poppins mb-1">
+                    Browse and discover new exercises for your workouts
+                  </Text>
                 </View>
-                <Text className="text-white text-lg font-poppins-medium mb-1">Quick HIIT</Text>
-                <Text className="text-neutral-400 text-sm font-poppins mb-3">20-min workouts</Text>
-                <ChevronRight size={20} color="#666" />
+                <ChevronRight size={24} color="#666" />
               </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="flex-1" onPress={() => router.push('/(tabs)/exercises')}>
-              <View className="bg-neutral-900 rounded-3xl p-4">
-                <View className="self-start bg-[#FF3737]/20 p-2 rounded-xl mb-3">
-                  <Dumbbell size={24} color="#FF3737" />
-                </View>
-                <Text className="text-white text-lg font-poppins-medium mb-1">Exercise Library</Text>
-                <Text className="text-neutral-400 text-sm font-poppins mb-3">Browse exercises</Text>
-                <ChevronRight size={20} color="#666" />
-              </View>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* Videos Sections */}

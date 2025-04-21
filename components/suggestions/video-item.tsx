@@ -36,7 +36,6 @@ const VideoItem = ({ video, index, openVideoSheet }: { video: Video, index: numb
                     )}
                 </View>
                 <Text className="text-white text-base font-poppins-medium mb-1">{video.title}</Text>
-                <Text className="text-neutral-400 text-xs font-poppins">{video.module}</Text>
             </TouchableOpacity>
         </MotiView>   
     )
