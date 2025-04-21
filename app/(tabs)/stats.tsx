@@ -1,9 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { View, Text, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Platform } from "react-native"
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { LineChart } from "react-native-chart-kit"
 import { Calendar } from "react-native-calendars"
 import { Dumbbell, Flame, Clock } from "lucide-react-native"
 import StatCard from "@/components/stat-card"
@@ -11,8 +10,12 @@ import { router } from "expo-router"
 import { Avatar } from "react-native-paper"
 import { useAuth } from "@/context/auth"
 import { useWorkouts } from "@/hooks/use-workouts"
+import { RadarChart } from "@salmonco/react-native-radar-chart"
 
-const { width: screenWidth } = Dimensions.get("window")
+// Common body parts for workouts
+const COMMON_BODY_PARTS = [
+  "Chest", "Back", "Legs", "Arms", "Shoulders", "Core", "Cardio"
+]
 
 const Stats = () => {
   const [selected, setSelected] = useState("")
@@ -37,7 +40,76 @@ const Stats = () => {
   const [workoutTrend, setWorkoutTrend] = useState(0)
   const [calorieTrend, setCalorieTrend] = useState(0)
   const [durationTrend, setDurationTrend] = useState(0)
+  
+  // Body part distribution data
+  const [bodyPartRadarData, setBodyPartRadarData] = useState<{label: string, value: number}[]>([])
+  
+  // Function to analyze workout data by body part for radar chart
+  const analyzeWorkoutsByBodyPart = () => {
+    if (!workouts.length || !completedWorkoutsData.length) return
+    
+    // Count workouts by body part
+    const bodyPartCounts: Record<string, number> = {}
+    
+    // Initialize with zero counts for common body parts
+    COMMON_BODY_PARTS.forEach(part => {
+      bodyPartCounts[part] = 0
+    })
+    
+    // First create a map of workout IDs to their body parts
+    const workoutBodyParts = new Map<string, string>()
+    workouts.forEach(workout => {
+      const bodyPart = workout.body_part || "General"
+      workoutBodyParts.set(workout.workout_id, bodyPart)
+    })
+    
+    // Now count completed workouts by body part
+    completedWorkoutsData.forEach(completedWorkout => {
+      // Get the body part from the workout map
+      const workoutId = (completedWorkout as any).workout_id
+      if (!workoutId) return
+      
+      let bodyPart = workoutBodyParts.get(workoutId) || "General"
+      
+      // Map to common categories if needed
+      if (!COMMON_BODY_PARTS.includes(bodyPart)) {
+        if (bodyPart.includes("Chest")) bodyPart = "Chest"
+        else if (bodyPart.includes("Back")) bodyPart = "Back"
+        else if (bodyPart.includes("Leg")) bodyPart = "Legs"
+        else if (bodyPart.includes("Arm") || bodyPart.includes("Bicep") || bodyPart.includes("Tricep")) bodyPart = "Arms"
+        else if (bodyPart.includes("Shoulder")) bodyPart = "Shoulders"
+        else if (bodyPart.includes("Core") || bodyPart.includes("Ab")) bodyPart = "Core"
+        else if (bodyPart.includes("Cardio")) bodyPart = "Cardio"
+        else bodyPart = "General"
+      }
+      
+      bodyPartCounts[bodyPart] = (bodyPartCounts[bodyPart] || 0) + 1
+    })
+    
+    // Convert to format for radar chart - include ALL body parts, even with zero counts
+    const radarData: {label: string, value: number}[] = []
+    
+    // Include all common body parts in the radar chart
+    COMMON_BODY_PARTS.forEach(part => {
+      radarData.push({
+        label: part,
+        value: bodyPartCounts[part] || 0
+      })
+    })
+    
+    // Check if we have any data at all
+    const hasAnyWorkouts = radarData.some(item => item.value > 0)
+    
+    if (!hasAnyWorkouts) {
+      // If no workouts at all, return empty array so we show the "Not enough data" message
+      setBodyPartRadarData([])
+      return
+    }
+    
+    setBodyPartRadarData(radarData)
+  }
 
+  // Main stats effect
   useEffect(() => {
     setTotalWorkouts(completedWorkoutsData.length)
 
@@ -63,8 +135,11 @@ const Stats = () => {
     })
 
     setWorkoutDates(dates)
+    
+    // Analyze workout data by body part
+    analyzeWorkoutsByBodyPart()
   }, [
-    workouts,
+    workouts, 
     completedWorkoutsData,
     getTotalCaloriesBurned,
     getTotalWorkoutDuration,
@@ -72,43 +147,6 @@ const Stats = () => {
     getCalorieTrend,
     getDurationTrend,
   ])
-
-  const weightData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-    datasets: [
-      {
-        data: [68, 69, 70, 72, 73, 71],
-        color: (opacity = 1) => `rgba(255, 55, 55, ${opacity})`,
-        strokeWidth: 4,
-      },
-    ],
-  }
-
-  const chartConfig = {
-    backgroundColor: "#171717",
-    backgroundGradientFrom: "#171717",
-    backgroundGradientTo: "#171717",
-    decimalPlaces: 0,
-    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-    style: {
-      borderRadius: 16,
-    },
-    propsForDots: {
-      r: "4",
-      strokeWidth: "1",
-      stroke: "#FF3737",
-      fill: "#FF3737",
-    },
-    propsForBackgroundLines: {
-      strokeDasharray: "6",
-      stroke: "rgba(255, 255, 255)",
-      strokeWidth: 1,
-    },
-    fillShadowGradientFrom: "rgba(255, 55, 55, 0.2)",
-    fillShadowGradientTo: "rgba(255, 55, 55, 0)",
-    paddingRight: 20,
-  }
 
   const formattedCalories = totalCalories.toLocaleString()
   const formattedDuration = `${avgDuration} min`
@@ -160,28 +198,43 @@ const Stats = () => {
               iconColor="#FF3737"
             />
           </View>
-
+          
+          {/* Body Part Distribution Chart */}
           <View className="flex items-center justify-center gap-2 bg-neutral-900 rounded-3xl p-4 w-full overflow-hidden mb-4">
-            <Text className="text-white text-2xl font-poppins-semibold mb-2">Weight Progress</Text>
-            <View className="px-2 ml-2 -mx-4">
-              <LineChart
-                data={weightData}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                bezier
-                withInnerLines={false}
-                withOuterLines={false}
-                withVerticalLines={false}
-                withHorizontalLines={true}
-                withVerticalLabels={true}
-                withHorizontalLabels={true}
-                fromZero={false}
-                style={{
-                  borderRadius: 24,
-                }}
-                withDots={true}
-              />
+            <Text className="text-white text-2xl font-poppins-semibold mb-4">Training Focus</Text>
+            <View className="px-2 items-center">
+              {completedWorkoutsData.length === 0 ? (
+                <View className="h-[300px] w-full items-center justify-center">
+                  <Text className="text-white text-lg text-center">No workout data yet</Text>
+                  <TouchableOpacity 
+                    className="mt-4 bg-[#FF3737] rounded-full px-5 py-2"
+                    onPress={() => router.push("/(tabs)")}
+                  >
+                    <Text className="text-white font-poppins-semibold">Start a Workout</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : bodyPartRadarData.length === 0 ? (
+                <View className="h-[300px] w-full items-center justify-center">
+                  <Text className="text-white text-lg text-center">Not enough data</Text>
+                </View>
+              ) : (
+                <RadarChart
+                  data={bodyPartRadarData}
+                  size={300}
+                  maxValue={Math.max(...bodyPartRadarData.map(item => item.value)) + 1}
+                  dataFillColor="#FF3737"
+                  dataFillOpacity={0.8}
+                  dataStroke="#FF3737"
+                  dataStrokeWidth={2}
+                  fillColor="#1F1F1F"
+                  fillOpacity={1}
+                  stroke={['#333', '#444', '#555', '#666', '#777']}
+                  strokeWidth={[0.5, 0.5, 0.5, 0.5, 0.5]}
+                  labelColor="#FFFFFF"
+                  labelSize={12}
+                  labelFontFamily="Poppins-Medium"
+                />
+              )}
             </View>
           </View>
 

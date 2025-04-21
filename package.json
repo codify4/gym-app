@@ -26,6 +26,7 @@
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/native-stack": "^7.2.0",
     "@rneui/themed": "^4.0.0-rc.8",
+    "@salmonco/react-native-radar-chart": "^0.0.26",
     "@supabase/supabase-js": "^2.48.1",
     "expo": "~52.0.28",
     "expo-auth-session": "~6.0.3",
