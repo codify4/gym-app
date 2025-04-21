@@ -21,7 +21,7 @@ const BotSheet = forwardRef(({ children, snapPoints }: { children: React.ReactNo
                 snapPoints={snapPoints}
                 index={-1} 
                 enablePanDownToClose
-                // backdropComponent={renderBackdrop}
+                backdropComponent={renderBackdrop}
                 handleStyle={{ backgroundColor: "#171717", borderTopLeftRadius: 40, borderTopRightRadius: 50, }} 
                 handleIndicatorStyle={{ backgroundColor: "white" }} 
                 backgroundStyle={{

@@ -7,7 +7,6 @@ import { View, Text, TouchableOpacity, Dimensions } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, Layout } from "react-native-reanimated"
 import type { Workout } from "@/lib/workouts"
-import type { Exercise } from "@/lib/exercises"
 import { formatCalories } from "@/utils/calories"
 
 interface WorkoutCardProps {
@@ -26,12 +25,6 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
   const lastPerformed = workout.last_performed
     ? new Date(workout.last_performed).toLocaleDateString("en-US", { month: "short", day: "numeric" })
     : "Not performed yet"
-
-  const countExercises = (exercises: Exercise[] | undefined) => {
-    if (!exercises) return 0
-    if (exercises.length === 1) return "1 exercise"
-    return `${exercises.length} exercises`
-  }
 
   // Animation values
   const translateX = useSharedValue(0)
@@ -79,7 +72,7 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
       <View className="flex-row items-center mb-2">
         <Dumbbell size={16} color="#FF3737" />
         <Text className="text-neutral-400 text-base font-poppins-medium ml-1 mr-3">
-          {countExercises(workout.exercises)}
+          {workout.exercises?.length || 0} {workout.exercises?.length === 1 ? "exercise" : "exercises"}
         </Text>
         <Timer size={16} color="#FF3737" />
         <Text className="text-neutral-400 text-base font-poppins-medium ml-1 mr-3">{workout.duration} min</Text>
