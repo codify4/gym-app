@@ -6,7 +6,7 @@ import { getExerciseTips } from "@/utils/exercise-tips"
 import { getImageSource } from "@/utils/exercise-muscle"
 import { useUnits } from "@/context/units-context"
 
-const ExerciseInfo = ({ exercise }: { exercise: Exercise }) => {
+const ExerciseInfo = ({ exercise }: { exercise: Exercise | Omit<Exercise, "exercise_id"> }) => {
   const { weightUnit, formatWeight, convertWeight } = useUnits()
   // Get tips based on exercise name and body part
   const tipsList =

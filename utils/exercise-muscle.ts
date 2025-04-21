@@ -1,7 +1,7 @@
 import { Exercise, getExerciseImage } from "@/lib/exercises"
 
 // Add this helper function to the ExerciseCard component to handle image rendering
-export const getImageSource = (exercise: Exercise) => {
+export const getImageSource = (exercise: Exercise | Omit<Exercise, "exercise_id">) => {
   if (!exercise.image) {
     // If no image is provided, use the getExerciseImage function
     return getExerciseImage(exercise.name)

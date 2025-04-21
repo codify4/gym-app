@@ -5,7 +5,7 @@ import { CirclePlus, InfoIcon } from 'lucide-react-native'
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 
 interface ExerciseCardProps {
-    exercise: ExerciseType
+    exercise: Omit<ExerciseType, "exercise_id">
     index: number
     onInfoPress: () => void
     onAddPress: () => void

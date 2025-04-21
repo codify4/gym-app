@@ -15,7 +15,7 @@ import { exercisesList } from '@/constants/exercise-list'
 import AddToWorkout from '@/components/suggestions/add-to-workout'
 
 // Import exercises from the constants file
-export const exercises: ExerciseType[] = exercisesList;
+export const exercises = exercisesList;
 
 const Exercises = () => {
     const { session } = useAuth();
@@ -25,7 +25,7 @@ const Exercises = () => {
     const addSheetRef = useRef<BottomSheet>(null);
     const infoSheetRef = useRef<BottomSheet>(null);
 
-    const [selectedExercise, setSelectedExercise] = useState<ExerciseType>(exercises[0]);
+    const [selectedExercise, setSelectedExercise] = useState(exercises[0]);
     const [selectedWorkoutIds, setSelectedWorkoutIds] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isAdding, setIsAdding] = useState(false);
@@ -38,7 +38,7 @@ const Exercises = () => {
             ex.body_part?.toLowerCase().includes(searchQuery.toLowerCase())
           );
 
-    const handleOpenAddSheet = (exercise: ExerciseType) => {
+    const handleOpenAddSheet = (exercise: any) => {
         setSelectedExercise(exercise);
         setSelectedWorkoutIds([]);
         if (Platform.OS !== "web") {
@@ -131,7 +131,7 @@ const Exercises = () => {
             <ScrollView className='px-5 mt-5 h-full'>
                 {filteredExercises.map((exercise, index) => (
                     <Exercise 
-                        key={exercise.exercise_id}
+                        key={index}
                         exercise={exercise}
                         index={index}
                         onInfoPress={() => handleOpenInfoSheet()}

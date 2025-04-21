@@ -235,11 +235,14 @@ export const getExerciseImage = (exerciseName: string, bodyPart?: string): any =
   
       const body_part = workout?.body_part || exerciseData.body_part || "All"
   
+      // Create a data object without exercise_id to let the database auto-generate it
+      const { exercise_id, ...dataWithoutId } = exerciseData;
+      
       const { data, error } = await supabase
         .from("exercise")
         .insert([
           {
-            ...exerciseData,
+            ...dataWithoutId,
             image: imagePath, // Store the path in the database
             workout_id: workoutId,
             user_id: userId, // Add user_id to satisfy RLS policy
