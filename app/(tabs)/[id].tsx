@@ -163,8 +163,29 @@ const WorkoutDetailScreen = () => {
   }
 
   // Default image if none is provided
-  const imageUrl =
-    workout.image || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2070&auto=format&fit=crop"
+  const getWorkoutImage = () => {
+    if (workout.image) return workout.image
+    
+    const bodyPart = workout.body_part?.toLowerCase() || '';
+    
+    if (bodyPart.includes('chest')) {
+      return 'https://images.pexels.com/photos/7289250/pexels-photo-7289250.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+    } else if (bodyPart.includes('back')) {
+      return 'https://images.pexels.com/photos/31329758/pexels-photo-31329758/free-photo-of-man-performing-exercise-on-lat-pulldown-machine.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+    } else if (bodyPart.includes('bicep') || bodyPart.includes('arm')) {
+      return 'https://images.pexels.com/photos/6550845/pexels-photo-6550845.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+    } else if (bodyPart.includes('tricep')) {
+      return 'https://images.pexels.com/photos/6243176/pexels-photo-6243176.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+    } else if (bodyPart.includes('shoulder')) {
+      return 'https://images.unsplash.com/photo-1532029837206-abbe2b7620e3?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+    } else if (bodyPart.includes('leg') || bodyPart.includes('knee')) {
+      return 'https://images.unsplash.com/photo-1574680178050-55c6a6a96e0a?q=80&w=1769&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+    } else {
+      return 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2070&auto=format&fit=crop';
+    }
+  }
+  
+  const imageSource = getWorkoutImage();
   const isCompleted = userId ? isWorkoutCompletedOnDate(workout.workout_id) : false
 
   return (
@@ -175,7 +196,11 @@ const WorkoutDetailScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <View className="relative w-full" style={{ height: windowHeight / 2 }}>
-          <Image source={{ uri: imageUrl }} className="size-full" resizeMode="cover" />
+          <Image 
+            source={typeof imageSource === 'string' ? { uri: imageSource } : imageSource} 
+            className="size-full" 
+            resizeMode="cover" 
+          />
           <View className="absolute inset-0 bg-black/40" />
         </View>
 
