@@ -25,12 +25,12 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
   const [workoutData, setWorkoutData] = useState<{
     title: string
     duration: string
-    body_part: string
+    body_part: string[]
     image: string | null
   }>({
     title: "",
     duration: "",
-    body_part: "All",
+    body_part: ["All"],
     image: null,
   })
 
@@ -100,7 +100,9 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
 
     // If the name field is being updated, automatically set the image based on the exercise name
     if (field === "name" && value) {
-      newExercises[index].image = getExerciseImage(value, workoutData.body_part)
+      // Use the first body part in the array, or "All" if empty
+      const bodyPart = workoutData.body_part.length > 0 ? workoutData.body_part[0] : "All"
+      newExercises[index].image = getExerciseImage(value, bodyPart)
     }
 
     setExercises(newExercises)
@@ -135,11 +137,14 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       const currentDate = new Date()
       const formattedDate = currentDate.toISOString().split("T")[0] + "T00:00:00Z"
 
+      // Join the body parts array into a comma-separated string for database storage
+      const bodyPartString = workoutData.body_part.join(",")
+
       console.log("Adding workout with data:", {
         workoutData: {
           title: workoutData.title,
           duration: durationNumber,
-          body_part: workoutData.body_part,
+          body_part: bodyPartString,
           image: workoutData.image,
           last_performed: formattedDate,
           user_id: userId,
@@ -151,7 +156,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
         {
           title: workoutData.title,
           duration: durationNumber,
-          body_part: workoutData.body_part,
+          body_part: bodyPartString,
           image: workoutData.image,
           last_performed: formattedDate,
           user_id: userId,
@@ -160,12 +165,11 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
       )
 
       if (result) {
-        console.log("Workout created successfully:", result)
         // Reset form
         setWorkoutData({
           title: "",
           duration: "",
-          body_part: "All",
+          body_part: ["All"],
           image: null,
         })
         setExercises([
@@ -228,16 +232,49 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
 
         {/* Body Part Selection */}
         <View className="mb-6">
-          <Text className="text-white text-lg font-poppins-medium mb-2">Target Body Part</Text>
+          <Text className="text-white text-lg font-poppins-medium mb-2">Target Body Parts (Select Multiple)</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {bodyParts.map((part, index) => (
               <TouchableOpacity
                 key={index}
-                className={`mr-2 px-6 py-2 rounded-full ${workoutData.body_part === part.name ? "bg-white" : "bg-neutral-800"}`}
-                onPress={() => setWorkoutData((prev) => ({ ...prev, body_part: part.name }))}
+                className={`mr-2 px-6 py-2 rounded-full ${workoutData.body_part.includes(part.name) ? "bg-white" : "bg-neutral-800"}`}
+                onPress={() => {
+                  setWorkoutData((prev) => {
+                    // Check if this body part is already selected
+                    if (prev.body_part.includes(part.name)) {
+                      // Don't remove if it's the only one selected
+                      if (prev.body_part.length === 1) {
+                        return prev
+                      }
+                      // Remove this body part from the selection
+                      return {
+                        ...prev,
+                        body_part: prev.body_part.filter((bp) => bp !== part.name)
+                      }
+                    } else {
+                      // Special case for "All" - if selecting "All", clear others
+                      if (part.name === "All") {
+                        return {
+                          ...prev,
+                          body_part: ["All"]
+                        }
+                      }
+                      
+                      // If currently "All" is selected and adding another, remove "All"
+                      const newBodyParts = prev.body_part.includes("All") 
+                        ? [part.name] 
+                        : [...prev.body_part, part.name]
+                      
+                      return {
+                        ...prev,
+                        body_part: newBodyParts
+                      }
+                    }
+                  })
+                }}
               >
                 <Text
-                  className={`text-lg font-poppins-medium ${workoutData.body_part === part.name ? "text-black" : "text-white"}`}
+                  className={`text-lg font-poppins-medium ${workoutData.body_part.includes(part.name) ? "text-black" : "text-white"}`}
                 >
                   {part.name}
                 </Text>
