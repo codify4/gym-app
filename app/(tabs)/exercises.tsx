@@ -3,7 +3,7 @@ import BottomSheet from '@gorhom/bottom-sheet'
 import { router } from 'expo-router'
 import { ChevronLeft, Search } from 'lucide-react-native'
 import { useRef, useState } from 'react'
-import { View, Text, SafeAreaView, TextInput, ScrollView, Platform, Touchable, TouchableOpacity } from 'react-native'
+import { View, Text, SafeAreaView, TextInput, ScrollView, Platform, TouchableOpacity } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import Exercise from '@/components/suggestions/exercise'
 import { Exercise as ExerciseType } from '@/lib/exercises'
@@ -12,19 +12,10 @@ import { useWorkouts } from '@/hooks/use-workouts'
 import { useAuth } from '@/context/auth'
 import WorkoutCard from '@/components/routine/routine-card'
 import { Workout } from '@/lib/workouts'
+import { exercisesList } from '@/constants/exercise-list'
 
-export const exercises: ExerciseType[] = [
-    {
-        exercise_id: 1,
-        name: "Bench Press",
-        sets: 3,
-        reps: 8,
-        weight: 100,
-        image: require("@/assets/images/anatomy/chest.png"),
-        tips: "Keep your back arched and drive through your feet.",
-        body_part: "chest"
-    }
-]
+// Import exercises from the constants file
+export const exercises: ExerciseType[] = exercisesList;
 
 const Exercises = () => {
     const { session } = useAuth();
@@ -34,9 +25,20 @@ const Exercises = () => {
     const addSheetRef = useRef<BottomSheet>();
     const infoSheetRef = useRef<BottomSheet>();
 
+    const [selectedExercise, setSelectedExercise] = useState<ExerciseType>(exercises[0]);
     const [selectedWorkoutIds, setSelectedWorkoutIds] = useState<string[]>([]);
+    const [searchQuery, setSearchQuery] = useState<string>('');
     
+    // Filter exercises based on search query
+    const filteredExercises = searchQuery.trim() === '' 
+        ? exercises 
+        : exercises.filter(ex => 
+            ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            ex.body_part?.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+
     const handleOpenAddSheet = (exercise: ExerciseType) => {
+        setSelectedExercise(exercise);
         if (Platform.OS !== "web") {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         }
@@ -55,6 +57,7 @@ const Exercises = () => {
     }
 
     const handleOpenInfoSheet = (exercise: ExerciseType) => {
+        setSelectedExercise(exercise);
         if (Platform.OS !== "web") {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         }
@@ -70,16 +73,28 @@ const Exercises = () => {
             </View>
             <View className='flex-row items-center justify-start bg-neutral-900 rounded-3xl p-5 mt-4 gap-3 mx-5 border border-neutral-700'>
                 <Search size={24} color={"white"} />
-                <TextInput placeholder='Search for an exercise' className='bg-neutral-900 rounded-3xl font-poppins' />
+                <TextInput 
+                    placeholder='Search for an exercise' 
+                    className='bg-neutral-900 rounded-3xl font-poppins flex-1 text-white'
+                    placeholderTextColor="#666"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
             </View>
 
-            <ScrollView className='px-5 mt-5'>
-                <Exercise 
-                    exercise={exercises[0]}
-                    index={0}
-                    onInfoPress={() => handleOpenInfoSheet(exercises[0])}
-                    onAddPress={() => handleOpenAddSheet(exercises[0])}
-                />
+            <ScrollView className='px-5 mt-5 h-full'>
+                {filteredExercises.map((exercise, index) => (
+                    <Exercise 
+                        key={exercise.exercise_id}
+                        exercise={exercise}
+                        index={index}
+                        onInfoPress={() => handleOpenInfoSheet(exercise)}
+                        onAddPress={() => handleOpenAddSheet(exercise)}
+                    />
+                ))}
+                {filteredExercises.length === 0 && (
+                    <Text className='text-white text-center mt-10'>No exercises found matching "{searchQuery}"</Text>
+                )}
             </ScrollView>
 
             <BotSheet ref={addSheetRef} snapPoints={["60%"]}>
@@ -109,9 +124,7 @@ const Exercises = () => {
                 </View>
             </BotSheet>
             <BotSheet ref={infoSheetRef} snapPoints={["88%"]}>
-                <Text className='font-poppins-semibold text-white text-xl'>
-                    <ExerciseInfo exercise={exercises[0]} />
-                </Text>
+                <ExerciseInfo exercise={selectedExercise} />
             </BotSheet>
         </SafeAreaView>
   )

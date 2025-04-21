@@ -1,7 +1,7 @@
 import { Exercise as ExerciseType } from '@/lib/exercises'
 import { getImageSource } from '@/utils/exercise-muscle'
 import { LinearGradient } from 'expo-linear-gradient'
-import { CirclePlus, Dumbbell, InfoIcon } from 'lucide-react-native'
+import { CirclePlus, InfoIcon } from 'lucide-react-native'
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 
 interface ExerciseCardProps {
@@ -17,7 +17,7 @@ const Exercise = ({ exercise, index, onInfoPress, onAddPress }: ExerciseCardProp
             colors={["#2A2A2A", "#1A1A1A"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ borderRadius: 24, flexDirection: 'row', paddingVertical: 20, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'space-between' }}
+            style={{ borderRadius: 24, flexDirection: 'row', paddingVertical: 20, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}
         >
             <View className='flex-row items-center gap-3'>
                 <Image source={getImageSource(exercise)} style={{ width: 40, height: 80 }} resizeMode='contain' />
