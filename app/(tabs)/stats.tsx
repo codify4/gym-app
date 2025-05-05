@@ -12,6 +12,17 @@ import { useAuth } from "@/context/auth"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { RadarChart } from "@salmonco/react-native-radar-chart"
 
+// Simple day labels for calendar header
+const CustomDayLabels = () => (
+  <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10 }}>
+    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+      <Text key={index} style={{ color: '#ffffff', fontSize: 14 }}>
+        {day}
+      </Text>
+    ))}
+  </View>
+);
+
 // Common body parts for workouts
 const COMMON_BODY_PARTS = [
   "Chest", "Back", "Legs", "Arms", "Shoulders", "Core", "Cardio"
@@ -239,6 +250,7 @@ const Stats = () => {
           </View>
 
           <View className="bg-neutral-900 rounded-3xl p-4 mb-10">
+            <CustomDayLabels />
             <Calendar
               theme={{
                 backgroundColor: "transparent",
@@ -265,9 +277,26 @@ const Stats = () => {
               }}
               style={{ borderRadius: 24 }}
               markedDates={{
-                [selected]: { selected: true, disableTouchEvent: true, selectedDotColor: "#FF3737" },
+                [selected]: { selected: true, disableTouchEvent: true, selectedColor: "#FF3737" },
                 ...workoutDates,
               }}
+              firstDay={1}
+              renderHeader={(date) => (
+                <Text style={{ fontSize: 18, color: "#fff", fontWeight: "bold", padding: 10 }}>
+                  {date.getMonth() === 0 ? 'January' : 
+                   date.getMonth() === 1 ? 'February' : 
+                   date.getMonth() === 2 ? 'March' : 
+                   date.getMonth() === 3 ? 'April' : 
+                   date.getMonth() === 4 ? 'May' : 
+                   date.getMonth() === 5 ? 'June' : 
+                   date.getMonth() === 6 ? 'July' : 
+                   date.getMonth() === 7 ? 'August' : 
+                   date.getMonth() === 8 ? 'September' : 
+                   date.getMonth() === 9 ? 'October' : 
+                   date.getMonth() === 10 ? 'November' : 'December'} {date.getFullYear()}
+                </Text>
+              )}
+              hideDayNames={true}
             />
           </View>
         </View>

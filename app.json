@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icons/ios-light.png",
     "scheme": "workoutmate",
-    "runtimeVersion": "exposdk:52.0.0",
+    "runtimeVersion": "exposdk:53.0.0",
     "updates": {
       "url": "https://u.expo.dev/c3105c05-6893-4488-8583-9f95d8b8676a"
     },
@@ -66,7 +66,8 @@
         "backgroundColor": "#121212",
         "barStyle": "light-content"
       },
-      "package": "com.ijon007.workoutmate"
+      "package": "com.ijon007.workoutmate",
+      "edgeToEdge": true
     },
     "web": {
       "bundler": "metro",
