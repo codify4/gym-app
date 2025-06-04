@@ -16,7 +16,7 @@ const MessageList = ({ messages, user }: MessageListProps) => {
         <Text className="text-white text-4xl font-poppins-bold mb-3 mt-3">Mate</Text>
         <Text className="text-neutral-400 text-base font-poppins-semibold">Talk to Mate</Text>
         <Text className="text-neutral-500 text-base font-poppins mt-4 text-center">
-          Ask me anything about workouts, nutrition, or fitness goals. I'm here to help!
+          Ask me anything (almost) about workouts, nutrition, or fitness goals. I'm here to help!
         </Text>
       </View>
     )
