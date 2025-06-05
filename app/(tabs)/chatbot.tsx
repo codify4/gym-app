@@ -16,7 +16,9 @@ import {
   Alert,
   Text,
 } from "react-native"
-import { sendMessage as sendMessageToAI } from "@/lib/gemini-service"
+import { useChat } from "@ai-sdk/react"
+import { fetch as expoFetch } from "expo/fetch"
+import { generateAPIUrl } from "@/utils/api"
 import TypingIndicator from "@/components/chatbot/typing"
 import PromptInput from "@/components/chatbot/prompt-input"
 import MessageList from "@/components/chatbot/messages"
@@ -30,18 +32,28 @@ const Chatbot = () => {
   const user = session?.user
   const userId = user?.id
 
-  const [message, setMessage] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
-
-  // Add local messages state for immediate display
-  const [localMessages, setLocalMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([])
 
   const bottomMargin = useRef(new Animated.Value(60)).current
   const scrollViewRef = useRef<ScrollView>(null)
   const contentTranslateX = useRef(new Animated.Value(0)).current
   const { width } = Dimensions.get("window")
   const sheetWidth = width * 0.8 // 80% of screen width
+
+  // Use the AI SDK useChat hook
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
+    fetch: expoFetch as unknown as typeof globalThis.fetch,
+    api: generateAPIUrl("/api/chat"),
+    onError: (error) => console.error(error, "ERROR"),
+    maxSteps: 5,
+    onFinish: async (message) => {
+      // Save AI response to chat history
+      if (currentConversation?.conversation_id && userId) {
+        await addMessage(userId, currentConversation.conversation_id, "assistant", message.content)
+        await loadConversation(currentConversation.conversation_id)
+      }
+    },
+  })
 
   // Use the chat history hook
   const {
@@ -56,17 +68,20 @@ const Chatbot = () => {
     setCurrentConversation,
   } = useChatHistory(userId)
 
-  // Get messages from current conversation or use local messages if no conversation exists
-  const messages = currentConversation?.messages || localMessages
-
-  // Update local messages when current conversation changes
+  // Update messages when current conversation changes
   useEffect(() => {
     if (currentConversation?.messages) {
-      setLocalMessages(currentConversation.messages)
+      // Convert chat history messages to AI SDK format
+      const aiMessages = currentConversation.messages.map((msg) => ({
+        id: Math.random().toString(),
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+      }))
+      setMessages(aiMessages)
     } else {
-      setLocalMessages([])
+      setMessages([])
     }
-  }, [currentConversation])
+  }, [currentConversation, setMessages])
 
   // Handle history sheet open/close animation for main content
   useEffect(() => {
@@ -129,15 +144,10 @@ const Chatbot = () => {
     }
   }, [isLoading])
 
-  const handleSend = async () => {
-    if (message.trim() === "" || isLoading) return
+  const handleSend = async (e?: any) => {
+    if (input.trim() === "" || isLoading) return
 
-    const userMessage = message.trim()
-    setMessage("") // Clear input immediately
-    setIsLoading(true)
-
-    // Immediately add user message to local state for display
-    setLocalMessages((prev) => [...prev, { role: "user", content: userMessage }])
+    const userMessage = input.trim()
 
     try {
       let conversationId: string | undefined
@@ -148,7 +158,6 @@ const Chatbot = () => {
 
         if (!newConversation) {
           console.error("Failed to create new conversation")
-          setIsLoading(false)
           Alert.alert("Error", "Failed to create new conversation")
           return
         }
@@ -160,35 +169,18 @@ const Chatbot = () => {
         conversationId = currentConversation.conversation_id
       }
 
+      // Call the AI SDK handleSubmit
+      handleSubmit(e)
+
       // Scroll to bottom to show the user's message
       setTimeout(() => {
         if (scrollViewRef.current) {
           scrollViewRef.current.scrollToEnd({ animated: true })
         }
       }, 100)
-
-      // Send message to AI
-      const aiResponse = await sendMessageToAI(userMessage)
-
-      // Add AI response to local messages for immediate display
-      setLocalMessages((prev) => [...prev, { role: "assistant", content: aiResponse }])
-
-      // Add AI response to conversation in database
-      if (conversationId && userId) {
-        // Use the imported addMessage function directly instead of sendMessageToHistory
-        const result = await addMessage(userId, conversationId, "assistant", aiResponse)
-        console.log("Save result:", result ? "success" : "failed")
-
-        // If we just created a new conversation or need to refresh, reload the conversation
-        await loadConversation(conversationId)
-      }
     } catch (error) {
       console.error("Error in chat:", error)
-
-      const errorMessage = "Sorry, I encountered an error. Please try again."
-      setLocalMessages((prev) => [...prev, { role: "assistant", content: errorMessage }])
-    } finally {
-      setIsLoading(false)
+      Alert.alert("Error", "Failed to send message")
     }
   }
 
@@ -201,7 +193,7 @@ const Chatbot = () => {
   const handleNewChat = () => {
     console.log("Starting new chat")
     setCurrentConversation(null)
-    setLocalMessages([])
+    setMessages([])
     setIsHistoryOpen(false)
   }
 
@@ -236,7 +228,9 @@ const Chatbot = () => {
               <GalleryVerticalEnd size={24} color="white" />
             </TouchableOpacity>
             <View>
-              <Text className="text-white font-poppins-semibold text-lg">{currentConversation ? currentConversation.title.slice(0, 20) + "..." : "New Chat"}</Text>
+              <Text className="text-white font-poppins-semibold text-lg">
+                {currentConversation ? currentConversation.title.slice(0, 20) + "..." : "New Chat"}
+              </Text>
             </View>
             <TouchableOpacity onPress={handleNewChat}>
               <CirclePlus size={24} color="white" />
@@ -259,8 +253,8 @@ const Chatbot = () => {
 
           <PromptInput
             bottomMargin={bottomMargin}
-            setMessage={setMessage}
-            message={message}
+            setMessage={(text) => handleInputChange({ target: { value: text } } as any)}
+            message={input}
             isLoading={isLoading}
             handleSend={handleSend}
           />

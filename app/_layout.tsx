@@ -5,13 +5,13 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import React from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
 import { AuthProvider, useAuth } from '@/context/auth';
 import "../global.css";
 import { setBackgroundColorAsync } from "expo-navigation-bar";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { OnboardingProvider, useOnboarding } from '@/context/onboarding-context';
 import { UnitsProvider } from '@/context/units-context';
+import "@/polyfills"
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -106,12 +106,10 @@ export default function RootLayout() {
     <GestureHandlerRootView>
       <AuthProvider>
         <OnboardingProvider>
-          <PaperProvider>
-            <UnitsProvider>
-              <StatusBar style='light'/>
-              <RootLayoutNav />
-            </UnitsProvider>
-          </PaperProvider>
+          <UnitsProvider>
+            <StatusBar style='light'/>
+            <RootLayoutNav />
+          </UnitsProvider>
         </OnboardingProvider>
       </AuthProvider>
     </GestureHandlerRootView>

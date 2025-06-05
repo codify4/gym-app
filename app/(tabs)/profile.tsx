@@ -10,8 +10,8 @@ import {
   SafeAreaView,
   Platform,
   ActivityIndicator,
+  Image,
 } from "react-native"
-import { Avatar } from "react-native-paper"
 import { useAuth } from "@/context/auth"
 import { Settings, Lock, Bell, ChevronRight, LogOut, Ruler, Weight, User } from "lucide-react-native"
 import { router } from "expo-router"
@@ -264,9 +264,10 @@ const Profile = () => {
         >
           {/* Profile Header */}
           <View className="flex items-center justify-center gap-5 mt-8 mb-6">
-            <Avatar.Image
-              size={150}
+            <Image
               source={{ uri: user?.user_metadata?.avatar_url }}
+              resizeMode="contain"
+              style={{ width: 150, height: 150 }}
               className="bg-white rounded-full mb-4"
             />
             <Text className="text-white text-4xl font-poppins-bold">{user?.user_metadata?.full_name || "User"}</Text>

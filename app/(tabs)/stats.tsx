@@ -1,16 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform } from "react-native"
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Platform, Image } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { Calendar } from "react-native-calendars"
 import { Dumbbell, Flame, Clock } from "lucide-react-native"
 import StatCard from "@/components/stat-card"
 import { router } from "expo-router"
-import { Avatar } from "react-native-paper"
 import { useAuth } from "@/context/auth"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { RadarChart } from "@salmonco/react-native-radar-chart"
+import ProfileHeader from "@/components/profile-header"
 
 // Simple day labels for calendar header
 const CustomDayLabels = () => (
@@ -171,20 +171,7 @@ const Stats = () => {
         contentContainerStyle={{ paddingHorizontal: 5, paddingBottom: Platform.OS === "ios" ? 0 : 60 }}
       >
         <View className="px-4 py-6">
-          {/* Header Section - Matching Home Screen */}
-          <View className="flex-row justify-between items-center mb-8">
-            <TouchableOpacity className="flex-row items-center" onPress={() => router.push("/(tabs)/profile")}>
-              <Avatar.Image
-                size={45}
-                source={{ uri: user?.user_metadata?.avatar_url }}
-                className="bg-neutral-800 rounded-full"
-              />
-              <View className="ml-4">
-                <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
-                <Text className="text-neutral-400 text-base font-poppins-semibold">Your Stats</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <ProfileHeader tab="My Stats" />
 
           <View className="flex-row justify-between items-center mb-4 gap-2">
             <StatCard

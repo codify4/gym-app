@@ -10,10 +10,10 @@ import {
   Platform,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from "react-native"
 import { Plus } from "lucide-react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
-import { Avatar } from "react-native-paper"
 import BodyPartButton from "@/components/routine/body-part"
 import WorkoutCard from "@/components/routine/routine-card"
 import { bodyParts } from "@/constants/data"
@@ -24,6 +24,7 @@ import * as Haptics from "expo-haptics"
 import AddWorkout from "@/components/routine/add-routine"
 import { useWorkouts } from "@/hooks/use-workouts"
 import WeeklyOverview from "@/components/routine/weekly-overview"
+import ProfileHeader from "@/components/profile-header"
 
 const WorkoutRoutines = () => {
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -66,20 +67,7 @@ const WorkoutRoutines = () => {
         contentContainerStyle={{ padding: 20, paddingBottom: platform === "ios" ? 60 : 80 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section */}
-        <View className="flex-row justify-between items-center mb-6">
-          <TouchableOpacity className="flex-row items-center" onPress={() => router.push("/(tabs)/profile")}>
-            <Avatar.Image
-              size={45}
-              source={{ uri: user?.user_metadata?.avatar_url }}
-              className="bg-neutral-800 rounded-full"
-            />
-            <View className="ml-4">
-              <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
-              <Text className="text-neutral-400 text-base font-poppins-semibold">Your Workouts</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+        <ProfileHeader tab="Routine" />
 
         {/* Weekly Overview Component */}
         <WeeklyOverview workouts={workouts} completedWorkouts={completedWorkouts} />

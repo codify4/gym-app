@@ -1,10 +1,10 @@
 import React from "react"
 import { View, Text, Image } from "react-native"
-import { Brain, Dumbbell } from "lucide-react-native"
-import type { ChatMessage } from "@/lib/gemini-service"
+import { Brain } from "lucide-react-native"
+import type { Message } from "ai"
 
 type MessageListProps = {
-  messages: ChatMessage[]
+  messages: Message[]
   user: any
 }
 
@@ -26,7 +26,7 @@ const MessageList = ({ messages, user }: MessageListProps) => {
     <>
       {messages.map((msg, index) => (
         <View
-          key={index}
+          key={msg.id || index}
           className={`flex-row items-start my-1 ${msg.role === "user" ? "justify-end pr-2" : "justify-start pl-2"}`}
         >
           {/* AI Avatar (only for assistant messages) */}

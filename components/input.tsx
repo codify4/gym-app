@@ -1,4 +1,4 @@
-import { TextInput } from 'react-native-paper'
+import { TextInput } from 'react-native'
 
 type InputProps = {
     mode: 'outlined' | 'flat'

@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, FlatList, Platform, StyleSheet } from "react-native"
-import { Avatar } from "react-native-paper"
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, FlatList, Platform, StyleSheet, Image } from "react-native"
 import TodayWorkout from "@/components/today-workout"
 import { useAuth } from "@/context/auth"
 import { router } from "expo-router"
@@ -12,6 +11,7 @@ import { useWorkouts } from "@/hooks/use-workouts"
 import type { Workout } from "@/lib/workouts"
 import { dummyWorkouts } from "@/constants/data"
 import WorkoutCard from "@/components/workout-card"
+import ProfileHeader from "@/components/profile-header"
 
 interface BodyPartStat {
   category: string
@@ -48,21 +48,7 @@ const Home = () => {
         showsVerticalScrollIndicator={false}
       >
         <View className="px-1">
-          <View className="flex-row justify-between items-center mt-6 mb-8">
-            <TouchableOpacity className="flex-row items-center" onPress={() => router.push("/(tabs)/profile")}>
-              <Avatar.Image
-                size={45}
-                source={{ uri: user?.user_metadata?.avatar_url }}
-                className="bg-neutral-800 rounded-full"
-              />
-              <View className="ml-4">
-                <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
-                <Text className="text-neutral-400 text-base font-poppins-semibold">
-                  {user?.user_metadata?.full_name || "User"}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <ProfileHeader tab="Home" />
         </View>
 
         <TodayWorkout workout={todayWorkout} />

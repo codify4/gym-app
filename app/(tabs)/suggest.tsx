@@ -3,20 +3,16 @@
 import { useCallback, useMemo, useState, useRef } from "react"
 import { View, Text, ScrollView, TouchableOpacity, FlatList, Platform, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Avatar } from "react-native-paper"
-import { Dumbbell, ChevronRight, Zap } from "lucide-react-native"
-import { useAuth } from "@/context/auth"
+import { Dumbbell, ChevronRight } from "lucide-react-native"
 import { router } from "expo-router"
 import { suggestionVideos, Video } from "@/constants/data"
 import BotSheet from "@/components/bot-sheet"
 import BottomSheet from "@gorhom/bottom-sheet"
 import VideoItem from "@/components/suggestions/video-item"
 import VideoInfo from "@/components/suggestions/video-info"
+import ProfileHeader from "@/components/profile-header"
 
 const SuggestionsScreen = () => {
-  const { session } = useAuth()
-  const user = session?.user
-
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null)
   const bottomSheetRef = useRef<BottomSheet>(null)
 
@@ -53,27 +49,7 @@ const SuggestionsScreen = () => {
         contentContainerStyle={{ padding: 20, paddingBottom: Platform.OS === "ios" ? 60 : 80 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section */}
-        <View className="mb-6">
-          <TouchableOpacity
-            className="flex-row justify-between items-center"
-            onPress={() => router.push("/(tabs)/profile")}
-          >
-            <View className="flex-row items-center">
-              <Avatar.Image
-                size={45}
-                source={{ uri: user?.user_metadata?.avatar_url }}
-                className="bg-neutral-800 rounded-full"
-              />
-              <View className="ml-4">
-                <Text className="text-white text-xl font-poppins-semibold">Workout Mate</Text>
-                <Text className="text-neutral-400 text-base font-poppins-semibold">
-                  Suggestions
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </View>
+        <ProfileHeader tab="Suggestions" />
 
         {/* Common Topics Section */}
         <View className="mb-8">
