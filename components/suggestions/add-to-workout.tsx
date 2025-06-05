@@ -11,7 +11,7 @@ type AddToWorkoutProps = {
     handleSelectedWorkout: (workout: Workout) => void
     handleAddToWorkouts: () => void
     isAdding: boolean
-    addSheetRef: React.RefObject<BottomSheet>
+    addSheetRef: React.RefObject<BottomSheet | null>
 }
 
 const AddToWorkout = ({ workouts, selectedWorkoutIds, handleSelectedWorkout, handleAddToWorkouts, isAdding, addSheetRef }: AddToWorkoutProps) => {

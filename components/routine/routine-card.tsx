@@ -2,7 +2,7 @@
 
 import { useRef } from "react"
 import { Link } from "expo-router"
-import { ChevronRight, Dumbbell, Timer, CheckCircle, Trash2, Flame } from "lucide-react-native"
+import { ChevronRight, Dumbbell, Timer, Trash2, Flame } from "lucide-react-native"
 import { View, Text, TouchableOpacity, Dimensions } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS, Layout } from "react-native-reanimated"
@@ -30,6 +30,9 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
   const translateX = useSharedValue(0)
   const opacity = useSharedValue(1)
   const isDeleting = useRef(false)
+
+  // Get the current exercise count - ensure it's always up to date
+  const exerciseCount = workout.exercises?.length || 0
 
   // Only add gesture handling if onDelete is provided
   const panGesture = Gesture.Pan()
@@ -72,7 +75,7 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
       <View className="flex-row items-center mb-2">
         <Dumbbell size={16} color="#FF3737" />
         <Text className="text-neutral-400 text-base font-poppins-medium ml-1 mr-3">
-          {workout.exercises?.length || 0} {workout.exercises?.length === 1 ? "exercise" : "exercises"}
+          {exerciseCount} {exerciseCount === 1 ? "exercise" : "exercises"}
         </Text>
         <Timer size={16} color="#FF3737" />
         <Text className="text-neutral-400 text-base font-poppins-medium ml-1 mr-3">{workout.duration} min</Text>
@@ -182,4 +185,3 @@ const WorkoutCard = ({ workout, pressable = true, onComplete, onDelete, isComple
 }
 
 export default WorkoutCard
-

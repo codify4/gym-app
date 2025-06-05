@@ -54,8 +54,8 @@ const SuggestionsScreen = () => {
         {/* Common Topics Section */}
         <View className="mb-8">
           <TouchableOpacity onPress={() => router.push('/(tabs)/exercises')}>
-            <View className="bg-neutral-900 rounded-3xl p-5">
-              <View className="flex-row items-center justify-between px-2">
+            <View className="bg-neutral-900 rounded-3xl py-5 px-8 items-center">
+              <View className="flex-row items-center justify-between">
                 <View>
                   <View className="self-start bg-[#FF3737]/20 p-3 rounded-xl mb-3">
                     <Dumbbell size={24} color="#FF3737" />

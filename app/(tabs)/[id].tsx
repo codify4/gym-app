@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native"
-import { router, useLocalSearchParams } from "expo-router"
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ChevronLeft, Clock, Dumbbell, Flame, PlayCircle } from "lucide-react-native"
 import BotSheet from "@/components/bot-sheet"
@@ -22,7 +22,6 @@ import * as Haptics from "expo-haptics"
 import ExerciseInfo from "@/components/routine/exercise-info"
 import ExerciseCard from "@/components/routine/exercise-card"
 import { useAuth } from "@/context/auth"
-import { supabase } from "@/lib/supabase"
 import type { Workout } from "@/lib/workouts"
 import { useWorkouts } from "@/hooks/use-workouts"
 import type { Exercise } from "@/lib/exercises"
@@ -31,7 +30,7 @@ const WorkoutDetailScreen = () => {
   const { id } = useLocalSearchParams()
   const { session } = useAuth()
   const userId = session?.user?.id
-  const { workouts, completeWorkout, isWorkoutCompletedOnDate, deleteExercise } = useWorkouts(userId)
+  const { workouts, completeWorkout, isWorkoutCompletedOnDate, deleteExercise, refreshWorkouts } = useWorkouts(userId)
 
   const [workout, setWorkout] = useState<Workout | null>(null)
   const [loading, setLoading] = useState(true)
@@ -40,63 +39,28 @@ const WorkoutDetailScreen = () => {
   const windowHeight = Dimensions.get("window").height
   const bottomSheetRef = useRef<BottomSheet>(null)
 
-  // Fetch workout data
-  const fetchWorkoutData = async () => {
-    if (!id) return
+  // Force refresh when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Screen focused, refreshing workouts...")
+      refreshWorkouts()
+    }, [refreshWorkouts]),
+  )
 
-    try {
-      setLoading(true)
-
-      // Find the workout in our already loaded workouts
+  // Update workout when workouts array changes
+  useEffect(() => {
+    if (id && workouts.length > 0) {
       const foundWorkout = workouts.find((w) => w.workout_id === id)
-
       if (foundWorkout) {
+        console.log(`Found workout ${foundWorkout.title} with ${foundWorkout.exercises?.length || 0} exercises`)
         setWorkout(foundWorkout)
         setLoading(false)
-        return
-      }
-
-      // If not found in state, fetch from database
-      const { data: workoutData, error: workoutError } = await supabase
-        .from("workout")
-        .select("*")
-        .eq("workout_id", id)
-        .single()
-
-      if (workoutError) {
-        console.error("Error fetching workout:", workoutError)
-        return
-      }
-
-      if (!workoutData) {
-        return
-      }
-
-      // Then get the exercises for this workout
-      const { data: exercisesData, error: exercisesError } = await supabase
-        .from("exercise")
-        .select("*")
-        .eq("workout_id", workoutData.workout_id)
-
-      if (exercisesError) {
-        console.error("Error fetching exercises:", exercisesError)
       } else {
-        // Set the workout with exercises
-        setWorkout({
-          ...workoutData,
-          exercises: exercisesData || [],
-        })
+        console.log(`Workout with id ${id} not found`)
+        setLoading(false)
       }
-    } catch (error) {
-      console.error("Error fetching workout data:", error)
-    } finally {
-      setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    fetchWorkoutData()
-  }, [id, workouts])
+  }, [workouts, id])
 
   const handleOpenBottomSheet = (exercise: Exercise) => {
     if (Platform.OS !== "web") {
@@ -108,26 +72,18 @@ const WorkoutDetailScreen = () => {
 
   const handleCompleteWorkout = async () => {
     if (!workout || !userId) return
-
     await completeWorkout(workout.workout_id)
-    // Optionally navigate back or show a success message
   }
 
   const handleDeleteExercise = async (exerciseId: number) => {
     try {
+      console.log(`Deleting exercise ${exerciseId}`)
       const success = await deleteExercise(exerciseId)
       if (success) {
-        setWorkout((prev) => {
-          if (!prev) return null
-          const updatedWorkout = {
-            ...prev,
-            exercises: prev.exercises?.filter((ex) => ex.exercise_id !== exerciseId) || [],
-          }
-          console.log("Updated workout state:", updatedWorkout)
-          return updatedWorkout
-        })
+        console.log(`Successfully deleted exercise ${exerciseId}, refreshing...`)
+        // Force immediate refresh
+        await refreshWorkouts()
       } else {
-        console.error("Failed to delete exercise with ID:", exerciseId)
         Alert.alert("Error", "Failed to delete exercise. Please try again.")
       }
     } catch (error) {
@@ -138,34 +94,18 @@ const WorkoutDetailScreen = () => {
 
   const handleStartWorkout = () => {
     if (!workout) return
-
-    // Navigate to the active workout screen with the workout ID
     router.push({
       pathname: "/(tabs)/workout",
       params: { id: workout.workout_id },
     })
   }
 
-  // Handle exercise update - refresh the workout data
-  const handleExerciseUpdate = (updatedExercise?: Exercise) => {
-    // Update the selected exercise immediately for the UI
+  const handleExerciseUpdate = async (updatedExercise?: Exercise) => {
     if (updatedExercise) {
       setSelectedExercise(updatedExercise)
     }
-
-    // Also update the workout state
-    if (updatedExercise && workout) {
-      setWorkout((prev) => {
-        if (!prev) return null
-
-        const updatedWorkout = {
-          ...prev,
-          exercises:
-            prev.exercises?.map((ex) => (ex.exercise_id === updatedExercise.exercise_id ? updatedExercise : ex)) || [],
-        }
-        return updatedWorkout
-      })
-    }
+    // Force refresh to get latest data
+    await refreshWorkouts()
   }
 
   if (loading) {
@@ -179,12 +119,20 @@ const WorkoutDetailScreen = () => {
   if (!workout) {
     return (
       <SafeAreaView className="flex-1 bg-black">
-        <Text className="text-white text-lg text-center mt-5">Workout not found</Text>
+        <View className="flex-row items-center justify-between p-5">
+          <TouchableOpacity onPress={() => router.push("/(tabs)/routine")}>
+            <ChevronLeft size={24} color="white" />
+          </TouchableOpacity>
+          <Text className="text-white text-xl font-poppins-semibold">Workout</Text>
+          <View />
+        </View>
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-white text-lg text-center">Workout not found</Text>
+        </View>
       </SafeAreaView>
     )
   }
 
-  // Default image if none is provided
   const getWorkoutImage = () => {
     if (workout.image) return workout.image
 
@@ -235,10 +183,8 @@ const WorkoutDetailScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Content Container with rounded corners */}
         <View className="-mt-8 bg-neutral-900 rounded-t-[32px] h-full">
           <View className="bg-neutral-900 rounded-t-[32px] overflow-hidden">
-            {/* Workout Info Card */}
             <View className="px-6 pt-8 pb-6">
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1 gap-2">
@@ -265,7 +211,6 @@ const WorkoutDetailScreen = () => {
               </View>
             </View>
 
-            {/* Exercises List */}
             <View className="px-5 pb-5">
               <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-white text-2xl font-poppins-semibold">Exercises</Text>
@@ -273,9 +218,7 @@ const WorkoutDetailScreen = () => {
 
               {workout.exercises && workout.exercises.length > 0 ? (
                 workout.exercises.map((exercise, index) => {
-                  // Generate a unique key for the exercise
-                  const uniqueKey = `exercise-${index}-${exercise.exercise_id || exercise.name || Date.now()}`
-
+                  const uniqueKey = `exercise-${exercise.exercise_id || index}-${exercise.name}-${workout.exercises?.length}`
                   return (
                     <ExerciseCard
                       key={uniqueKey}

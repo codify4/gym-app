@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-
+import { supabase } from "@/lib/supabase"
+import type { Workout } from "@/lib/workouts"
+import type { Exercise } from "@/lib/exercises"
 import {
   addExercise as addExerciseApi,
   updateExercise as updateExerciseApi,
   deleteExercise as deleteExerciseApi,
-  type Exercise,
 } from "@/lib/exercises"
 import {
   fetchWorkouts,
@@ -14,11 +15,9 @@ import {
   completeWorkout as completeWorkoutApi,
   deleteWorkout as deleteWorkoutApi,
   updateWorkout as updateWorkoutApi,
-  type Workout,
   type CompletedWorkout,
 } from "@/lib/workouts"
 import { calculateCaloriesBurned } from "@/utils/calories"
-import { supabase } from "@/lib/supabase"
 
 export const useWorkouts = (userId: string | undefined) => {
   const [workouts, setWorkouts] = useState<Workout[]>([])
@@ -113,6 +112,11 @@ export const useWorkouts = (userId: string | undefined) => {
     }
   }, [userId, fetchWorkoutsData])
 
+  // Force refresh function that can be called externally
+  const refreshWorkouts = useCallback(async () => {
+    await fetchWorkoutsData()
+  }, [fetchWorkoutsData])
+
   // Add a new workout with exercises
   const addWorkout = useCallback(
     async (workoutData: Omit<Workout, "workout_id">, exercisesData: Omit<Exercise, "exercise_id" | "workout_id">[]) => {
@@ -198,7 +202,7 @@ export const useWorkouts = (userId: string | undefined) => {
 
   // Add an exercise to a workout
   const addExercise = useCallback(
-    async (workoutId: string | number, exerciseData: Omit<Exercise, "id" | "workout_id" | "user_id">) => {
+    async (workoutId: string | number, exerciseData: Omit<Exercise, "workout_id" | "user_id" | "id">) => {
       if (!userId) return null
 
       try {
@@ -367,8 +371,6 @@ export const useWorkouts = (userId: string | undefined) => {
 
     return totalSeconds / 60 // Convert to minutes
   }, [completedWorkoutsData])
-
-  // Add these new trend calculation functions at the appropriate location in the hook
 
   // Get weekly trends
   const getWorkoutTrend = useCallback(() => {
@@ -601,8 +603,6 @@ export const useWorkouts = (userId: string | undefined) => {
     })
   }, [completedWorkoutsData, workouts, getBodyPartStats])
 
-  // Add this new function to the useWorkouts hook, before the return statement
-
   // Get stats for specific body parts (chest, legs, arms)
   const getSpecificBodyPartStats = useCallback(() => {
     if (!completedWorkoutsData || completedWorkoutsData.length === 0) return []
@@ -762,6 +762,7 @@ export const useWorkouts = (userId: string | undefined) => {
     loading,
     refreshing,
     onRefresh,
+    refreshWorkouts, // Expose the refresh function
     addWorkout,
     updateWorkout,
     deleteWorkout,
