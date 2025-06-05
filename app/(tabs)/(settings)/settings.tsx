@@ -1,6 +1,6 @@
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Switch } from 'react-native'
+import { View, Text, SafeAreaView, ScrollView, Switch } from 'react-native'
 import { useState } from 'react'
-import { Bell, Moon, Vibrate, Volume2, Clock, Dumbbell, LucideIcon } from 'lucide-react-native'
+import { Vibrate, Volume2, Clock, Dumbbell, LucideIcon } from 'lucide-react-native'
 
 type SettingsOptionProps = {
   title: string
@@ -79,14 +79,6 @@ const Settings = () => {
             isToggle
             value={workoutReminders}
             onToggle={setWorkoutReminders}
-          />
-          <SettingsOption
-            title="Metric System"
-            description="Toggle between metric and imperial units"
-            icon={Dumbbell}
-            isToggle
-            value={metricSystem}
-            onToggle={setMetricSystem}
           />
         </View>
       </ScrollView>

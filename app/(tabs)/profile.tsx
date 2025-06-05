@@ -32,7 +32,6 @@ const Profile = () => {
   const { session } = useAuth()
   const user = session?.user
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
-  const [hapticFeedback, setHapticFeedback] = useState(true)
   const platform = Platform.OS
   const [loading, setLoading] = useState(true)
   const [selectedStat, setSelectedStat] = useState<string | null>(null)
@@ -189,17 +188,14 @@ const Profile = () => {
       title: "Other",
       items: [
         { title: "Privacy Policy", icon: Lock, path: "/(tabs)/(settings)/privacy-policies" as const },
-        { title: "Terms and Services", icon: Lock, path: "/(tabs)/(settings)/terms-and-services" as const },
-        { title: "Settings", icon: Settings, path: "/(tabs)/(settings)/settings" as const },
+        { title: "Terms and Services", icon: Lock, path: "/(tabs)/(settings)/terms-and-services" as const }
       ],
     },
   ]
 
   const handleLogout = async () => {
     try {
-      if (hapticFeedback && Platform.OS !== "web") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-      }
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
       await signOut()
       router.replace("/")
     } catch (error) {
@@ -336,14 +332,12 @@ const Profile = () => {
           {menuItems.map((section, sectionIndex) => (
             <View key={sectionIndex} className="mb-6">
               <Text className="text-white text-2xl font-poppins-semibold mb-4">{section.title}</Text>
-              <View className="bg-neutral-900 rounded-2xl overflow-hidden">
+              <View className="gap-2 rounded-2xl overflow-hidden">
                 {section.items ? (
                   section.items.map((item, index) => (
                     <TouchableOpacity
                       key={index}
-                      className={`flex-row items-center justify-between p-4 ${
-                        index < section.items.length - 1 ? "border-b border-neutral-700" : ""
-                      }`}
+                      className={"flex-row items-center justify-between p-4 bg-neutral-900 rounded-xl"}
                       onPress={() => router.push(item.path)}
                     >
                       <View className="flex-row items-center">
@@ -354,7 +348,7 @@ const Profile = () => {
                     </TouchableOpacity>
                   ))
                 ) : (
-                  <View className="flex-row items-center justify-between p-4">
+                  <View className="flex-row items-center justify-between p-4 bg-neutral-900 rounded-xl">
                     <View className="flex-row items-center">
                       <section.icon size={24} color="white" />
                       <Text className="text-white text-lg font-poppins ml-3">{section.title}</Text>
