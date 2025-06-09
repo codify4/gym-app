@@ -10,7 +10,7 @@ import {
   Platform,
   StyleSheet,
   ActivityIndicator,
-  Image,
+  RefreshControl,
 } from "react-native"
 import { Plus } from "lucide-react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
@@ -19,7 +19,8 @@ import WorkoutCard from "@/components/routine/routine-card"
 import { bodyParts } from "@/constants/data"
 import BotSheet from "@/components/bot-sheet"
 import { useAuth } from "@/context/auth"
-import { router } from "expo-router"
+import { useFocusEffect } from "expo-router"
+import { useCallback } from "react"
 import * as Haptics from "expo-haptics"
 import AddWorkout from "@/components/routine/add-routine"
 import { useWorkouts } from "@/hooks/use-workouts"
@@ -39,11 +40,18 @@ const WorkoutRoutines = () => {
     loading,
     refreshing,
     onRefresh,
+    refreshWorkouts,
     deleteWorkout,
-    completeWorkout,
     isWorkoutCompletedOnDate,
     completedWorkouts,
   } = useWorkouts(userId)
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refreshWorkouts()
+    }, [refreshWorkouts]),
+  )
 
   const filteredWorkouts =
     selectedBodyPart === "All" ? workouts : workouts.filter((workout) => workout.body_part === selectedBodyPart)
@@ -57,7 +65,7 @@ const WorkoutRoutines = () => {
 
   const handleWorkoutAdded = () => {
     bottomSheetRef.current?.close()
-    onRefresh() // Refresh the workouts list
+    refreshWorkouts()
   }
 
   return (
@@ -66,13 +74,14 @@ const WorkoutRoutines = () => {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: platform === "ios" ? 60 : 80 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refreshWorkouts} tintColor="#fff" colors={["#fff"]} />
+        }
       >
         <ProfileHeader tab="Routine" />
 
-        {/* Weekly Overview Component */}
         <WeeklyOverview workouts={workouts} completedWorkouts={completedWorkouts} />
 
-        {/* Body Parts Filter */}
         <View className="bg-neutral-900 rounded-3xl px-6 py-5 mb-6">
           <Text className="text-white text-xl font-poppins-semibold mb-4">Target Muscle Groups</Text>
           <View className="flex-row flex-wrap justify-between gap-3">
@@ -87,7 +96,6 @@ const WorkoutRoutines = () => {
           </View>
         </View>
 
-        {/* Workouts Section */}
         <View className="mb-5">
           <Text className="text-white text-2xl font-poppins-semibold mb-4">
             {selectedBodyPart === "All" ? "All Workouts" : `${selectedBodyPart} Workouts`}
@@ -100,7 +108,7 @@ const WorkoutRoutines = () => {
           ) : filteredWorkouts.length > 0 ? (
             filteredWorkouts.map((workout) => (
               <WorkoutCard
-                key={workout.workout_id}
+                key={`${workout.workout_id}-${workout.exercises?.length || 0}`}
                 workout={workout}
                 onDelete={(id) => deleteWorkout(id)}
                 isCompleted={isWorkoutCompletedOnDate(workout.workout_id)}
@@ -116,7 +124,6 @@ const WorkoutRoutines = () => {
         </View>
       </ScrollView>
 
-      {/* Floating Action Button */}
       <TouchableOpacity style={styles.floatingButton} onPress={handleOpenBottomSheet} className="bg-white">
         <Plus size={24} color="black" />
       </TouchableOpacity>

@@ -3,12 +3,12 @@
 import { View, Text, ScrollView, TouchableOpacity, Platform, KeyboardAvoidingView, Alert } from "react-native"
 import { Dumbbell, Plus, Trash2 } from "lucide-react-native"
 import { bodyParts } from "@/constants/data"
-import Input from "@/components/input"
 import { useState } from "react"
 import { useWorkouts } from "@/hooks/use-workouts"
 import { useAuth } from "@/context/auth"
-import { Exercise, getExerciseImage } from "@/lib/exercises"
+import { type Exercise, getExerciseImage } from "@/lib/exercises"
 import { useUnits } from "@/context/units-context"
+import Input from "../input"
 
 type AddWorkoutProps = {
   onSuccess?: () => void
@@ -209,7 +209,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
           <Text className="text-white text-lg font-poppins-medium mb-2">Workout Name</Text>
           <Input
             value={workoutData.title}
-            onChangeText={(text) => setWorkoutData((prev) => ({ ...prev, title: text }))}
+            onChangeText={(text: any) => setWorkoutData((prev) => ({ ...prev, title: text }))}
             placeholder="Enter workout name"
             mode="outlined"
             keyboardType="default"
@@ -222,7 +222,7 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
           <Text className="text-white text-lg font-poppins-medium mb-2">Duration (minutes)</Text>
           <Input
             value={workoutData.duration}
-            onChangeText={(text) => setWorkoutData((prev) => ({ ...prev, duration: text }))}
+            onChangeText={(text: any) => setWorkoutData((prev) => ({ ...prev, duration: text }))}
             placeholder="Enter duration"
             mode="outlined"
             keyboardType="numeric"
@@ -249,25 +249,23 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
                       // Remove this body part from the selection
                       return {
                         ...prev,
-                        body_part: prev.body_part.filter((bp) => bp !== part.name)
+                        body_part: prev.body_part.filter((bp) => bp !== part.name),
                       }
                     } else {
                       // Special case for "All" - if selecting "All", clear others
                       if (part.name === "All") {
                         return {
                           ...prev,
-                          body_part: ["All"]
+                          body_part: ["All"],
                         }
                       }
-                      
+
                       // If currently "All" is selected and adding another, remove "All"
-                      const newBodyParts = prev.body_part.includes("All") 
-                        ? [part.name] 
-                        : [...prev.body_part, part.name]
-                      
+                      const newBodyParts = prev.body_part.includes("All") ? [part.name] : [...prev.body_part, part.name]
+
                       return {
                         ...prev,
-                        body_part: newBodyParts
+                        body_part: newBodyParts,
                       }
                     }
                   })
@@ -310,38 +308,40 @@ const AddWorkout = ({ onSuccess, onCancel }: AddWorkoutProps) => {
 
               <Input
                 value={exercise.name}
-                onChangeText={(text) => handleExerciseChange(index, "name", text)}
+                onChangeText={(text: any) => handleExerciseChange(index, "name", text)}
                 placeholder="Enter exercise name"
                 mode="outlined"
                 keyboardType="default"
                 focus={false}
               />
 
-              <View className="flex-row gap-3 mt-3">
-                <Input
-                  value={exercise.sets?.toString() || ""}
-                  onChangeText={(text) => handleExerciseChange(index, "sets", text)}
-                  placeholder="Sets"
-                  mode="outlined"
-                  keyboardType="numeric"
-                  focus={false}
-                  moreStyles={{ width: "48%" }}
-                />
-                <Input
-                  value={exercise.reps?.toString() || ""}
-                  onChangeText={(text) => handleExerciseChange(index, "reps", text)}
-                  placeholder="Reps"
-                  mode="outlined"
-                  keyboardType="numeric"
-                  focus={false}
-                  moreStyles={{ width: "48%" }}
-                />
+              <View className="flex-row justify-between mt-3">
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <Input
+                    value={exercise.sets?.toString() || ""}
+                    onChangeText={(text: any) => handleExerciseChange(index, "sets", text)}
+                    placeholder="Sets"
+                    mode="outlined"
+                    keyboardType="numeric"
+                    focus={false}
+                  />
+                </View>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <Input
+                    value={exercise.reps?.toString() || ""}
+                    onChangeText={(text: any) => handleExerciseChange(index, "reps", text)}
+                    placeholder="Reps"
+                    mode="outlined"
+                    keyboardType="numeric"
+                    focus={false}
+                  />
+                </View>
               </View>
 
               <View className="mt-3">
                 <Input
                   value={exercise.weight?.toString() || ""}
-                  onChangeText={(text) => handleExerciseChange(index, "weight", text)}
+                  onChangeText={(text: any) => handleExerciseChange(index, "weight", text)}
                   placeholder={`Enter weight (${weightUnit})`}
                   mode="outlined"
                   keyboardType="numeric"

@@ -16,7 +16,7 @@ import ExerciseWeightPicker from "./exercise/exercise-weight-picker"
 import { supabase } from "@/lib/supabase"
 
 interface ExerciseInfoProps {
-  exercise: Exercise
+  exercise: Exercise | Omit<Exercise, "exercise_id">
   onExerciseUpdate?: (updatedExercise?: Exercise) => void
 }
 
@@ -24,6 +24,11 @@ const ExerciseInfo = ({ exercise, onExerciseUpdate }: ExerciseInfoProps) => {
   const { weightUnit, formatWeight, convertWeight } = useUnits()
   const [selectedStat, setSelectedStat] = useState<string | null>(null)
   const bottomSheetRef = useRef<BottomSheet>(null)
+
+  // Type guard to check if exercise has exercise_id
+  const hasExerciseId = (ex: Exercise | Omit<Exercise, "exercise_id">): ex is Exercise => {
+    return "exercise_id" in ex && ex.exercise_id !== undefined
+  }
 
   // Get tips based on exercise name and body part
   const tipsList =
@@ -44,7 +49,7 @@ const ExerciseInfo = ({ exercise, onExerciseUpdate }: ExerciseInfoProps) => {
 
   const handleStatUpdate = async () => {
     // Refresh the exercise data from the database
-    if (exercise.exercise_id) {
+    if (hasExerciseId(exercise)) {
       try {
         const { data: updatedExercise, error } = await supabase
           .from("exercise")
@@ -68,10 +73,10 @@ const ExerciseInfo = ({ exercise, onExerciseUpdate }: ExerciseInfoProps) => {
   }
 
   const renderStatPicker = () => {
-    if (!exercise) {
+    if (!exercise || !hasExerciseId(exercise)) {
       return (
         <View className="p-6 items-center">
-          <Text className="text-white text-lg">Exercise data not available</Text>
+          <Text className="text-white text-lg">Exercise data not available for editing</Text>
         </View>
       )
     }
@@ -113,6 +118,8 @@ const ExerciseInfo = ({ exercise, onExerciseUpdate }: ExerciseInfoProps) => {
     }
   }
 
+  const isEditable = hasExerciseId(exercise)
+
   return (
     <>
       {exercise && (
@@ -144,26 +151,26 @@ const ExerciseInfo = ({ exercise, onExerciseUpdate }: ExerciseInfoProps) => {
               <TouchableOpacity
                 className="bg-neutral-800 rounded-2xl p-4 flex-1 mr-2 flex-row items-center justify-between"
                 onPress={() => handleOpenStatPicker("sets")}
-                disabled={!exercise.exercise_id}
+                disabled={!isEditable}
               >
                 <View>
                   <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Sets</Text>
                   <Text className="text-white text-2xl font-poppins-bold">{exercise.sets}</Text>
                 </View>
-                {exercise.exercise_id && <ChevronRight size={16} color="white" />}
+                {isEditable && <ChevronRight size={16} color="white" />}
               </TouchableOpacity>
 
               {/* Reps */}
               <TouchableOpacity
                 className="bg-neutral-800 rounded-2xl p-4 flex-1 ml-2 flex-row items-center justify-between"
                 onPress={() => handleOpenStatPicker("reps")}
-                disabled={!exercise.exercise_id}
+                disabled={!isEditable}
               >
                 <View>
                   <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Reps</Text>
                   <Text className="text-white text-2xl font-poppins-bold">{exercise.reps}</Text>
                 </View>
-                {exercise.exercise_id && <ChevronRight size={16} color="white" />}
+                {isEditable && <ChevronRight size={16} color="white" />}
               </TouchableOpacity>
 
               {/* Weight */}
@@ -171,7 +178,7 @@ const ExerciseInfo = ({ exercise, onExerciseUpdate }: ExerciseInfoProps) => {
                 <TouchableOpacity
                   className="bg-neutral-800 rounded-2xl p-4 flex-1 ml-2 flex-row items-center justify-between"
                   onPress={() => handleOpenStatPicker("weight")}
-                  disabled={!exercise.exercise_id}
+                  disabled={!isEditable}
                 >
                   <View>
                     <Text className="text-neutral-400 text-sm font-poppins-medium mb-1">Weight</Text>
@@ -181,7 +188,7 @@ const ExerciseInfo = ({ exercise, onExerciseUpdate }: ExerciseInfoProps) => {
                         : formatWeight(convertWeight(exercise.weight || 0, "kg", "lb"))}
                     </Text>
                   </View>
-                  {exercise && <ChevronRight size={16} color="white" />}
+                  {isEditable && <ChevronRight size={16} color="white" />}
                 </TouchableOpacity>
               )}
             </View>
