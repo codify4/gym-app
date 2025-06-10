@@ -13,9 +13,10 @@ type PromptInputProps = {
     message: string
     isLoading: boolean
     handleSend: () => void
+    onCapture?: () => void
 }
 
-const PromptInput = ({ bottomMargin, setMessage, message, isLoading, handleSend }: PromptInputProps) => {
+const PromptInput = ({ bottomMargin, setMessage, message, isLoading, handleSend, onCapture }: PromptInputProps) => {
     return (
         <Animated.View
             style={{
@@ -51,7 +52,10 @@ const PromptInput = ({ bottomMargin, setMessage, message, isLoading, handleSend 
                         }}
                     />
                     <View className="flex-row items-center justify-between w-full mb-1">
-                        <TouchableOpacity className="bg-neutral-800 border border-neutral-700 rounded-full px-5 py-2 flex-row items-center gap-2 self-start">
+                        <TouchableOpacity 
+                            className="bg-neutral-800 border border-neutral-700 rounded-full px-5 py-2 flex-row items-center gap-2 self-start"
+                            onPress={onCapture}
+                        >
                             <Camera size={20} color="white" />
                             <Text className="text-white text-sm font-poppins-semibold">
                                 Capture

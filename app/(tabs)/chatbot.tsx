@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { CirclePlus, GalleryVerticalEnd, Stars } from "lucide-react-native"
+import { CirclePlus, GalleryVerticalEnd, Stars, Camera } from "lucide-react-native"
 import {
   View,
   SafeAreaView,
@@ -26,6 +26,8 @@ import HistorySheet from "@/components/chatbot/history-sheet"
 import { useAuth } from "@/context/auth"
 import { useChatHistory } from "@/hooks/use-chat"
 import { addMessage } from "@/lib/chat-history"
+import BotSheet from "@/components/bot-sheet"
+import { router } from "expo-router"
 
 const Chatbot = () => {
   const { session } = useAuth()
@@ -36,6 +38,7 @@ const Chatbot = () => {
 
   const bottomMargin = useRef(new Animated.Value(60)).current
   const scrollViewRef = useRef<ScrollView>(null)
+  const captureSheetRef = useRef<any>(null)
   const contentTranslateX = useRef(new Animated.Value(0)).current
   const { width } = Dimensions.get("window")
   const sheetWidth = width * 0.8 // 80% of screen width
@@ -197,6 +200,15 @@ const Chatbot = () => {
     setIsHistoryOpen(false)
   }
 
+  const handleOpenCapture = () => {
+    captureSheetRef.current?.snapToIndex(0)
+  }
+
+  const handleGoToCamera = () => {
+    captureSheetRef.current?.close()
+    router.push("/(tabs)/camera")
+  }
+
   return (
     <SafeAreaView className={`flex-1 bg-black ${Platform.OS === "ios" ? "" : "pt-5"}`}>
       {/* History Sheet */}
@@ -257,9 +269,38 @@ const Chatbot = () => {
             message={input}
             isLoading={isLoading}
             handleSend={handleSend}
+            onCapture={handleOpenCapture}
           />
         </KeyboardAvoidingView>
       </Animated.View>
+
+      {/* Capture Modal */}
+      <BotSheet ref={captureSheetRef} snapPoints={["50%"]}>
+        <View className="flex-1 w-full">
+          <Text className="text-white font-poppins-semibold text-xl text-center mb-6">
+            Correct your form with Mate
+          </Text>
+          
+          <View className="bg-neutral-800 rounded-2xl p-6 mb-6">
+            <Text className="text-white font-poppins-semibold text-lg mb-3">
+              How to record
+            </Text>
+            <Text className="text-neutral-300 font-poppins-regular text-sm leading-6">
+              /// While recording Mate will give u voice instructions.{'\n'}
+              So use some type of headphones if u want.
+            </Text>
+          </View>
+
+          <TouchableOpacity 
+            className="bg-white py-5 rounded-full"
+            onPress={handleGoToCamera}
+          >
+            <Text className="text-black font-poppins-semibold text-center text-lg">
+              Start recording
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </BotSheet>
     </SafeAreaView>
   )
 }

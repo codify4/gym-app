@@ -1,4 +1,4 @@
-import { Dumbbell, ChevronLeft, ChartNoAxesColumnIncreasing, Brain, BookOpenText } from 'lucide-react-native'
+import { Dumbbell, ChevronLeft, ChartNoAxesColumnIncreasing, Brain, BookOpenText, Camera } from 'lucide-react-native'
 import { router, Tabs } from 'expo-router'
 import { Platform, TouchableOpacity } from 'react-native'
 import React from 'react'
@@ -96,7 +96,13 @@ const TabsLayout = () => {
                 tabBarStyle: {display: 'none'}
             }}
         />
-
+        <Tabs.Screen 
+            name='camera' 
+            options={{
+                href: null,
+                tabBarStyle: {display: 'none'}
+            }}
+        />
         <Tabs.Screen 
             name='profile' 
             options={{
