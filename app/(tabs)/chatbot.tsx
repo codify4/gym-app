@@ -1,7 +1,9 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { CirclePlus, GalleryVerticalEnd, Stars, Camera } from "lucide-react-native"
+import { router } from "expo-router"
+
+import { CirclePlus, GalleryVerticalEnd } from "lucide-react-native"
 import {
   View,
   SafeAreaView,
@@ -16,18 +18,19 @@ import {
   Alert,
   Text,
 } from "react-native"
-import { useChat } from "@ai-sdk/react"
-import { fetch as expoFetch } from "expo/fetch"
-import { generateAPIUrl } from "@/utils/api"
+import StartRecording from "@/components/chatbot/start-recording"
 import TypingIndicator from "@/components/chatbot/typing"
 import PromptInput from "@/components/chatbot/prompt-input"
 import MessageList from "@/components/chatbot/messages"
 import HistorySheet from "@/components/chatbot/history-sheet"
+import BotSheet from "@/components/bot-sheet"
+
+import { useChat } from "@ai-sdk/react"
+import { fetch as expoFetch } from "expo/fetch"
+import { generateAPIUrl } from "@/utils/api"
 import { useAuth } from "@/context/auth"
 import { useChatHistory } from "@/hooks/use-chat"
 import { addMessage } from "@/lib/chat-history"
-import BotSheet from "@/components/bot-sheet"
-import { router } from "expo-router"
 
 const Chatbot = () => {
   const { session } = useAuth()
@@ -211,7 +214,6 @@ const Chatbot = () => {
 
   return (
     <SafeAreaView className={`flex-1 bg-black ${Platform.OS === "ios" ? "" : "pt-5"}`}>
-      {/* History Sheet */}
       <HistorySheet
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
@@ -223,7 +225,6 @@ const Chatbot = () => {
         loading={historyLoading}
       />
 
-      {/* Main Content */}
       <Animated.View
         style={{
           flex: 1,
@@ -274,32 +275,8 @@ const Chatbot = () => {
         </KeyboardAvoidingView>
       </Animated.View>
 
-      {/* Capture Modal */}
       <BotSheet ref={captureSheetRef} snapPoints={["50%"]}>
-        <View className="flex-1 w-full">
-          <Text className="text-white font-poppins-semibold text-xl text-center mb-6">
-            Correct your form with Mate
-          </Text>
-          
-          <View className="bg-neutral-800 rounded-2xl p-6 mb-6">
-            <Text className="text-white font-poppins-semibold text-lg mb-3">
-              How to record
-            </Text>
-            <Text className="text-neutral-300 font-poppins-regular text-sm leading-6">
-              /// While recording Mate will give u voice instructions.{'\n'}
-              So use some type of headphones if u want.
-            </Text>
-          </View>
-
-          <TouchableOpacity 
-            className="bg-white py-5 rounded-full"
-            onPress={handleGoToCamera}
-          >
-            <Text className="text-black font-poppins-semibold text-center text-lg">
-              Start recording
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <StartRecording handleGoToCamera={handleGoToCamera} />
       </BotSheet>
     </SafeAreaView>
   )
