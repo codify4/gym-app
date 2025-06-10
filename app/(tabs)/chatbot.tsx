@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { CirclePlus, GalleryVerticalEnd } from "lucide-react-native"
+import { CirclePlus, GalleryVerticalEnd, Stars } from "lucide-react-native"
 import {
   View,
   SafeAreaView,
