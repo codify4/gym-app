@@ -1,16 +1,26 @@
 import { View, Text, Animated } from 'react-native'
 import React from 'react'
-import { Suggestion } from '@/constants/suggestions'
 
+interface PoseTrackerSuggestion {
+    id: string
+    text: string
+    delay: number
+}
 
-const Suggestions = ({ suggestionAnimations, suggestions }: { suggestionAnimations: any[], suggestions: Suggestion[] }) => {
+const Suggestions = ({ 
+    suggestionAnimations, 
+    suggestions 
+}: { 
+    suggestionAnimations: any[], 
+    suggestions: PoseTrackerSuggestion[] 
+}) => {
     return (
         <View className="absolute top-32 left-6 right-6 z-20">
             {suggestions.map((suggestion, index) => (
                 <Animated.View
                     key={suggestion.id}
                     style={{
-                        transform: [{ translateY: suggestionAnimations[index] }],
+                        transform: [{ translateY: suggestionAnimations[index] || new Animated.Value(-100) }],
                         marginBottom: 8,
                     }}
                 >
